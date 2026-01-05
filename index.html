@@ -3,204 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sparky Electrical Services</title>
+    <title>Sparky Electrical | Expert Wiring & Repairs</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+
         :root { 
             --main: #ffcc00; 
-            --bg: #ffffff; 
-            --text: #1a1a1a; 
-            --accent-grad: linear-gradient(145deg, #ffecd2, #fcb045);
+            --dark: #0f172a; 
+            --slate: #1e293b;
+            --light: #f8fafc;
+            --accent-grad: linear-gradient(135deg, #ffcc00 0%, #f59e0b 100%);
         }
         
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f4f4; color: var(--text); line-height: 1.6; }
-        
-        /* Hero Section */
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            margin: 0; 
+            background: var(--light); 
+            color: var(--dark); 
+            line-height: 1.6;
+            scroll-behavior: smooth;
+        }
+
+        .container { max-width: 1200px; margin: auto; padding: 0 20px; }
+
+        /* --- HERO SECTION --- */
         .hero { 
-            background: #1a1a1a; 
-            color: var(--main); 
-            padding: 60px 20px; 
+            background: var(--dark); 
+            color: white; 
+            padding: 100px 20px; 
             text-align: center; 
-            border-bottom: 5px solid var(--main);
+            position: relative;
+            overflow: hidden;
         }
 
-        .container { max-width: 1100px; margin: auto; padding: 20px; }
-
-        /* Description Section */
-        #Editorial-board {
-            background: white;
-            padding: 3rem 1rem;
-            border-radius: 20px;
-            margin: 20px 0;
-            text-align: center;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        .hero::after {
+            content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; background: var(--accent-grad);
         }
 
-        .editor-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            max-width: 350px;
-            margin: 0 auto;
+        .hero h1 { font-size: 3.5rem; margin: 0; letter-spacing: -2px; color: var(--main); }
+        .hero p { font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 20px auto; }
+        
+        .cta-hero {
+            display: inline-block; padding: 15px 35px; background: var(--main); color: var(--dark);
+            text-decoration: none; border-radius: 50px; font-weight: 800; margin-top: 20px;
+            transition: 0.3s; box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
         }
+        .cta-hero:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(255, 204, 0, 0.4); }
+
+        /* --- PROFILE SECTION --- */
+        .section-tag { text-align: center; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 10px; display: block; }
+        
+        #Editorial-board { margin: -60px auto 40px; position: relative; z-index: 10; }
 
         .profile-card-1 {
-            background: var(--accent-grad);
-            border-radius: 20px;
-            padding: 25px;
-            color: #111;
-            transition: all 0.4s ease;
-            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
-        }
-
-        .profile-card-1:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 30px rgba(255, 204, 0, 0.4);
+            background: white; border-radius: 30px; padding: 40px; text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06); max-width: 400px; margin: auto;
+            border: 1px solid rgba(0,0,0,0.05);
         }
 
         .image1 {
-            width: 150px;
-            height: 150px;
-            border-radius: 30%;
-            overflow: hidden;
-            margin: 0 auto;
-            border: 4px solid white;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            width: 130px; height: 130px; border-radius: 40px; overflow: hidden;
+            margin: 0 auto 20px; border: 5px solid var(--main);
         }
-
         .image1 img { width: 100%; height: 100%; object-fit: cover; }
-        .profile-card-1 a { color: #000; font-weight: bold; text-decoration: none; }
+        
+        .profile-card-1 h3 { margin: 10px 0; font-size: 1.5rem; }
+        .profile-info { display: flex; justify-content: center; gap: 15px; font-size: 0.9rem; color: #64748b; margin-top: 15px; }
+        .profile-info i { color: var(--main); font-size: 1.2rem; }
 
-        /* Gallery Grid */
+        /* --- GALLERY --- */
+        .gallery-header { display: flex; justify-content: space-between; align-items: flex-end; margin: 60px 0 30px; }
+        .gallery-header h2 { font-size: 2.2rem; margin: 0; letter-spacing: -1px; }
+
         .gallery { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
-            gap: 25px; 
-            margin-top: 20px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; 
         }
 
         .card { 
-            background: white; 
-            border-radius: 15px; 
-            overflow: hidden; 
-            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
-            transition: 0.3s;
+            background: white; border-radius: 24px; overflow: hidden; 
+            box-shadow: 0 10px 20px rgba(0,0,0,0.03); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #f1f5f9;
         }
         
-        .card:hover { transform: scale(1.02); }
-        .card img { width: 100%; height: 220px; object-fit: cover; background: #eee; }
-        .card-body { padding: 20px; }
-        .card-body h3 { margin: 0 0 10px 0; color: #333; }
+        .card:hover { transform: translateY(-10px); box-shadow: 0 25px 40px rgba(0,0,0,0.1); }
+        .card img { width: 100%; height: 240px; object-fit: cover; }
+        .card-body { padding: 25px; }
+        .card-body h3 { margin: 0 0 10px 0; font-size: 1.25rem; }
+        .card-body p { color: #64748b; font-size: 0.95rem; margin: 0; }
 
-        /* Contact Form */
-        form { 
-            background: #1a1a1a; 
-            color: white;
-            padding: 35px; 
-            border-radius: 20px; 
-            margin-top: 50px; 
+        /* --- CONTACT FORM --- */
+        .contact-wrapper {
+            background: var(--dark); border-radius: 40px; padding: 60px; margin: 80px 0;
+            color: white; display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; align-items: center;
         }
 
+        @media (max-width: 900px) { .contact-wrapper { grid-template-columns: 1fr; padding: 40px 20px; } }
+
+        .contact-text h2 { font-size: 2.5rem; margin: 0 0 20px; color: var(--main); }
+        .contact-text p { opacity: 0.7; font-size: 1.1rem; }
+
+        .form-box { background: var(--slate); padding: 30px; border-radius: 25px; }
         input, textarea { 
-            width: 100%; padding: 14px; margin: 10px 0; 
-            border: none; border-radius: 8px; 
-            box-sizing: border-box;
+            width: 100%; padding: 16px; margin-bottom: 15px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white;
+            font-family: inherit; font-size: 1rem; box-sizing: border-box;
         }
+        input:focus, textarea:focus { border-color: var(--main); outline: none; background: rgba(255,255,255,0.1); }
 
         button { 
-            background: var(--main); color: #000; 
-            border: none; padding: 16px; width: 100%; 
-            font-size: 1.1rem; font-weight: bold; 
-            cursor: pointer; border-radius: 8px; 
-            transition: 0.3s;
+            background: var(--main); color: var(--dark); border: none; padding: 18px; 
+            width: 100%; font-size: 1.1rem; font-weight: 800; cursor: pointer; border-radius: 12px; transition: 0.3s;
         }
+        button:hover { background: #ffda47; transform: scale(1.02); }
 
-        button:hover { background: #e6b800; transform: translateY(-2px); }
-
-        /* Footer */
-        footer { 
-            margin-top: 50px; 
-            padding: 40px 20px; 
-            text-align: center; 
-            background: #f8f9fa;
-            border-top: 1px solid #ddd; 
-        }
-
+        /* --- FOOTER --- */
+        footer { padding: 60px 20px; text-align: center; border-top: 1px solid #e2e8f0; }
+        .footer-socials { margin-top: 20px; }
         .footer-socials a {
-            font-size: 24px;
-            color: #1a1a1a;
-            margin: 0 10px;
-            text-decoration: none;
+            font-size: 28px; color: var(--dark); margin: 0 12px; transition: 0.3s;
         }
-
+        .footer-socials a:hover { color: var(--main); }
+        
         .admin-link {
-            display: inline-block;
-            margin-top: 15px;
-            text-decoration: none; 
-            color: #888; 
-            font-size: 0.8rem; 
-            border: 1px solid #ccc; 
-            padding: 5px 10px; 
-            border-radius: 4px;
+            text-decoration: none; color: #94a3b8; font-size: 0.75rem; 
+            margin-top: 40px; display: inline-block; padding: 8px 15px; 
+            border: 1px dashed #cbd5e1; border-radius: 8px;
         }
     </style>
 </head>
 <body>
 
-<div class="hero">
-    <h1>⚡ Sparky Electrical</h1>
-    <p>Professional Wiring & Repairs</p>
-</div>
+<section class="hero">
+    <div class="container">
+        <h1>⚡ Sparky Electrical</h1>
+        <p>Your trusted local electrician for high-quality residential and commercial wiring solutions in Assam.</p>
+        <a href="#contact-sec" class="cta-hero">Get Free Quote</a>
+    </div>
+</section>
 
 <div class="container">
     
     <section id="Editorial-board">
-        <h2><i class="bx bxs-edit-alt"></i> Electrician Profile</h2>
-        <div class="editor-grid">
-            <div class="profile-card-1">
-                <div class="image1">
-                    <img src="hod.png" alt="Electrician Photo" onerror="this.src='https://via.placeholder.com/150?text=Profile'">
-                </div>
-                <h3>Jitumoni Kalita</h3>
-                <p><i class="bx bxs-briefcase"></i> 5 Years of Experience</p>
-                <p><i class="bx bxs-phone"></i> <a href="tel:+919900000000">Call: 99XXXXXXXX</a></p>
+        <span class="section-tag">Meet your Expert</span>
+        <div class="profile-card-1">
+            <div class="image1">
+                <img src="hod.png" alt="Electrician Photo" onerror="this.src='https://via.placeholder.com/150?text=Profile'">
+            </div>
+            <h3>Jitumoni Kalita</h3>
+            <p style="color:var(--main); font-weight:bold; margin-bottom: 20px;">Master Electrician</p>
+            
+            <div class="profile-info">
+                <span><i class='bx bxs-check-shield'></i> Licensed</span>
+                <span><i class='bx bxs-time-five'></i> 5+ Years Exp</span>
+            </div>
+            
+            <div style="margin-top:25px;">
+                <a href="tel:+919957245963" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--dark); font-weight:bold;">
+                    <i class='bx bxs-phone-call' style="font-size:1.5rem; color:var(--main)"></i> +91 99572 45963
+                </a>
             </div>
         </div>
     </section>
 
-    <h2>Our Recent Work</h2>
+    <div class="gallery-header">
+        <div>
+            <span class="section-tag" style="text-align:left;">Portfolio</span>
+            <h2>Our Recent Work</h2>
+        </div>
+    </div>
+    
     <div id="gallery" class="gallery">Loading projects...</div>
 
-    <form id="customerForm">
-        <h2>Contact Us</h2>
-        <p>Send your address and details for a quick service visit.</p>
-        <input type="hidden" name="type" value="customer">
-        <input type="text" name="name" placeholder="Your Name" required>
-        <input type="email" name="email" placeholder="Your Email" required>
-        <textarea name="message" rows="4" placeholder="Service Address & Details" required></textarea>
-        <button type="submit" id="sendBtn">Send Message</button>
-    </form>
-    
-    <center>
-        <a href="owner.html" class="admin-link">Owner Login</a>
-    </center>
+    <section id="contact-sec" class="contact-wrapper">
+        <div class="contact-text">
+            <h2>Ready to start your project?</h2>
+            <p>Fill out the form with your service requirements and address. We'll get back to you within 24 hours to schedule a visit.</p>
+            <div style="margin-top:30px; display:grid; gap:15px;">
+                <div style="display:flex; align-items:center; gap:12px;"><i class='bx bxs-map-pin' style="color:var(--main)"></i> Guwahati, Assam</div>
+                <div style="display:flex; align-items:center; gap:12px;"><i class='bx bxs-envelope' style="color:var(--main)"></i> jitumoni2005@gmail.com</div>
+            </div>
+        </div>
+        
+        <div class="form-box">
+            <form id="customerForm">
+                <input type="hidden" name="type" value="customer">
+                <input type="text" name="name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <textarea name="message" rows="5" placeholder="What service do you need? (Wiring, Repair, Installation...)" required></textarea>
+                <button type="submit" id="sendBtn">Send Inquiry</button>
+            </form>
+        </div>
+    </section>
 </div>
 
 <footer>
-    <div class="footer-container">
-        <p>&copy; <strong>2025 Sparky Electrical | Developed by</strong> 
-        <br><strong>Jitu Moni Kalita</strong></p>
-        
-        <div class="footer-socials">
-            <a href="https://github.com/jitumonikalita230" target="_blank"><i class="bx bxl-github"></i></a>
-            <a href="mailto:jitumoni2005@gmail.com"><i class="bx bxl-gmail"></i></a>
-            <a href="https://www.linkedin.com/in/jitumoni-kalita-b14a04308" target="_blank"><i class="bx bxl-linkedin"></i></a>
-        </div>
+    <p>&copy; 2026 Sparky Electrical Services. All Rights Reserved.</p>
+    <p style="font-size: 0.9rem;">Designed with ❤️ by <strong>Jitumoni Kalita</strong></p>
+    
+    <div class="footer-socials">
+        <a href="https://github.com/jitumonikalita230" target="_blank"><i class='bx bxl-github'></i></a>
+        <a href="mailto:jitumoni2005@gmail.com"><i class='bx bxl-gmail'></i></a>
+        <a href="https://www.linkedin.com/in/jitumoni-kalita-b14a04308" target="_blank"><i class='bx bxl-linkedin'></i></a>
     </div>
+
+    <a href="owner.html" class="admin-link">Dashboard Login</a>
 </footer>
 
 <script>
-    // Replace with your actual Google Script URL
-    const URL = 'https://script.google.com/macros/s/AKfycbwD8v-RMPV7lglTylCxTHiBQrG20eJlysl3TS4I-uHdjETMnmwuLPPbuccyDAWP-kPq/exec';
+    const URL = 'https://script.google.com/macros/s/AKfycby_X-rIQc-SoB41vOA1seLNLPP3c8mfVstk35Z2ns7Ar0LFFKvKoIQrOQjqL1EFJ-bC/exec';
 
     async function loadGallery() {
         const galleryDiv = document.getElementById('gallery');
@@ -213,7 +224,7 @@
             }
             galleryDiv.innerHTML = data.reverse().map(item => `
                 <div class="card">
-                    <img src="${item.img || 'https://via.placeholder.com/300x200?text=No+Image'}">
+                    <img src="${item.img || 'https://via.placeholder.com/400x300?text=Sparky+Electrical'}" alt="Project Image">
                     <div class="card-body">
                         <h3>${item.title}</h3>
                         <p>${item.desc}</p>
@@ -237,12 +248,12 @@
                 mode: 'no-cors', 
                 body: new URLSearchParams(new FormData(e.target)) 
             });
-            alert("Message Sent Successfully!");
+            alert("Success! We have received your request.");
             e.target.reset();
         } catch (err) {
-            alert("Error sending message. Please try again.");
+            alert("Connection error. Please try again.");
         } finally {
-            btn.innerText = "Send Message";
+            btn.innerText = "Send Inquiry";
             btn.disabled = false;
         }
     };
