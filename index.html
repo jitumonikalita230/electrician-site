@@ -4,161 +4,247 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sparky Electrical Services</title>
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-        :root { --main: #ffcc00; --bg: #ffffff; --text: #1a1a1a; }
-        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f4f4; color: var(--text); }
-        .hero { background: #1a1a1a; color: var(--main); padding: 40px 20px; text-align: center; }
-        .container { max-width: 1000px; margin: auto; padding: 20px; }
-        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
-        .card img { width: 100%; height: 200px; object-fit: cover; }
-        .card-body { padding: 15px; }
-        form { background: white; padding: 25px; border-radius: 10px; margin-top: 40px; }
-        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
-        button { background: var(--main); border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
-         #Editorial-board {
-       background: linear-gradient(145deg, #e3fdfd, #ffe6fa);
-        padding: 4rem 1rem;
-        color: var(--text-dark);
-        text-align: center;
-
-      }
-
-      .editor-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        gap: 2rem;
-        max-width: 350px;
-        margin: 0 auto;
-        text-align: center;
-
-      }
-
-      .profile-card-1 {
-        background: linear-gradient(145deg, #ffecd2, #ee8866);
-        border-radius: 20px;
-        padding: 20px;
-        color: #111;
-        transition: all 0.4s ease;
-        box-shadow: 0 5px 25px rgba(0, 255, 255, 0.25);
+        :root { 
+            --main: #ffcc00; 
+            --bg: #ffffff; 
+            --text: #1a1a1a; 
+            --accent-grad: linear-gradient(145deg, #ffecd2, #fcb045);
+        }
         
-      }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f4f4; color: var(--text); line-height: 1.6; }
+        
+        /* Hero Section */
+        .hero { 
+            background: #1a1a1a; 
+            color: var(--main); 
+            padding: 60px 20px; 
+            text-align: center; 
+            border-bottom: 5px solid var(--main);
+        }
 
-      .profile-card-1:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 35px rgba(0, 255, 255, 0.5);
-      }
+        .container { max-width: 1100px; margin: auto; padding: 20px; }
 
-      .image1 {
-        width: 160px;
-        height: 180px;
-        border-radius:30%;
-        overflow: hidden;
-        margin: 0 auto ;
-        border: 3px solid rgba(198, 194, 203, 0.4);
-        box-shadow: 0 4px 15px rgba(0, 255, 255, 0.2);
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        /* Description Section */
+        #Editorial-board {
+            background: white;
+            padding: 3rem 1rem;
+            border-radius: 20px;
+            margin: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        }
 
-      }
+        .editor-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            max-width: 350px;
+            margin: 0 auto;
+        }
 
-      .image1 img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.3s ease;
-      }
+        .profile-card-1 {
+            background: var(--accent-grad);
+            border-radius: 20px;
+            padding: 25px;
+            color: #111;
+            transition: all 0.4s ease;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
 
-      .profile-card-1 h3 {
-        margin-top: 0.8rem;
-        color: #000;
-        font-size: 1.2rem;
-      }
+        .profile-card-1:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 30px rgba(255, 204, 0, 0.4);
+        }
 
-      .profile-card-1 a {
-        color: #000;
-        font-weight: 700;
-        text-decoration: none;
-      }
-      .profile-card-1 p{
-        color:#000
-      }
+        .image1 {
+            width: 150px;
+            height: 150px;
+            border-radius: 30%;
+            overflow: hidden;
+            margin: 0 auto;
+            border: 4px solid white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        .image1 img { width: 100%; height: 100%; object-fit: cover; }
+        .profile-card-1 a { color: #000; font-weight: bold; text-decoration: none; }
+
+        /* Gallery Grid */
+        .gallery { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); 
+            gap: 25px; 
+            margin-top: 20px;
+        }
+
+        .card { 
+            background: white; 
+            border-radius: 15px; 
+            overflow: hidden; 
+            box-shadow: 0 6px 12px rgba(0,0,0,0.08);
+            transition: 0.3s;
+        }
+        
+        .card:hover { transform: scale(1.02); }
+        .card img { width: 100%; height: 220px; object-fit: cover; background: #eee; }
+        .card-body { padding: 20px; }
+        .card-body h3 { margin: 0 0 10px 0; color: #333; }
+
+        /* Contact Form */
+        form { 
+            background: #1a1a1a; 
+            color: white;
+            padding: 35px; 
+            border-radius: 20px; 
+            margin-top: 50px; 
+        }
+
+        input, textarea { 
+            width: 100%; padding: 14px; margin: 10px 0; 
+            border: none; border-radius: 8px; 
+            box-sizing: border-box;
+        }
+
+        button { 
+            background: var(--main); color: #000; 
+            border: none; padding: 16px; width: 100%; 
+            font-size: 1.1rem; font-weight: bold; 
+            cursor: pointer; border-radius: 8px; 
+            transition: 0.3s;
+        }
+
+        button:hover { background: #e6b800; transform: translateY(-2px); }
+
+        /* Footer */
+        footer { 
+            margin-top: 50px; 
+            padding: 40px 20px; 
+            text-align: center; 
+            background: #f8f9fa;
+            border-top: 1px solid #ddd; 
+        }
+
+        .footer-socials a {
+            font-size: 24px;
+            color: #1a1a1a;
+            margin: 0 10px;
+            text-decoration: none;
+        }
+
+        .admin-link {
+            display: inline-block;
+            margin-top: 15px;
+            text-decoration: none; 
+            color: #888; 
+            font-size: 0.8rem; 
+            border: 1px solid #ccc; 
+            padding: 5px 10px; 
+            border-radius: 4px;
+        }
     </style>
 </head>
 <body>
-    
 
 <div class="hero">
     <h1>⚡ Sparky Electrical</h1>
     <p>Professional Wiring & Repairs</p>
 </div>
- <section id="Editorial-board">
-      <h2><i class="bx bxs-edit-alt"></i>Electrician Description</h2>
-        <div class="editor-grid">
-          <div class="profile-card-1" data-aos="zoom-in">
-          <div class="image1"><img src="hod.png" alt="Electrician " /></div>
-          <h3>xxxxx <xxxx@gmail.com></h3>
-          <p><i class="bx bxs-briefcase"></i> 5 Year of Experience</p>
-            <p> <i class="bx bxl-envalop"></i><a href="mailto:dasalisha431@gmail.com">99..................</a></p>
-         
-        
-    </section>
 
 <div class="container">
+    
+    <section id="Editorial-board">
+        <h2><i class="bx bxs-edit-alt"></i> Electrician Profile</h2>
+        <div class="editor-grid">
+            <div class="profile-card-1">
+                <div class="image1">
+                    <img src="hod.png" alt="Electrician Photo" onerror="this.src='https://via.placeholder.com/150?text=Profile'">
+                </div>
+                <h3>Jitumoni Kalita</h3>
+                <p><i class="bx bxs-briefcase"></i> 5 Years of Experience</p>
+                <p><i class="bx bxs-phone"></i> <a href="tel:+919900000000">Call: 99XXXXXXXX</a></p>
+            </div>
+        </div>
+    </section>
+
     <h2>Our Recent Work</h2>
     <div id="gallery" class="gallery">Loading projects...</div>
 
     <form id="customerForm">
         <h2>Contact Us</h2>
+        <p>Send your address and details for a quick service visit.</p>
         <input type="hidden" name="type" value="customer">
         <input type="text" name="name" placeholder="Your Name" required>
         <input type="email" name="email" placeholder="Your Email" required>
-        <textarea name="message" rows="4" placeholder="Adress" required></textarea>
-        <button type="submit">Send Message</button>
+        <textarea name="message" rows="4" placeholder="Service Address & Details" required></textarea>
+        <button type="submit" id="sendBtn">Send Message</button>
     </form>
+    
+    <center>
+        <a href="owner.html" class="admin-link">Owner Login</a>
+    </center>
 </div>
- <a href="owner.html" style="text-decoration: none; color: #888; font-size: 0.8rem; border: 1px solid #ccc; padding: 5px 10px; border-radius: 4px;">Owner Login</a>
-<footer style="margin-top: 50px; padding: 20px; text-align: center; border-top: 1px solid #ddd;">
-   
-      
 
-      <div class="footer-container">
-        <p>&copy; <strong>2025 Spectrum |👨‍💻 Developed by</strong> 
-          <br><strong>~ Jitu Moni Kalita</strong><br></p>
+<footer>
+    <div class="footer-container">
+        <p>&copy; <strong>2025 Sparky Electrical | Developed by</strong> 
+        <br><strong>Jitu Moni Kalita</strong></p>
+        
         <div class="footer-socials">
-          <a href="https://github.com/jitumonikalita230" target="_blank"
-            ><i class="bx bxl-github"></i
-          ></a>
-          <a href="mailto:jitumoni2005@gmail.com"
-            ><i class="bx bxl-gmail"></i
-          ></a>
-          <a
-            href="https://www.linkedin.com/in/jitumoni-kalita-b14a04308?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BuewoqLfZQSS8B6p9CVlZyQ%3D%3D"
-            ><i class="bx bxl-linkedin"></i
-          ></a>
+            <a href="https://github.com/jitumonikalita230" target="_blank"><i class="bx bxl-github"></i></a>
+            <a href="mailto:jitumoni2005@gmail.com"><i class="bx bxl-gmail"></i></a>
+            <a href="https://www.linkedin.com/in/jitumoni-kalita-b14a04308" target="_blank"><i class="bx bxl-linkedin"></i></a>
         </div>
-      </div>
- 
+    </div>
 </footer>
 
 <script>
-    const URL = 'https://script.google.com/macros/s/AKfycbxDRbKhrh1vhIjgBH1QDhNav7tHRaO-Ih_VQ0BuJ-4tZoUESfZfq6qJvQSkqgz6pixW/exec';
+    // Replace with your actual Google Script URL
+    const URL = 'https://script.google.com/macros/s/AKfycbwD8v-RMPV7lglTylCxTHiBQrG20eJlysl3TS4I-uHdjETMnmwuLPPbuccyDAWP-kPq/exec';
 
     async function loadGallery() {
-        const res = await fetch(URL);
-        const data = await res.json();
-        document.getElementById('gallery').innerHTML = data.reverse().map(item => `
-            <div class="card">
-                <img src="${item.img || ''}">
-                <div class="card-body"><h3>${item.title}</h3><p>${item.desc}</p></div>
-            </div>
-        `).join('');
+        const galleryDiv = document.getElementById('gallery');
+        try {
+            const res = await fetch(URL);
+            const data = await res.json();
+            if(data.length === 0) {
+                galleryDiv.innerHTML = "<p>No projects uploaded yet.</p>";
+                return;
+            }
+            galleryDiv.innerHTML = data.reverse().map(item => `
+                <div class="card">
+                    <img src="${item.img || 'https://via.placeholder.com/300x200?text=No+Image'}">
+                    <div class="card-body">
+                        <h3>${item.title}</h3>
+                        <p>${item.desc}</p>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) {
+            galleryDiv.innerHTML = "<p>Unable to load projects right now.</p>";
+        }
     }
 
     document.getElementById('customerForm').onsubmit = async (e) => {
         e.preventDefault();
-        await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)) });
-        alert("Message Sent!");
-        e.target.reset();
+        const btn = document.getElementById('sendBtn');
+        btn.innerText = "Sending...";
+        btn.disabled = true;
+
+        try {
+            await fetch(URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: new URLSearchParams(new FormData(e.target)) 
+            });
+            alert("Message Sent Successfully!");
+            e.target.reset();
+        } catch (err) {
+            alert("Error sending message. Please try again.");
+        } finally {
+            btn.innerText = "Send Message";
+            btn.disabled = false;
+        }
     };
 
     loadGallery();
