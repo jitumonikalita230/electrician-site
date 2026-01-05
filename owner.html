@@ -14,13 +14,14 @@
         .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; border-radius: 5px; font-weight: bold; }
         .tab-btn.active { background: var(--blue); color: white; }
 
-        /* Table Style for Active Sheet */
+        /* Table Style */
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
         th { background: #f8f9fa; color: #666; }
         
-        .list-img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
-        .btn-del { background: var(--red); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+        .list-img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; background: #eee; }
+        .btn-del { background: var(--red); color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .btn-del:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -51,7 +52,7 @@
             <textarea name="description" placeholder="Short description" style="padding:10px;"></textarea>
             <input type="file" id="imgInp" accept="image/jpeg">
             <input type="hidden" name="imageUrl" id="b64">
-            <button type="submit" style="background:var(--green); color:white; padding:12px; border:none; border-radius:5px; cursor:pointer;">Upload Project</button>
+            <button type="submit" id="submitBtn" style="background:var(--green); color:white; padding:12px; border:none; border-radius:5px; cursor:pointer;">Upload Project</button>
         </form>
 
         <h3>Active Gallery List</h3>
@@ -71,14 +72,14 @@
 </div>
 
 <script>
-    const URL = 'https://script.google.com/macros/s/AKfycbxlLyeQrw07SQh-y8y89UvN8udjoVElP6sV281tok9BaUtHS8p2D2uIU1dtEObTMALZ/exec';
+    const URL = 'https://script.google.com/macros/s/AKfycbwD8v-RMPV7lglTylCxTHiBQrG20eJlysl3TS4I-uHdjETMnmwuLPPbuccyDAWP-kPq/exec';
 
     function login() {
         if(document.getElementById('user').value === "admin" && document.getElementById('pass').value === "sparky123") {
             document.getElementById('loginBox').classList.add('hidden');
             document.getElementById('dashboard').classList.remove('hidden');
             loadProjects();
-        } else { alert("Invalid!"); }
+        } else { alert("Invalid Credentials!"); }
     }
 
     function switchTab(tab) {
@@ -87,9 +88,10 @@
         document.getElementById('tab-manage').classList.toggle('hidden', tab !== 'manage');
         document.getElementById('tab-messages').classList.toggle('hidden', tab !== 'messages');
         if(tab === 'messages') loadMessages();
+        if(tab === 'manage') loadProjects();
     }
 
-    // Handle Image Compression
+    // IMAGE COMPRESSION
     document.getElementById('imgInp').onchange = e => {
         const reader = new FileReader();
         reader.onload = ev => {
@@ -105,24 +107,44 @@
         reader.readAsDataURL(e.target.files[0]);
     };
 
-    // Load Projects (Tab 1)
+    // --- CRITICAL FUNCTIONS ---
+
     async function loadProjects() {
-        const res = await fetch(URL);
-        const data = await res.json();
-        document.getElementById('projectListBody').innerHTML = data.map(item => `
-            <tr>
-                <td><img src="${item.img}" class="list-img"></td>
-                <td>${item.title}</td>
-                <td><button class="btn-del" onclick="deleteItem(${item.index})">Delete</button></td>
-            </tr>
-        `).join('');
+        const tbody = document.getElementById('projectListBody');
+        tbody.innerHTML = "<tr><td colspan='3'>Loading Projects...</td></tr>";
+        try {
+            const res = await fetch(URL);
+            const data = await res.json();
+            tbody.innerHTML = data.map(item => `
+                <tr>
+                    <td><img src="${item.img || ''}" class="list-img"></td>
+                    <td>${item.title}</td>
+                    <td><button class="btn-del" onclick="deleteItem(${item.index})">Delete</button></td>
+                </tr>
+            `).join('');
+        } catch(e) { tbody.innerHTML = "Error loading projects."; }
     }
 
-    // Load Messages from Active Sheet (Tab 2)
+    async function deleteItem(idx) {
+        if(!confirm("Delete this project from your website?")) return;
+        
+        const params = new URLSearchParams();
+        params.append('type', 'delete');
+        params.append('rowIndex', idx);
+
+        await fetch(URL, { method: 'POST', mode: 'no-cors', body: params });
+        alert("Deleted! Refreshing...");
+        
+        // Wait 2 seconds for Google to update before reloading list
+        setTimeout(loadProjects, 2000);
+    }
+
     async function loadMessages() {
+        const tbody = document.getElementById('messageListBody');
+        tbody.innerHTML = "<tr><td colspan='4'>Loading Messages...</td></tr>";
         const res = await fetch(URL + '?mode=messages');
         const data = await res.json();
-        document.getElementById('messageListBody').innerHTML = data.reverse().map(m => `
+        tbody.innerHTML = data.reverse().map(m => `
             <tr>
                 <td style="font-size:11px">${new Date(m.date).toLocaleDateString()}</td>
                 <td><b>${m.name}</b></td>
@@ -132,17 +154,15 @@
         `).join('');
     }
 
-    async function deleteItem(idx) {
-        if(!confirm("Delete this?")) return;
-        await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'delete', rowIndex:idx}) });
-        loadProjects();
-    }
-
     document.getElementById('adminForm').onsubmit = async e => {
         e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.innerText = "Uploading..."; btn.disabled = true;
+        
         await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)) });
-        alert("Published!");
+        alert("Published Successfully!");
         e.target.reset();
+        btn.innerText = "Upload Project"; btn.disabled = false;
         loadProjects();
     };
 </script>
