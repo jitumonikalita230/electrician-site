@@ -7,102 +7,39 @@
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-
-        :root { 
-            --primary: #0f172a; --accent: #fbbf24; --green: #10b981; 
-            --red: #ef4444; --blue: #3b82f6; --bg: #f1f5f9;
-            --sidebar-width: 260px;
-        }
-
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; color: #1e293b;
-            display: flex; min-height: 100vh;
-        }
-
+        :root { --primary: #0f172a; --accent: #fbbf24; --green: #10b981; --red: #ef4444; --blue: #3b82f6; --bg: #f1f5f9; --sidebar-width: 260px; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: var(--bg); margin: 0; color: #1e293b; display: flex; min-height: 100vh; }
         .hidden { display: none !important; }
-
-        /* --- LOGIN SCREEN --- */
-        #loginBox {
-            position: fixed; inset: 0; z-index: 2000;
-            background: radial-gradient(circle at top left, #1e293b, #0f172a);
-            display: flex; align-items: center; justify-content: center; padding: 20px;
-        }
-        .login-card {
-            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px);
-            padding: 40px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1);
-            width: 100%; max-width: 360px; text-align: center; color: white;
-        }
-        .login-card input {
-            background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-            color: white; margin: 20px 0; text-align: center; font-size: 1.1rem;
-        }
-
-        /* --- SIDEBAR --- */
-        .sidebar {
-            width: var(--sidebar-width); background: var(--primary); height: 100vh;
-            position: fixed; color: white; padding: 30px 20px; box-sizing: border-box;
-            display: flex; flex-direction: column; z-index: 1000;
-        }
+        #loginBox { position: fixed; inset: 0; z-index: 2000; background: radial-gradient(circle at top left, #1e293b, #0f172a); display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .login-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); padding: 40px; border-radius: 24px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 360px; text-align: center; color: white; }
+        .login-card input { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; margin: 20px 0; text-align: center; font-size: 1.1rem; width: 100%; padding: 12px; border-radius: 12px; }
+        .sidebar { width: var(--sidebar-width); background: var(--primary); height: 100vh; position: fixed; color: white; padding: 30px 20px; box-sizing: border-box; display: flex; flex-direction: column; z-index: 1000; }
         .sidebar h2 { color: var(--accent); font-size: 1.5rem; margin-bottom: 40px; display: flex; align-items: center; gap: 10px; }
         .nav-links { flex-grow: 1; display: flex; flex-direction: column; gap: 8px; }
-        .nav-item {
-            padding: 14px 18px; border-radius: 12px; cursor: pointer;
-            display: flex; align-items: center; gap: 12px; font-weight: 600;
-            transition: 0.3s; color: #94a3b8;
-        }
+        .nav-item { padding: 14px 18px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; gap: 12px; font-weight: 600; transition: 0.3s; color: #94a3b8; }
         .nav-item:hover { background: rgba(255,255,255,0.05); color: white; }
         .nav-item.active { background: var(--accent); color: var(--primary); }
         .logout-btn { color: var(--red); margin-top: auto; border: 1px solid rgba(239, 68, 68, 0.2); }
-
-        /* --- MAIN CONTENT --- */
-        .main-content {
-            margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width));
-            padding: 40px; box-sizing: border-box; transition: 0.3s;
-        }
-
-        .stats-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px; margin-bottom: 30px;
-        }
+        .main-content { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width)); padding: 40px; box-sizing: border-box; transition: 0.3s; }
+        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px; }
         .stat-card { background: white; padding: 25px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); display: flex; align-items: center; gap: 20px; }
         .stat-icon { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-
-        /* --- CONTENT CARDS & TABLES --- */
         .content-card { background: white; border-radius: 24px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.04); margin-bottom: 30px; }
         .table-container { overflow-x: auto; margin-top: 20px; }
         table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th { text-align: left; padding: 16px; border-bottom: 2px solid #f1f5f9; color: #64748b; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; }
+        th { text-align: left; padding: 16px; border-bottom: 2px solid #f1f5f9; color: #64748b; font-size: 0.8rem; text-transform: uppercase; }
         td { padding: 16px; border-bottom: 1px solid #f1f5f9; }
         .list-img { width: 48px; height: 48px; border-radius: 12px; object-fit: cover; }
-
-        /* --- FORMS & BUTTONS --- */
-        input, textarea {
-            width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #e2e8f0;
-            background: #f8fafc; font-family: inherit; font-size: 0.95rem; box-sizing: border-box;
-        }
-        .btn {
-            padding: 12px 20px; border-radius: 12px; border: none; font-weight: 700;
-            cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: 0.2s;
-        }
+        .btn { padding: 10px 16px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; }
         .btn-green { background: var(--green); color: white; }
         .btn-red { background: #fee2e2; color: var(--red); }
-        .btn-red:hover { background: var(--red); color: white; }
+        input, textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid #e2e8f0; background: #f8fafc; margin-bottom: 10px; }
 
-        /* --- MOBILE ADAPTATION --- */
         @media (max-width: 992px) {
-            body { flex-direction: column; }
-            .sidebar {
-                width: 100%; height: 70px; bottom: 0; top: auto;
-                flex-direction: row; padding: 0 10px; border-top: 1px solid rgba(255,255,255,0.1);
-            }
-            .sidebar h2, .logout-btn span { display: none; }
-            .nav-links { flex-direction: row; width: 100%; justify-content: space-around; margin: 0; align-items: center; }
-            .nav-item { flex-direction: column; gap: 4px; padding: 8px; font-size: 10px; flex: 1; justify-content: center; }
-            .nav-item i { font-size: 20px; }
-            .logout-btn { border: none; margin: 0; }
-            .main-content { margin-left: 0; width: 100%; padding: 20px 20px 100px; }
-            .stats-grid { grid-template-columns: 1fr; }
-            #adminForm { grid-template-columns: 1fr !important; }
+            .sidebar { width: 100%; height: 70px; bottom: 0; top: auto; flex-direction: row; padding: 0 10px; }
+            .sidebar h2 { display: none; }
+            .nav-links { flex-direction: row; justify-content: space-around; }
+            .main-content { margin-left: 0; padding-bottom: 100px; }
         }
     </style>
 </head>
@@ -111,88 +48,63 @@
 <div id="loginBox">
     <div class="login-card">
         <i class='bx bxs-bolt' style="font-size: 4rem; color: var(--accent);"></i>
-        <h2 style="margin: 10px 0;">Sparky Admin</h2>
-        <p style="opacity: 0.7; font-size: 0.9rem;">Authorized Personnel Only</p>
-        <input type="password" id="pass" placeholder="••••••••">
-        <button onclick="login()" class="btn btn-green" style="width: 100%; justify-content: center; padding: 16px;">Access Dashboard</button>
+        <h2>Sparky Admin</h2>
+        <input type="password" id="pass" placeholder="Password">
+        <button onclick="login()" class="btn btn-green" style="width:100%; justify-content:center">Access Dashboard</button>
     </div>
 </div>
 
-<div id="dashboard" class="hidden" style="display: contents;">
+<div id="dashboard" class="hidden">
     <aside class="sidebar">
         <h2><i class='bx bxs-bolt'></i> <span>SPARKY</span></h2>
         <div class="nav-links">
-            <div class="nav-item active" id="btnM" onclick="switchTab('manage')">
-                <i class='bx bx-layer'></i> <span>Projects</span>
-            </div>
-            <div class="nav-item" id="btnC" onclick="switchTab('messages')">
-                <i class='bx bx-chat'></i> <span>Leads</span>
-            </div>
-            <div class="nav-item logout-btn" onclick="localStorage.clear(); location.reload();">
-                <i class='bx bx-power-off'></i> <span>Logout</span>
-            </div>
+            <div class="nav-item active" id="btnM" onclick="switchTab('manage')"><i class='bx bx-layer'></i><span>Projects</span></div>
+            <div class="nav-item" id="btnC" onclick="switchTab('messages')"><i class='bx bx-chat'></i><span>Leads</span></div>
+            <div class="nav-item logout-btn" onclick="localStorage.clear(); location.reload();"><i class='bx bx-power-off'></i><span>Logout</span></div>
         </div>
     </aside>
 
     <main class="main-content">
-        <header style="margin-bottom: 40px;">
-            <h1 id="page-title" style="margin: 0; font-size: 2rem;">Project Management</h1>
-            <p style="color: #64748b; margin-top: 5px;">Control center for Sparky Electrical services.</p>
+        <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+            <h1 id="page-title">Project Management</h1>
+            <button onclick="refreshData()" class="btn btn-blue" style="background: var(--blue); color: white;"><i class='bx bx-refresh'></i> Sync</button>
         </header>
 
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-icon" style="background: #e0f2fe; color: var(--blue);"><i class='bx bx-briefcase-alt-2'></i></div>
-                <div><h3 id="stat-proj" style="margin:0; font-size:1.5rem">0</h3><p style="margin:0; font-size:0.8rem; color:#64748b; font-weight:600;">ACTIVE PROJECTS</p></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: #fff7ed; color: var(--accent);"><i class='bx bx-envelope-open'></i></div>
-                <div><h3 id="stat-pending" style="margin:0; font-size:1.5rem">0</h3><p style="margin:0; font-size:0.8rem; color:#64748b; font-weight:600;">PENDING LEADS</p></div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-icon" style="background: #f0fdf4; color: var(--green);"><i class='bx bx-user-voice'></i></div>
-                <div><h3 id="stat-total" style="margin:0; font-size:1.5rem">0</h3><p style="margin:0; font-size:0.8rem; color:#64748b; font-weight:600;">TOTAL INQUIRIES</p></div>
-            </div>
+            <div class="stat-card"><div class="stat-icon" style="background:#e0f2fe;color:var(--blue)"><i class='bx bx-briefcase'></i></div>
+                <div><h3 id="stat-proj">0</h3><p>PROJECTS</p></div></div>
+            <div class="stat-card"><div class="stat-icon" style="background:#fff7ed;color:var(--accent)"><i class='bx bx-time'></i></div>
+                <div><h3 id="stat-pending">0</h3><p>PENDING</p></div></div>
+            <div class="stat-card"><div class="stat-icon" style="background:#f0fdf4;color:var(--green)"><i class='bx bx-group'></i></div>
+                <div><h3 id="stat-total">0</h3><p>TOTAL LEADS</p></div></div>
         </div>
 
         <div id="sec-manage" class="content-card">
-            <h3 style="margin-top:0; margin-bottom: 25px;">Post New Project</h3>
-            <form id="adminForm" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <h3>Post New Project</h3>
+            <form id="adminForm">
                 <input type="hidden" name="type" value="admin">
-                <div class="form-group">
-                    <label style="display:block; margin-bottom:8px; font-weight:600; font-size:0.85rem">Project Title</label>
-                    <input type="text" name="jobTitle" placeholder="e.g. House Rewiring" required>
-                </div>
-                <div class="form-group">
-                    <label style="display:block; margin-bottom:8px; font-weight:600; font-size:0.85rem">Project Photo</label>
-                    <input type="file" id="imgInp" accept="image/*" required style="padding: 10px;">
-                </div>
-                <div class="form-group" style="grid-column: span 2;">
-                    <label style="display:block; margin-bottom:8px; font-weight:600; font-size:0.85rem">Short Description</label>
-                    <textarea name="description" rows="3" placeholder="Briefly describe the work done..."></textarea>
-                </div>
+                <input type="text" name="jobTitle" placeholder="Project Title" required>
+                <input type="file" id="imgInp" accept="image/*" required>
+                <textarea name="description" placeholder="Short Description"></textarea>
                 <input type="hidden" name="imageUrl" id="b64">
-                <button type="submit" id="subBtn" class="btn btn-green" style="grid-column: span 2; justify-content:center; padding:16px;">
-                    <i class='bx bx-cloud-upload'></i> Publish to Website
-                </button>
+                <button type="submit" id="subBtn" class="btn btn-green">Publish Project</button>
             </form>
-
             <div class="table-container">
                 <table>
-                    <thead><tr><th>Preview</th><th>Project Name</th><th style="text-align:right">Action</th></tr></thead>
+                    <thead><tr><th>Preview</th><th>Name</th><th style="text-align:right">Action</th></tr></thead>
                     <tbody id="projectListBody"></tbody>
                 </table>
             </div>
         </div>
 
         <div id="sec-messages" class="content-card hidden">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                <h3 style="margin:0">Recent Inquiries</h3>
-                <input type="text" id="leadSearch" placeholder="Filter by name..." onkeyup="filterLeads()" style="max-width:250px;">
+            <div style="display:flex; justify-content:space-between; align-items:center">
+                <h3>Customer Leads</h3>
+                <input type="text" id="leadSearch" placeholder="Search leads..." onkeyup="filterLeads()" style="max-width:200px">
             </div>
             <div class="table-container">
                 <table>
-                    <thead><tr><th>Received</th><th>Customer Info</th><th>Requirement</th><th style="text-align:right">Status</th></tr></thead>
+                    <thead><tr><th>Date</th><th>Customer</th><th>Message</th><th style="text-align:right">Action</th></tr></thead>
                     <tbody id="messageListBody"></tbody>
                 </table>
             </div>
@@ -201,114 +113,132 @@
 </div>
 
 <script>
-    // Configuration
-    const URL = 'https://script.google.com/macros/s/AKfycby_X-rIQc-SoB41vOA1seLNLPP3c8mfVstk35Z2ns7Ar0LFFKvKoIQrOQjqL1EFJ-bC/exec';
-    let allLeads = [];
+const URL = 'https://script.google.com/macros/s/AKfycbwM_n-X0Ky4-lNG5YzcjUI6mPFp6BM30owboTtQxOZTPO7-TQwueHgLhGPqFhDcDQuv/exec'; // REPLACE WITH YOUR NEW URL
+let allLeads = [];
+let activeTab = 'manage';
 
-    function login() {
-        if(document.getElementById('pass').value === "sparky123") {
-            localStorage.setItem('sparkyAuth', 'true');
-            loadDashboard();
-        } else { alert("Invalid Credentials"); }
-    }
+function login() {
+    if(document.getElementById('pass').value === "sparky123") {
+        localStorage.setItem('sparkyAuth', 'true');
+        loadDashboard();
+    } else { alert("Wrong password"); }
+}
 
-    function loadDashboard() {
-        document.getElementById('loginBox').classList.add('hidden');
-        document.getElementById('dashboard').classList.remove('hidden');
-        loadProjects();
-    }
+function loadDashboard() {
+    document.getElementById('loginBox').classList.add('hidden');
+    document.getElementById('dashboard').classList.remove('hidden');
+    refreshData();
+}
+if(localStorage.getItem('sparkyAuth')) loadDashboard();
 
-    if(localStorage.getItem('sparkyAuth')) loadDashboard();
+function switchTab(t) {
+    activeTab = t;
+    document.getElementById('sec-manage').classList.toggle('hidden', t !== 'manage');
+    document.getElementById('sec-messages').classList.toggle('hidden', t !== 'messages');
+    document.getElementById('btnM').classList.toggle('active', t === 'manage');
+    document.getElementById('btnC').classList.toggle('active', t === 'messages');
+    refreshData();
+}
 
-    function switchTab(t) {
-        document.getElementById('sec-manage').classList.toggle('hidden', t !== 'manage');
-        document.getElementById('sec-messages').classList.toggle('hidden', t !== 'messages');
-        document.getElementById('btnM').classList.toggle('active', t === 'manage');
-        document.getElementById('btnC').classList.toggle('active', t === 'messages');
-        document.getElementById('page-title').innerText = t === 'manage' ? 'Project Management' : 'Customer Leads';
-        if(t === 'messages') loadMessages();
-    }
+function refreshData() {
+    if(activeTab === 'manage') loadProjects();
+    else loadMessages();
+}
 
-    // Image Processing
-    document.getElementById('imgInp').onchange = e => {
-        const reader = new FileReader();
-        reader.onload = ev => {
-            const img = new Image();
-            img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const MAX_WIDTH = 800;
-                canvas.width = MAX_WIDTH;
-                canvas.height = (img.height/img.width) * MAX_WIDTH;
-                canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
-                document.getElementById('b64').value = canvas.toDataURL('image/jpeg', 0.8);
-            };
-            img.src = ev.target.result;
+// Image to Base64
+document.getElementById('imgInp').onchange = e => {
+    const reader = new FileReader();
+    reader.onload = ev => {
+        const img = new Image();
+        img.onload = () => {
+            const canvas = document.createElement('canvas');
+            canvas.width = 800;
+            canvas.height = (img.height/img.width) * 800;
+            canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+            document.getElementById('b64').value = canvas.toDataURL('image/jpeg', 0.7);
         };
-        reader.readAsDataURL(e.target.files[0]);
+        img.src = ev.target.result;
     };
+    reader.readAsDataURL(e.target.files[0]);
+};
 
-    async function loadProjects() {
-        try {
-            const res = await fetch(URL);
-            const data = await res.json();
-            document.getElementById('stat-proj').innerText = data.length;
-            document.getElementById('projectListBody').innerHTML = data.map(p => `
-                <tr>
-                    <td><img src="${p.img}" class="list-img"></td>
-                    <td><strong>${p.title}</strong></td>
-                    <td style="text-align:right">
-                        <button onclick="deleteProject(${p.index})" class="btn btn-red"><i class='bx bx-trash'></i></button>
-                    </td>
-                </tr>
-            `).join('');
-        } catch(e) { console.error("Load failed"); }
-    }
+async function loadProjects() {
+    try {
+        const res = await fetch(URL);
+        const data = await res.json();
+        document.getElementById('stat-proj').innerText = data.length;
+        document.getElementById('projectListBody').innerHTML = data.map(p => `
+            <tr>
+                <td><img src="${p.img}" class="list-img"></td>
+                <td><strong>${p.title}</strong></td>
+                <td style="text-align:right"><button onclick="deleteProject(this, ${p.index})" class="btn btn-red"><i class='bx bx-trash'></i></button></td>
+            </tr>
+        `).join('');
+    } catch(e) { console.log(e) }
+}
 
-    async function loadMessages() {
+async function loadMessages() {
+    try {
         const res = await fetch(URL + '?mode=messages');
         allLeads = await res.json();
         document.getElementById('stat-total').innerText = allLeads.length;
         document.getElementById('stat-pending').innerText = allLeads.filter(l => l.status !== 'COMPLETED').length;
         renderLeads(allLeads);
-    }
+    } catch(e) { console.log(e) }
+}
 
-    function renderLeads(data) {
-        document.getElementById('messageListBody').innerHTML = data.reverse().map(m => `
-            <tr style="${m.status === 'COMPLETED' ? 'opacity:0.6' : ''}">
-                <td><span style="font-size:0.8rem; color:#64748b">${new Date(m.date).toLocaleDateString()}</span></td>
-                <td><strong>${m.name}</strong><br><small>${m.email}</small></td>
-                <td><p style="font-size:0.9rem; margin:0; max-width:300px; white-space:normal">${m.message}</p></td>
-                <td style="text-align:right">
-                    <div style="display:flex; gap:8px; justify-content:flex-end">
-                        ${m.status === 'COMPLETED' ? 
-                            `<span style="color:var(--green); font-weight:700">Done</span>` : 
-                            `<button onclick="markDone(${m.index})" class="btn btn-green"><i class='bx bx-check'></i></button>`
-                        }
-                        <button onclick="deleteMessage(${m.index})" class="btn btn-red"><i class='bx bx-trash'></i></button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
-    }
+function renderLeads(data) {
+    document.getElementById('messageListBody').innerHTML = data.slice().reverse().map(m => `
+        <tr style="${m.status === 'COMPLETED' ? 'opacity:0.4' : ''}">
+            <td>${new Date(m.date).toLocaleDateString()}</td>
+            <td><strong>${m.name}</strong><br><small>${m.email}</small></td>
+            <td>${m.message}</td>
+            <td style="text-align:right">
+                <div style="display:flex; gap:5px; justify-content:flex-end">
+                    ${m.status !== 'COMPLETED' ? `<button onclick="markDone(this, ${m.index})" class="btn btn-green"><i class='bx bx-check'></i></button>` : '<i class="bx bx-check-double" style="color:var(--green); font-size:1.5rem"></i>'}
+                    <button onclick="deleteLead(this, ${m.index})" class="btn btn-red"><i class='bx bx-trash'></i></button>
+                </div>
+            </td>
+        </tr>
+    `).join('');
+}
 
-    function filterLeads() {
-        const term = document.getElementById('leadSearch').value.toLowerCase();
-        renderLeads(allLeads.filter(l => l.name.toLowerCase().includes(term)));
-    }
+// --- OPTIMISTIC UPDATES (Fixes the "not updating" issue) ---
 
-    async function deleteProject(idx) {
-        if(!confirm("Remove project?")) return;
-        await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'delete', rowIndex:idx}) });
-        loadProjects();
-    }
+async function markDone(btn, idx) {
+    btn.closest('tr').style.opacity = "0.3"; // Visual feedback
+    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'markDone', rowIndex:idx}) });
+    setTimeout(refreshData, 2000); 
+}
 
-    document.getElementById('adminForm').onsubmit = async e => {
-        e.preventDefault();
-        const b = document.getElementById('subBtn');
-        b.innerText = "Processing..."; b.disabled = true;
-        await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)) });
-        location.reload();
-    };
+async function deleteLead(btn, idx) {
+    if(!confirm("Delete lead?")) return;
+    btn.closest('tr').style.display = "none"; // Hide instantly
+    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'deleteMessage', rowIndex:idx}) });
+    setTimeout(refreshData, 2000);
+}
+
+async function deleteProject(btn, idx) {
+    if(!confirm("Delete project?")) return;
+    btn.closest('tr').style.display = "none"; // Hide instantly
+    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'delete', rowIndex:idx}) });
+    setTimeout(refreshData, 2000);
+}
+
+document.getElementById('adminForm').onsubmit = async e => {
+    e.preventDefault();
+    const btn = document.getElementById('subBtn');
+    btn.innerText = "Uploading...";
+    btn.disabled = true;
+    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)) });
+    alert("Project Added!");
+    location.reload();
+};
+
+function filterLeads() {
+    const term = document.getElementById('leadSearch').value.toLowerCase();
+    renderLeads(allLeads.filter(l => l.name.toLowerCase().includes(term) || l.message.toLowerCase().includes(term)));
+}
 </script>
 </body>
 </html>
