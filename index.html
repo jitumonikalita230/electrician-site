@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sparky Electrical Services</title>
+    <style>
+        :root { --main: #ffcc00; --bg: #ffffff; --text: #1a1a1a; }
+        body { font-family: 'Segoe UI', sans-serif; margin: 0; background: #f4f4f4; color: var(--text); }
+        .hero { background: #1a1a1a; color: var(--main); padding: 40px 20px; text-align: center; }
+        .container { max-width: 1000px; margin: auto; padding: 20px; }
+        .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .card img { width: 100%; height: 200px; object-fit: cover; }
+        .card-body { padding: 15px; }
+        form { background: white; padding: 25px; border-radius: 10px; margin-top: 40px; }
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+        button { background: var(--main); border: none; padding: 15px; width: 100%; font-weight: bold; cursor: pointer; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+<div class="hero">
+    <h1>⚡ Sparky Electrical</h1>
+    <p>Professional Wiring & Repairs</p>
+</div>
+
+<div class="container">
+    <h2>Our Recent Work</h2>
+    <div id="gallery" class="gallery">Loading projects...</div>
+
+    <form id="customerForm">
+        <h2>Contact Us</h2>
+        <input type="hidden" name="type" value="customer">
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="email" name="email" placeholder="Your Email" required>
+        <textarea name="message" rows="4" placeholder="How can we help?" required></textarea>
+        <button type="submit">Send Message</button>
+    </form>
+</div>
+
+<script>
+    const URL = 'https://script.google.com/macros/s/AKfycbxDRbKhrh1vhIjgBH1QDhNav7tHRaO-Ih_VQ0BuJ-4tZoUESfZfq6qJvQSkqgz6pixW/exec';
+
+    async function loadGallery() {
+        const res = await fetch(URL);
+        const data = await res.json();
+        document.getElementById('gallery').innerHTML = data.reverse().map(item => `
+            <div class="card">
+                <img src="${item.img || ''}">
+                <div class="card-body"><h3>${item.title}</h3><p>${item.desc}</p></div>
+            </div>
+        `).join('');
+    }
+
+    document.getElementById('customerForm').onsubmit = async (e) => {
+        e.preventDefault();
+        await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)) });
+        alert("Message Sent!");
+        e.target.reset();
+    };
+
+    loadGallery();
+</script>
+</body>
+</html>

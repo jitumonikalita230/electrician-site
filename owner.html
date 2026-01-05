@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Owner Dashboard | Live Data</title>
+    <style>
+        :root { --dark: #2c3e50; --green: #27ae60; --red: #e74c3c; --blue: #3498db; }
+        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; display: flex; justify-content: center; }
+        .container { width: 95%; max-width: 1000px; margin: 30px 0; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        .hidden { display: none; }
+        
+        /* Tabs */
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .tab-btn { padding: 10px 20px; border: none; background: #ddd; cursor: pointer; border-radius: 5px; font-weight: bold; }
+        .tab-btn.active { background: var(--blue); color: white; }
+
+        /* Table Style for Active Sheet */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #eee; }
+        th { background: #f8f9fa; color: #666; }
+        
+        .list-img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; }
+        .btn-del { background: var(--red); color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<div id="loginBox" class="container" style="max-width: 400px; margin-top: 100px;">
+    <h2>🔐 Owner Login</h2>
+    <input type="text" id="user" placeholder="Username" style="width:100%; padding:10px; margin:10px 0;">
+    <input type="password" id="pass" placeholder="Password" style="width:100%; padding:10px; margin:10px 0;">
+    <button onclick="login()" style="width:100%; background:var(--blue); color:white; padding:12px; border:none; border-radius:5px; cursor:pointer;">Login</button>
+</div>
+
+<div id="dashboard" class="container hidden">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h2>Electrician Dashboard</h2>
+        <button onclick="location.reload()" style="background:#666; color:white; border:none; padding:5px 15px; border-radius:5px; cursor:pointer;">Logout</button>
+    </div>
+
+    <div class="tabs">
+        <button class="tab-btn active" onclick="switchTab('manage')">Manage Projects</button>
+        <button class="tab-btn" onclick="switchTab('messages')">Customer Messages</button>
+    </div>
+
+    <div id="tab-manage">
+        <h3>Upload New Job</h3>
+        <form id="adminForm" style="display:grid; gap:10px; background:#f8f9fa; padding:15px; border-radius:10px;">
+            <input type="hidden" name="type" value="admin">
+            <input type="text" name="jobTitle" placeholder="Project Name" required style="padding:10px;">
+            <textarea name="description" placeholder="Short description" style="padding:10px;"></textarea>
+            <input type="file" id="imgInp" accept="image/jpeg">
+            <input type="hidden" name="imageUrl" id="b64">
+            <button type="submit" style="background:var(--green); color:white; padding:12px; border:none; border-radius:5px; cursor:pointer;">Upload Project</button>
+        </form>
+
+        <h3>Active Gallery List</h3>
+        <table id="projectTable">
+            <thead><tr><th>Image</th><th>Title</th><th>Action</th></tr></thead>
+            <tbody id="projectListBody"></tbody>
+        </table>
+    </div>
+
+    <div id="tab-messages" class="hidden">
+        <h3>Active Inquiries from Sheet</h3>
+        <table>
+            <thead><tr><th>Date</th><th>Customer</th><th>Email</th><th>Message</th></tr></thead>
+            <tbody id="messageListBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    const URL = 'https://script.google.com/macros/s/AKfycbxlLyeQrw07SQh-y8y89UvN8udjoVElP6sV281tok9BaUtHS8p2D2uIU1dtEObTMALZ/exec';
+
+    function login() {
+        if(document.getElementById('user').value === "admin" && document.getElementById('pass').value === "sparky123") {
+            document.getElementById('loginBox').classList.add('hidden');
+            document.getElementById('dashboard').classList.remove('hidden');
+            loadProjects();
+        } else { alert("Invalid!"); }
+    }
+
+    function switchTab(tab) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+        document.getElementById('tab-manage').classList.toggle('hidden', tab !== 'manage');
+        document.getElementById('tab-messages').classList.toggle('hidden', tab !== 'messages');
+        if(tab === 'messages') loadMessages();
+    }
+
+    // Handle Image Compression
+    document.getElementById('imgInp').onchange = e => {
+        const reader = new FileReader();
+        reader.onload = ev => {
+            const img = new Image();
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 400; canvas.height = (img.height/img.width)*400;
+                canvas.getContext('2d').drawImage(img,0,0,canvas.width,canvas.height);
+                document.getElementById('b64').value = canvas.toDataURL('image/jpeg', 0.6);
+            };
+            img.src = ev.target.result;
+        };
+        reader.readAsDataURL(e.target.files[0]);
+    };
+
+    // Load Projects (Tab 1)
+    async function loadProjects() {
+        const res = await fetch(URL);
+        const data = await res.json();
+        document.getElementById('projectListBody').innerHTML = data.map(item => `
+            <tr>
+                <td><img src="${item.img}" class="list-img"></td>
+                <td>${item.title}</td>
+                <td><button class="btn-del" onclick="deleteItem(${item.index})">Delete</button></td>
+            </tr>
+        `).join('');
+    }
+
+    // Load Messages from Active Sheet (Tab 2)
+    async function loadMessages() {
+        const res = await fetch(URL + '?mode=messages');
+        const data = await res.json();
+        document.getElementById('messageListBody').innerHTML = data.reverse().map(m => `
+            <tr>
+                <td style="font-size:11px">${new Date(m.date).toLocaleDateString()}</td>
+                <td><b>${m.name}</b></td>
+                <td><a href="mailto:${m.email}">${m.email}</a></td>
+                <td>${m.message}</td>
+            </tr>
+        `).join('');
+    }
+
+    async function deleteItem(idx) {
+        if(!confirm("Delete this?")) return;
+        await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'delete', rowIndex:idx}) });
+        loadProjects();
+    }
+
+    document.getElementById('adminForm').onsubmit = async e => {
+        e.preventDefault();
+        await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)) });
+        alert("Published!");
+        e.target.reset();
+        loadProjects();
+    };
+</script>
+</body>
+</html>
