@@ -132,7 +132,6 @@
         }
         .btn-submit:hover { background: #ffda47; transform: translateY(-2px); }
 
-        /* --- FLOATING CALL BUTTON (MOBILE) --- */
         .floating-call {
             position: fixed; bottom: 30px; right: 30px; z-index: 100;
             background: var(--main); color: var(--dark); width: 60px; height: 60px;
@@ -170,13 +169,12 @@
     <div class="container">
         <span style="background: rgba(255,204,0,0.1); color: var(--main); padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 20px; display: inline-block;">Available 24/7 in Guwahati</span>
         <h1>⚡ Sparky Electrical</h1>
-        <p>Reliable, safe, and professional electrical services for your home and business. From emergency repairs to full rewiring.</p>
+        <p>Reliable, safe, and professional electrical services for your home and business.</p>
         <a href="#contact-sec" class="cta-hero">Get a Free Consultation <i class='bx bx-right-arrow-alt'></i></a>
     </div>
 </section>
 
 <div class="container">
-    
     <section id="Editorial-board">
         <span class="section-tag">Your Master Electrician</span>
         <div class="profile-card-1">
@@ -185,12 +183,10 @@
             </div>
             <h3 style="margin-bottom:5px;">Jitumoni Kalita</h3>
             <p style="color:var(--main); font-weight:800; margin: 0;">Certified Master Electrician</p>
-            
             <div class="profile-info">
                 <span><i class='bx bxs-badge-check'></i> Licensed</span>
                 <span><i class='bx bxs-briefcase'></i> 5+ Yrs Exp</span>
             </div>
-            
             <a href="tel:+919957245963" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:12px; color:var(--dark); font-weight:800; font-size: 1.2rem; background: var(--main); padding: 15px; border-radius: 15px; transition: 0.3s;">
                 <i class='bx bxs-phone-call'></i> +91 99572 45963
             </a>
@@ -212,74 +208,48 @@
     <section id="contact-sec" class="contact-wrapper">
         <div class="contact-text">
             <h2>Book a Service</h2>
-            <p>Need an urgent repair or planning a new installation? Send us your details and we'll provide a competitive quote within 24 hours.</p>
-            
+            <p>Need an urgent repair? Send us your details for a quick quote.</p>
             <div class="contact-items">
-                <div class="contact-item">
-                    <i class='bx bxs-map-pin'></i>
-                    <span>Guwahati, Assam, India</span>
-                </div>
-                <div class="contact-item">
-                    <i class='bx bxs-phone'></i>
-                    <span>+91 8822763566</span>
-                </div>
-                <div class="contact-item">
-                    <i class='bx bxs-envelope'></i>
-                    <span>jitumoni2005@gmail.com</span>
-                </div>
+                <div class="contact-item"><i class='bx bxs-map-pin'></i><span>Guwahati, Assam</span></div>
+                <div class="contact-item"><i class='bx bxs-phone'></i><span>+91 8822763566</span></div>
             </div>
         </div>
         
         <div class="form-box">
             <form id="customerForm">
                 <input type="hidden" name="type" value="customer">
-                
                 <div class="form-group">
                     <label>Your Name</label>
-                    <input type="text" name="name" placeholder="John Doe" required>
+                    <input type="text" name="name" placeholder="Name" required>
                 </div>
-
                 <div class="form-group">
                     <label>Phone Number</label>
-                    <input type="text" name="phone" placeholder="+91 XXXXX XXXXX" required>
+                    <input type="text" name="phone" placeholder="Phone" required>
                 </div>
-
                 <div class="form-group">
-                    <label>Email Address</label>
-                    <input type="email" name="email" placeholder="john@example.com" required>
+                    <label>Work Location (Area Name)</label>
+                    <input type="text" name="location" id="locInput" placeholder="e.g. Beltola" required>
                 </div>
-    <div class="form-group">
-            <label>Work Location (Area Name)</label>
-            <input type="text" name="location" id="locInput" placeholder="e.g. Beltola" required>
-        </div>
-
-        <div class="form-group">
-            <label>Calculate Travel Cost</label>
-            <button type="button" onclick="getLocation()" id="gpsBtn" style="width:100%; padding:12px; background:rgba(255,255,255,0.1); color:var(--main); border:1px dashed var(--main); border-radius:12px; cursor:pointer; font-weight:800; margin-bottom:10px;">
-                <i class='bx bx-target-lock'></i> Use My Current Location
-            </button>
-            
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                <div>
-                    <label style="font-size:0.7rem;">DISTANCE (KM)</label>
-                    <input type="text" name="distance" id="userDist" value="0" readonly>
+                <div class="form-group">
+                    <label>Calculate Travel Cost</label>
+                    <button type="button" onclick="getLocation()" id="gpsBtn" style="width:100%; padding:12px; background:rgba(255,255,255,0.1); color:var(--main); border:1px dashed var(--main); border-radius:12px; cursor:pointer; font-weight:800; margin-bottom:10px;">
+                        <i class='bx bx-target-lock'></i> Use My Current Location
+                    </button>
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                        <div>
+                            <label style="font-size:0.7rem;">DISTANCE (KM)</label>
+                            <input type="text" name="distance" id="userDist" value="0" readonly>
+                        </div>
+                        <div>
+                            <label style="font-size:0.7rem;">Visiting Cosat(₹)</label>
+                            <input type="text" name="quote" id="userQuote" placeholder="Total" readonly style="background:var(--main); color:var(--dark); font-weight:800;">
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <label style="font-size:0.7rem;">EST. QUOTE (₹)</label>
-                    <input type="text" name="quote" id="userQuote" readonly style="background:var(--main); color:var(--dark); font-weight:800;">
+                <div class="form-group">
+                    <label>Describe the Task</label>
+                    <textarea name="message" rows="3" placeholder="I need a fan repair..." required></textarea>
                 </div>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Describe the Task</label>
-            <textarea name="message" rows="3" required></textarea>
-        </div>
-
-       
-    </form>
-</div>
-
                 <button type="submit" class="btn-submit" id="sendBtn">
                     Submit Inquiry <i class='bx bx-send'></i>
                 </button>
@@ -289,32 +259,23 @@
 </div>
 
 <footer>
-    <h2 style="color: var(--dark); font-weight: 800; margin-bottom: 10px;">⚡ Sparky</h2>
-    <p style="color: #64748b;">Providing safety and brightness to Guwahati since 2019.</p>
-    
     <div class="footer-socials">
-        <a href="https://github.com/jitumonikalita230" target="_blank"><i class='bx bxl-github'></i></a>
-        <a href="mailto:jitumoni2005@gmail.com"><i class='bx bxl-gmail'></i></a>
-        <a href="https://www.linkedin.com/in/jitumoni-kalita-b14a04308" target="_blank"><i class='bx bxl-linkedin'></i></a>
+        <a href="#"><i class='bx bxl-github'></i></a>
+        <a href="#"><i class='bx bxl-linkedin'></i></a>
     </div>
-
-    <p style="font-size: 0.9rem; color: #94a3b8;">&copy; 2026 Sparky Electrical Services. Designed by Jitumoni Kalita</p>
-    
+    <p>&copy; 2026 Sparky Electrical. Designed by Jitumoni Kalita</p>
     <a href="owner.html" class="admin-link">Staff Login</a>
 </footer>
 
 <script>
-    // URL for Google Apps Script
-const URL = 'https://script.google.com/macros/s/AKfycbwo22W2Idb-zje6T0DupJRDWZNL67I7LXy8iawszUUNKcQ_woYGAjexf5Fz5ViEci25/exec';
-
-// 1. YOUR SHOP COORDINATES (Guwahati Shop Location)
+const URL = 'https://script.google.com/macros/s/AKfycbwSuapRAoadPZz_uO8S52bc6UYTEpcbqsILedK5TXN8zG493eUS2j7ABHrUfiB3D73D/exec';
 const SHOP_LAT = 26.128466936701948; 
-const SHOP_LON =91.69378059579945;
+const SHOP_LON = 91.69378059579945;
 
 /**
- * Automatically fetch user location and calculate distance
+ * FIXED: Calculate Cost Button Logic
  */
-async function autoCalculateDistance() {
+function getLocation() {
     const distInput = document.getElementById('userDist');
     const quoteInput = document.getElementById('userQuote');
     const btn = document.getElementById('gpsBtn');
@@ -324,134 +285,99 @@ async function autoCalculateDistance() {
         return;
     }
 
-    // Check if running on a secure context
-    if (window.location.protocol === 'file:') {
-        alert("GPS does not work when opening the file directly. Please use a Local Server (like Live Server in VS Code) or upload to a website (HTTPS).");
-        return;
-    }
-
-    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Locating...";
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Accessing GPS...";
 
     navigator.geolocation.getCurrentPosition(
         (position) => {
-            const userLat = position.coords.latitude;
-            const userLon = position.coords.longitude;
-            const distance = calculateHaversine(SHOP_LAT, SHOP_LON, userLat, userLon);
-            
-            distInput.value = distance.toFixed(2);
-            const total = 300 + (distance * 15);
-            quoteInput.value = Math.round(total);
+          
+const userLat = position.coords.latitude;
+const userLon = position.coords.longitude;
+const distance = calculateHaversine(SHOP_LAT, SHOP_LON, userLat, userLon);
 
-            btn.innerHTML = "<i class='bx bx-check-circle'></i> Location Verified";
+// 1. Calculate how many KM are above the 7km limit
+// If distance is 5km, billableKm is 0. If distance is 10km, billableKm is 3.
+const billableKm = Math.max(0, distance - 7);
+
+// 2. Set your price per KM (e.g., ₹10 or ₹5)
+const ratePerKm = 5; 
+
+// 3. Final Calculation
+// No base fee added.
+const total = billableKm * ratePerKm;
+
+// Update your inputs
+distInput.value = distance.toFixed(2);
+quoteInput.value = Math.round(total);
+// Update the UI
+quoteInput.value = Math.round(totalQuote);
+            btn.innerHTML = "<i class='bx bx-check-circle'></i> Distance Calculated";
             btn.style.background = "#10b981";
             btn.style.color = "white";
         }, 
         (err) => {
             console.error(err);
-            if (err.code === 1) {
-                alert("Permission Denied. Please allow location access in your browser settings.");
-            } else {
-                alert("Location error: " + err.message);
-            }
+            alert("Error: " + err.message + ". Please ensure location is ON.");
             btn.innerHTML = "<i class='bx bx-target-lock'></i> Retry GPS";
         },
-        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
 }
 
-/**
- * Mathematical formula for 'as-the-crow-flies' distance
- */
 function calculateHaversine(lat1, lon1, lat2, lon2) {
-    const R = 6371; // Earth's radius in KM
+    const R = 6371;
     const dLat = (lat2 - lat1) * Math.PI / 180;
     const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = 
-        Math.sin(dLat/2) * Math.sin(dLat/2) +
-        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c; 
 }
 
-
-
-/**
- * Load Gallery with improved error handling and empty states
- */
 async function loadGallery() {
     const galleryDiv = document.getElementById('gallery');
     try {
         const res = await fetch(URL);
         const data = await res.json();
-        
         if (!data || data.length === 0) {
-            galleryDiv.innerHTML = `
-                <div style='grid-column:1/-1; text-align:center; padding:40px; color:#94a3b8;'>
-                    <i class='bx bx-image-alt' style='font-size:3rem;'></i>
-                    <p>No projects to show right now.</p>
-                </div>`;
+            galleryDiv.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>No projects posted yet.</p>";
             return;
         }
-
-        // Optimized rendering: Build string first, then inject once
-        const html = data.reverse().map(item => `
+        galleryDiv.innerHTML = data.reverse().map(item => `
             <div class="card">
-                <img src="${item.img || 'https://via.placeholder.com/400x300?text=Sparky+Work'}" 
-                     alt="${item.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300?text=Image+Error'">
+                <img src="${item.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Work'">
                 <div class="card-body">
-                    <h3>${item.title || 'Untitled Project'}</h3>
-                    <p>${item.desc || 'Quality electrical installation by Sparky.'}</p>
+                    <h3>${item.title}</h3>
+                    <p>${item.desc || 'Quality electrical work.'}</p>
                 </div>
             </div>
         `).join('');
-        
-        galleryDiv.innerHTML = html;
     } catch (e) {
-        galleryDiv.innerHTML = "<p style='grid-column:1/-1; text-align:center; padding:40px; color:red;'>Check your internet connection and try again.</p>";
+        galleryDiv.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>Unable to load projects.</p>";
     }
 }
 
-/**
- * Form submission with improved UX
- */
 document.getElementById('customerForm').onsubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('sendBtn');
-    const originalText = btn.innerHTML;
-    
-    // UI Feedback
-    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Submitting Inqury...";
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Sending...";
     btn.disabled = true;
 
     try {
         const formData = new URLSearchParams(new FormData(e.target));
-        const response = await fetch(URL, { 
-            method: 'POST', 
-            mode: 'no-cors', 
-            body: formData 
-        });
-
-        // Since mode is no-cors, we assume success if no error is thrown
-        alert("Thank you! Jitumoni has received your request and will call you back shortly.");
+        await fetch(URL, { method: 'POST', mode: 'no-cors', body: formData });
+        alert("Success! Jitumoni will contact you shortly.");
         e.target.reset();
-        
-        // Reset Quote/Distance displays if needed
         document.getElementById('userDist').value = "0";
         document.getElementById('userQuote').value = "";
-        
     } catch (err) {
-        console.error("Submission error:", err);
-        alert("Submission failed. Please call +91 99572 45963 directly.");
+        alert("Error submitting inquiry.");
     } finally {
-        btn.innerHTML = originalText;
+        btn.innerHTML = "Submit Inquiry <i class='bx bx-send'></i>";
         btn.disabled = false;
     }
 };
 
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    loadGallery();
-});
+document.addEventListener('DOMContentLoaded', loadGallery);
 </script>
 </body>
 </html>
