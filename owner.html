@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Sparky Master v4.5</title>
+    <title>Sparky Master v4.6 - Admin</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         :root { 
@@ -32,11 +32,18 @@
             background: var(--card); border-radius: 18px; padding: 20px; 
             margin-bottom: 15px; border: 1px solid #e2e8f0; 
             box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            position: relative;
         }
 
         .status-badge { font-size: 0.7rem; padding: 4px 10px; border-radius: 20px; font-weight: 800; text-transform: uppercase; }
         .pending { background: #fef3c7; color: #92400e; }
         .completed { background: #dcfce7; color: #166534; }
+
+        .service-box {
+            background: #f8fafc; border: 1px dashed #cbd5e1;
+            border-radius: 12px; padding: 10px; margin: 10px 0;
+            display: flex; align-items: center; gap: 10px;
+        }
 
         /* --- BUTTONS --- */
         .btn { 
@@ -49,8 +56,7 @@
         .btn:active { transform: scale(0.97); }
         .btn-call { background: #3b82f6; color: white; }
         .btn-wa { background: #25d366; color: white; }
-        .btn-done { background: #f1f5f9; color: var(--primary); margin-top: 10px; }
-        .btn-red { background: var(--red); color: white; }
+        .btn-done { background: #f1f5f9; color: var(--primary); margin-top: 10px; border: 1px solid #cbd5e1; }
         
         .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
@@ -64,7 +70,10 @@
         .nav-item.active { color: var(--primary); font-weight: bold; }
         .nav-item i { font-size: 1.4rem; display: block; }
 
-        input, select { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #cbd5e1; margin-bottom: 12px; font-size: 1rem; }
+        input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #cbd5e1; margin-bottom: 12px; font-size: 1rem; }
+        
+        .port-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #f1f5f9; }
+        .port-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
     </style>
 </head>
 <body>
@@ -72,7 +81,7 @@
 <div id="loginBox" style="position:fixed; inset:0; background:var(--primary); z-index:9999; display:flex; align-items:center; justify-content:center; color:white; flex-direction:column; padding:20px;">
     <i class='bx bxs-bolt-circle' style="font-size:5rem; color:var(--accent)"></i>
     <h2 style="margin:20px 0;">Sparky Admin</h2>
-    <input type="password" id="pass" placeholder="Enter PIN" style="width:100%; max-width:280px; text-align:center; background: white; color: black;">
+    <input type="password" id="pass" placeholder="Enter PIN" style="width:100%; max-width:280px; text-align:center;">
     <button onclick="login()" class="btn" style="width:100%; max-width:280px; background:var(--accent);">Unlock Dashboard</button>
 </div>
 
@@ -86,6 +95,23 @@
     </div>
 
     <div class="main-content">
+        <div id="leadsSection">
+    <h3 style="margin-bottom:15px;">Business Overview</h3>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px;">
+        <div class="card" style="margin-bottom:0; padding:15px; text-align:center; border-bottom: 4px solid var(--green);">
+            <small style="color:#64748b; font-weight:bold; text-transform:uppercase; font-size:0.65rem;">Total Revenue</small>
+            <div id="totalRevenue" style="font-size:1.5rem; font-weight:800; color:var(--primary);">₹0</div>
+        </div>
+        <div class="card" style="margin-bottom:0; padding:15px; text-align:center; border-bottom: 4px solid var(--accent);">
+            <small style="color:#64748b; font-weight:bold; text-transform:uppercase; font-size:0.65rem;">Total Tasks</small>
+            <div id="totalTasks" style="font-size:1.5rem; font-weight:800; color:var(--primary);">0</div>
+        </div>
+    </div>
+
+    <h3 style="margin-bottom:20px;">Customer Inquiries</h3>
+    <div id="leadsList">Loading...</div>
+</div>
         <div id="leadsSection">
             <h3 style="margin-bottom:20px;">Customer Inquiries</h3>
             <div id="leadsList">Loading...</div>
@@ -102,19 +128,21 @@
                     <button type="submit" id="pubBtn" class="btn" style="background:var(--primary); color:white;">Upload Project</button>
                 </form>
             </div>
+            <h4>Live Portfolio</h4>
+            <div id="portfolioManageList" class="card" style="padding:5px;">Loading...</div>
         </div>
 
         <div id="serviceSection" class="hidden">
-            <h3>Manage Services & Prices</h3>
+            <h3>Services & Prices</h3>
             <div class="card">
                 <form id="serviceForm">
                     <input type="hidden" name="type" value="addService">
-                    <input type="text" name="serviceName" placeholder="Service Name (e.g. Fan Repair)" required>
+                    <input type="text" name="serviceName" placeholder="Service Name" required>
                     <input type="number" name="servicePrice" placeholder="Base Price (₹)" required>
                     <button type="submit" id="servBtn" class="btn" style="background:var(--green); color:white;">Add Service</button>
                 </form>
             </div>
-            <div id="currentServices">Loading services...</div>
+            <div id="currentServices">Loading...</div>
         </div>
     </div>
 
@@ -132,23 +160,15 @@
 </div>
 
 <script>
-const URL = 'https://script.google.com/macros/s/AKfycbxcvNRL_K5QYVZw6EinCGGtNbvRqgZbRi6Al4dYLGyUVnFIckkHYr8hhCzjqAKe-XN4/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbyuCbMxLYFwoOoSVM7tdtbIGQaroBUZ-w89rMzGkXLuQi7bgznRX5alifggB-qUAK8T/exec'; 
 
-// --- AUTHENTICATION ---
 function login() {
-    const pin = document.getElementById('pass').value;
-    if(pin === "sparky123") {
+    if(document.getElementById('pass').value === "sparky123") {
         localStorage.setItem('sparkyAuth', 'true');
-        document.getElementById('loginBox').classList.add('hidden');
-        document.getElementById('dashboard').classList.remove('hidden');
-        refreshData();
-    } else { alert("Incorrect PIN"); }
+        location.reload();
+    } else { alert("Wrong PIN"); }
 }
-
-function logout() {
-    localStorage.removeItem('sparkyAuth');
-    location.reload();
-}
+function logout() { localStorage.removeItem('sparkyAuth'); location.reload(); }
 
 if(localStorage.getItem('sparkyAuth')) {
     document.getElementById('loginBox').classList.add('hidden');
@@ -156,119 +176,125 @@ if(localStorage.getItem('sparkyAuth')) {
     refreshData();
 }
 
-// --- NAVIGATION ---
 function switchTab(tab) {
-    const sections = ['leadsSection', 'uploadSection', 'serviceSection'];
-    const navs = ['navLeads', 'navUpload', 'navService'];
+    ['leadsSection', 'uploadSection', 'serviceSection'].forEach(id => document.getElementById(id).classList.add('hidden'));
+    ['navLeads', 'navUpload', 'navService'].forEach(n => document.getElementById(n).classList.remove('active'));
+    document.getElementById(tab + 'Section').classList.remove('hidden');
+    document.getElementById('nav' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
     
-    sections.forEach(s => document.getElementById(s).classList.add('hidden'));
-    navs.forEach(n => document.getElementById(n).classList.remove('active'));
-
-    if(tab === 'leads') {
-        document.getElementById('leadsSection').classList.remove('hidden');
-        document.getElementById('navLeads').classList.add('active');
-        refreshData();
-    } else if(tab === 'upload') {
-        document.getElementById('uploadSection').classList.remove('hidden');
-        document.getElementById('navUpload').classList.add('active');
-    } else if(tab === 'service') {
-        document.getElementById('serviceSection').classList.remove('hidden');
-        document.getElementById('navService').classList.add('active');
-        loadServices(); // Refresh list when opening tab
-    }
+    if(tab === 'leads') refreshData();
+    if(tab === 'upload') loadPortfolio();
+    if(tab === 'service') loadServices();
 }
 
-// --- LEADS MANAGEMENT ---
+// --- LEADS ---
+// --- LEADS & STATS CALCULATION ---
+// --- LEADS & STATS ---
 async function refreshData() {
     const list = document.getElementById('leadsList');
-    list.innerHTML = `<div style="text-align:center; padding:40px;"><i class='bx bx-loader-alt bx-spin' style="font-size:2rem;"></i><p>Fetching Leads...</p></div>`;
+    const revEl = document.getElementById('totalRevenue');
+    const taskEl = document.getElementById('totalTasks');
+    list.innerHTML = `<div style="text-align:center; padding:40px;"><i class='bx bx-loader-alt bx-spin' style="font-size:2rem;"></i></div>`;
+    
     try {
-        // Added Cache Buster (?t=...)
         const res = await fetch(`${URL}?mode=messages&t=${Date.now()}`);
         const data = await res.json();
-        renderLeads(data);
-    } catch(e) { 
-        list.innerHTML = "<p style='text-align:center; color:red;'>Error connecting to Google Sheets.</p>"; 
-    }
+        
+        let totalRevenue = 0;
+        data.forEach(m => {
+            if(m.status === 'COMPLETED') { // ONLY count completed jobs for revenue
+                let price = Number(String(m.quote).replace(/[^0-9.-]+/g,"")) || 0;
+                totalRevenue += price;
+            }
+        });
+
+        revEl.innerText = `₹${totalRevenue.toLocaleString('en-IN')}`;
+        taskEl.innerText = data.length;
+
+        list.innerHTML = data.map(m => `
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span class="status-badge ${m.status === 'COMPLETED' ? 'completed' : 'pending'}">${m.status}</span>
+                    <div style="display:flex; gap:10px;">
+                        <span style="font-size:0.75rem; color:#94a3b8;">${m.date}</span>
+                        <i class='bx bxs-trash' onclick="deleteLead(${m.index})" style="color:var(--red); cursor:pointer;"></i>
+                    </div>
+                </div>
+                <h3 style="margin:10px 0 5px 0;">${m.name}</h3>
+                <div class="service-box">
+                    <i class='bx bxs-bolt' style="color:var(--accent); font-size:1.3rem;"></i>
+                    <div>
+                        <small style="display:block; font-size:0.65rem; color:#64748b; text-transform:uppercase;">Selected Service</small>
+                        <b style="font-size:0.95rem; color:var(--primary);">${m.workType || 'Repair'}</b>
+                    </div>
+                </div>
+                <b style="color:var(--green); font-size:1.2rem;">₹${m.quote}</b>
+                <div class="action-row">
+                    <a href="tel:${m.phone}" class="btn btn-call"><i class='bx bxs-phone-call'></i> Call</a>
+                    <a href="https://wa.me/91${m.phone.replace(/\D/g,'')}" target="_blank" class="btn btn-wa"><i class='bx bxl-whatsapp'></i> WA</a>
+                </div>
+                ${m.status !== 'COMPLETED' ? `<button onclick="markDone(${m.index}, this)" class="btn btn-done">Mark Finished</button>` : ''}
+            </div>
+        `).join('');
+    } catch(e) { list.innerHTML = "Error."; }
 }
 
-function renderLeads(data) {
-    const list = document.getElementById('leadsList');
-    if(!data || data.length === 0) { list.innerHTML = "<p style='text-align:center; padding:20px;'>No leads found.</p>"; return; }
-    list.innerHTML = data.map(m => `
-        <div class="card">
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                <span class="status-badge ${m.status === 'COMPLETED' ? 'completed' : 'pending'}">${m.status}</span>
-                <span style="font-size:0.75rem; color:#94a3b8;">${m.date}</span>
-            </div>
-            <h3 style="margin:5px 0;">${m.name}</h3>
-            <p style="font-size:0.9rem; color:#64748b;"><i class='bx bxs-map'></i> ${m.location}</p>
-            <b style="color:var(--green); font-size:1.1rem;">₹${m.quote}</b>
-            <div class="action-row">
-                <a href="tel:${m.phone}" class="btn btn-call"><i class='bx bxs-phone-call'></i> Call</a>
-                <a href="https://wa.me/91${m.phone.replace(/\D/g,'')}" target="_blank" class="btn btn-wa"><i class='bx bxl-whatsapp'></i> WA</a>
-            </div>
-            ${m.status !== 'COMPLETED' ? `<button onclick="markDone(${m.index}, this)" class="btn btn-done">Mark Finished</button>` : ''}
-        </div>
-    `).join('');
+async function markDone(index, btn) {
+    btn.innerText = "Saving..."; btn.disabled = true;
+    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'markDone', index: index}) });
+    setTimeout(refreshData, 2000); // 2 second delay to let Sheet update
 }
 
-// --- SERVICE MANAGEMENT (Fixed Sync) ---
+async function deleteLead(index) {
+    if(!confirm("Delete this lead permanently?")) return;
+    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'deleteMessage', index: index}) });
+    setTimeout(refreshData, 2000);
+}
+// --- PORTFOLIO & DELETE ---
+async function loadPortfolio() {
+    const container = document.getElementById('portfolioManageList');
+    container.innerHTML = "Loading...";
+    try {
+        const res = await fetch(`${URL}?mode=getPortfolio&t=${Date.now()}`);
+        const data = await res.json();
+        container.innerHTML = data.map(p => `
+            <div class="port-item">
+                <img src="${p.imageUrl}">
+                <div style="flex-grow:1;"><b>${p.title}</b></div>
+                <button onclick="deleteProject('${p.title}')" style="background:none; border:none; color:var(--red); font-size:1.4rem; cursor:pointer;"><i class='bx bxs-trash'></i></button>
+            </div>
+        `).join('');
+    } catch(e) { container.innerHTML = "Error."; }
+}
+
+async function deleteProject(title) {
+    if(!confirm(`Delete "${title}"?`)) return;
+    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'deleteProject', projectTitle: title}) });
+    setTimeout(loadPortfolio, 1500);
+}
+
+// --- SERVICES ---
 async function loadServices() {
     const container = document.getElementById('currentServices');
-    container.innerHTML = `<div style="text-align:center; padding:20px;"><i class='bx bx-loader-alt bx-spin'></i> Syncing...</div>`;
     try {
-        // Forced refresh with timestamp
         const res = await fetch(`${URL}?mode=getServices&t=${Date.now()}`);
         const services = await res.json();
-        
-        if(!services || services.length === 0) {
-            container.innerHTML = "<p style='text-align:center; opacity:0.5;'>No services active.</p>";
-            return;
-        }
-
         container.innerHTML = services.map(s => `
             <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:10px;">
                 <div><b>${s.name}</b><br><span style="color:var(--green)">₹${s.price}</span></div>
-                <button onclick="deleteService('${s.name}')" style="background:none; border:none; color:var(--red); font-size:1.5rem; cursor:pointer;">
-                    <i class='bx bxs-trash'></i>
-                </button>
+                <button onclick="deleteService('${s.name}')" style="background:none; border:none; color:var(--red); font-size:1.5rem; cursor:pointer;"><i class='bx bxs-trash'></i></button>
             </div>
         `).join('');
-    } catch(e) { container.innerHTML = "Sync Error."; }
+    } catch(e) { container.innerHTML = "Error."; }
 }
 
 async function deleteService(name) {
-    if(!confirm(`Delete "${name}"?`)) return;
-    // We don't use no-cors here so we can wait for completion
-    await fetch(URL, { 
-        method: 'POST', 
-        mode: 'no-cors', 
-        body: new URLSearchParams({type:'deleteService', serviceName:name}) 
-    });
-    // Brief delay to allow Google Sheets to process
+    if(!confirm(`Delete ${name}?`)) return;
+    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'deleteService', serviceName:name}) });
     setTimeout(loadServices, 1500);
 }
 
-document.getElementById('serviceForm').onsubmit = async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('servBtn');
-    btn.innerText = "Saving to Sheet...";
-    btn.disabled = true;
-    
-    await fetch(URL, { 
-        method: 'POST', 
-        mode: 'no-cors', 
-        body: new URLSearchParams(new FormData(e.target)) 
-    });
-    
-    e.target.reset();
-    btn.innerText = "Add Service";
-    btn.disabled = false;
-    setTimeout(loadServices, 1500); // Reload after save
-};
-
-// --- IMAGE UPLOAD ---
+// --- UPLOAD HANDLER ---
 document.getElementById('imgInp').onchange = e => {
     const reader = new FileReader();
     reader.onload = ev => {
@@ -289,11 +315,22 @@ document.getElementById('imgInp').onchange = e => {
 document.getElementById('adminForm').onsubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('pubBtn');
-    btn.innerText = "Uploading...";
-    btn.disabled = true;
+    btn.innerText = "Uploading..."; btn.disabled = true;
     await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)) });
-    alert("Project Live!");
-    location.reload();
+    alert("Uploaded!");
+    e.target.reset();
+    btn.innerText = "Upload Project"; btn.disabled = false;
+    loadPortfolio();
+};
+
+document.getElementById('serviceForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('servBtn');
+    btn.innerText = "Saving..."; btn.disabled = true;
+    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)) });
+    e.target.reset();
+    btn.innerText = "Add Service"; btn.disabled = false;
+    setTimeout(loadServices, 1500);
 };
 </script>
 </body>
