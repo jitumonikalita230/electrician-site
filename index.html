@@ -2,382 +2,238 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sparky Electrical | Expert Wiring & Repairs</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Sparky Electrical | Guwahati</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
 
         :root { 
-            --main: #ffcc00; 
-            --dark: #0f172a; 
-            --slate: #1e293b;
-            --light: #f8fafc;
-            --accent-grad: linear-gradient(135deg, #ffcc00 0%, #f59e0b 100%);
+            --main: #ffcc00; --dark: #0f172a; --slate: #1e293b; 
+            --light: #f8fafc; --radius: 16px; 
         }
-        
-        * { box-sizing: border-box; }
 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
-            margin: 0; 
-            background: var(--light); 
-            color: var(--dark); 
-            line-height: 1.6;
-            scroll-behavior: smooth;
+            margin: 0; background: var(--light); color: var(--dark); 
+            line-height: 1.5; overflow-x: hidden;
         }
 
-        .container { max-width: 1200px; margin: auto; padding: 0 20px; }
+        .container { width: 100%; max-width: 1100px; margin: auto; padding: 0 15px; }
 
-        /* --- HERO SECTION --- */
+        /* --- RESPONSIVE HERO --- */
         .hero { 
-            background: var(--dark); 
-            color: white; 
-            padding: 120px 20px; 
-            text-align: center; 
-            position: relative;
-            overflow: hidden;
+            background: var(--dark); color: white; 
+            padding: 80px 20px; text-align: center;
+            border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
         }
 
-        .hero::before {
-            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: radial-gradient(circle at center, rgba(255, 204, 0, 0.1) 0%, transparent 70%);
-        }
+        .hero h1 { font-size: clamp(2rem, 10vw, 3.5rem); margin: 0; color: var(--main); }
+        .hero p { font-size: 1.1rem; opacity: 0.9; margin: 15px auto; max-width: 500px; }
 
-        .hero h1 { font-size: clamp(2.5rem, 8vw, 4rem); margin: 0; letter-spacing: -2px; color: var(--main); position: relative; }
-        .hero p { font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 20px auto; position: relative; }
-        
-        .cta-hero {
-            display: inline-flex; align-items: center; gap: 10px; padding: 18px 40px; 
-            background: var(--main); color: var(--dark);
-            text-decoration: none; border-radius: 50px; font-weight: 800; margin-top: 20px;
-            transition: 0.3s; box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
-            position: relative;
-        }
-        .cta-hero:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(255, 204, 0, 0.4); }
-
-        /* --- PROFILE SECTION --- */
-        .section-tag { text-align: center; font-weight: 800; color: #94a3b8; text-transform: uppercase; letter-spacing: 2px; font-size: 0.8rem; margin-bottom: 10px; display: block; }
-        
-        #Editorial-board { margin: -60px auto 40px; position: relative; z-index: 10; }
-
+        /* --- PROFILE (Responsive Card) --- */
+        #Editorial-board { margin: -50px auto 40px; }
         .profile-card-1 {
-            background: white; border-radius: 30px; padding: 40px; text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.06); max-width: 450px; margin: auto;
-            border: 1px solid rgba(0,0,0,0.05);
+            background: white; border-radius: var(--radius); padding: 30px 20px;
+            text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            max-width: 400px; margin: auto; border: 1px solid #eee;
         }
-
-        .image1 {
-            width: 140px; height: 140px; border-radius: 50%; overflow: hidden;
-            margin: 0 auto 20px; border: 5px solid var(--main); box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-        }
+        .image1 { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--main); margin: 0 auto 15px; overflow: hidden; }
         .image1 img { width: 100%; height: 100%; object-fit: cover; }
-        
-        .profile-info { display: flex; justify-content: center; gap: 20px; font-size: 0.9rem; color: #64748b; margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 15px; }
-        .profile-info i { color: var(--main); font-size: 1.2rem; }
 
-        /* --- GALLERY --- */
-        .gallery-header { margin: 80px 0 40px; text-align: center; }
-        .gallery-header h2 { font-size: 2.5rem; margin: 0; letter-spacing: -1px; }
-
+        /* --- GALLERY (Auto-Grid) --- */
         .gallery { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 20px; margin-top: 20px;
         }
-
         .card { 
-            background: white; border-radius: 24px; overflow: hidden; 
-            box-shadow: 0 10px 20px rgba(0,0,0,0.03); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            border: 1px solid #f1f5f9;
+            background: white; border-radius: var(--radius); overflow: hidden; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05); transition: 0.3s;
         }
-        
-        .card:hover { transform: translateY(-10px); box-shadow: 0 25px 40px rgba(0,0,0,0.1); }
-        .card img { width: 100%; height: 250px; object-fit: cover; }
-        .card-body { padding: 25px; }
-        .card-body h3 { margin: 0 0 10px 0; font-size: 1.3rem; color: var(--dark); }
-        .card-body p { color: #64748b; font-size: 0.95rem; line-height: 1.5; }
+        .card img { width: 100%; height: 220px; object-fit: cover; display: block; }
+        .card-body { padding: 15px; }
 
-        /* --- CONTACT FORM --- */
+        /* --- CONTACT WRAPPER (Mobile Stack / Desktop Side-by-Side) --- */
         .contact-wrapper {
-            background: var(--dark); border-radius: 40px; padding: 80px 60px; margin: 100px 0;
-            color: white; display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; align-items: start;
+            background: var(--dark); border-radius: 30px; padding: 40px 20px;
+            margin: 60px 0; color: white; display: flex; flex-direction: column; gap: 40px;
         }
 
-        @media (max-width: 992px) { 
-            .contact-wrapper { grid-template-columns: 1fr; padding: 40px 25px; margin: 60px 0; }
-            .hero { padding: 80px 20px; }
+        @media (min-width: 850px) {
+            .contact-wrapper { flex-direction: row; padding: 60px; }
+            .contact-text { flex: 1; }
+            .form-box { flex: 1.2; }
         }
 
-        .contact-text h2 { font-size: 2.8rem; margin: 0 0 20px; color: var(--main); letter-spacing: -1px; }
-        .contact-text p { opacity: 0.8; font-size: 1.1rem; margin-bottom: 40px; }
-
-        .contact-items { display: grid; gap: 20px; }
-        .contact-item { display: flex; align-items: center; gap: 15px; font-size: 1.1rem; }
-        .contact-item i { width: 45px; height: 45px; background: rgba(255,204,0,0.1); color: var(--main); display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.4rem; }
-
-        .form-box { background: var(--slate); padding: 35px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: #94a3b8; font-weight: 600; }
+        .form-box { background: var(--slate); padding: 25px; border-radius: 20px; }
         
-        input, textarea { 
-            width: 100%; padding: 16px; background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; color: white;
-            font-family: inherit; font-size: 1rem; transition: 0.3s;
+        /* --- FORM ELEMENTS (Touch Optimized) --- */
+        input, select, textarea { 
+            width: 100%; padding: 14px; margin-bottom: 12px;
+            background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; color: white; font-size: 16px; /* Prevents iOS auto-zoom */
         }
-        input:focus, textarea:focus { border-color: var(--main); outline: none; background: rgba(255,255,255,0.1); box-shadow: 0 0 0 4px rgba(255,204,0,0.1); }
 
         .btn-submit { 
-            background: var(--main); color: var(--dark); border: none; padding: 20px; 
-            width: 100%; font-size: 1.1rem; font-weight: 800; cursor: pointer; border-radius: 14px; 
-            transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
+            background: var(--main); color: var(--dark); border: none; 
+            padding: 16px; width: 100%; font-size: 1.1rem; font-weight: 800; 
+            border-radius: 12px; cursor: pointer; transition: 0.2s;
         }
-        .btn-submit:hover { background: #ffda47; transform: translateY(-2px); }
+        .btn-submit:active { transform: scale(0.98); }
 
         .floating-call {
-            position: fixed; bottom: 30px; right: 30px; z-index: 100;
-            background: var(--main); color: var(--dark); width: 60px; height: 60px;
+            position: fixed; bottom: 20px; right: 20px; z-index: 999;
+            background: var(--main); width: 55px; height: 55px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 30px; box-shadow: 0 10px 25px rgba(255,204,0,0.4);
-            text-decoration: none; animation: pulse 2s infinite;
+            font-size: 28px; text-decoration: none; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(255,204,0,0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(255,204,0,0); }
-            100% { box-shadow: 0 0 0 0 rgba(255,204,0,0); }
-        }
-
-        footer { padding: 80px 20px; text-align: center; background: #fff; border-top: 1px solid #e2e8f0; }
-        .footer-socials { margin: 30px 0; }
-        .footer-socials a { font-size: 28px; color: var(--dark); margin: 0 15px; transition: 0.3s; }
-        .footer-socials a:hover { color: var(--main); transform: translateY(-3px); display: inline-block; }
-        
-        .admin-link {
-            text-decoration: none; color: #94a3b8; font-size: 0.8rem; font-weight: 600;
-            margin-top: 40px; display: inline-block; padding: 10px 20px; 
-            border: 1px solid #e2e8f0; border-radius: 10px; transition: 0.3s;
-        }
-        .admin-link:hover { background: var(--dark); color: white; border-color: var(--dark); }
+        footer { padding: 40px 20px; text-align: center; font-size: 0.9rem; opacity: 0.7; }
     </style>
 </head>
 <body>
 
-<a href="tel:+919957245963" class="floating-call" title="Call Us Now">
-    <i class='bx bxs-phone-call'></i>
-</a>
+<a href="tel:+919957245963" class="floating-call"><i class='bx bxs-phone-call'></i></a>
 
 <section class="hero">
     <div class="container">
-        <span style="background: rgba(255,204,0,0.1); color: var(--main); padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 20px; display: inline-block;">Available 24/7 in Guwahati</span>
         <h1>⚡ Sparky Electrical</h1>
-        <p>Reliable, safe, and professional electrical services for your home and business.</p>
-        <a href="#contact-sec" class="cta-hero">Get a Free Consultation <i class='bx bx-right-arrow-alt'></i></a>
+        <p>Licensed Professionals for Wiring, Repairs & Maintenance.</p>
     </div>
 </section>
 
 <div class="container">
     <section id="Editorial-board">
-        <span class="section-tag">Your Master Electrician</span>
         <div class="profile-card-1">
-            <div class="image1">
-                <img src="hod.png" alt="Jitumoni Kalita" onerror="this.src='https://via.placeholder.com/150?text=JK'">
+            <div class="image1"><img src="hod.png" alt="Electrician"></div>
+            <h3 style="margin:0;">Jitumoni Kalita</h3>
+            <p style="color:#f59e0b; font-weight:800; margin:5px 0;">Master Electrician</p>
+            <div style="margin:15px 0; font-size:0.9rem; opacity:0.8;">
+                <span><i class='bx bxs-check-shield'></i> Licensed</span> • 
+                <span><i class='bx bxs-time-five'></i> 24/7 Service</span>
             </div>
-            <h3 style="margin-bottom:5px;">Jitumoni Kalita</h3>
-            <p style="color:var(--main); font-weight:800; margin: 0;">Certified Master Electrician</p>
-            <div class="profile-info">
-                <span><i class='bx bxs-badge-check'></i> Licensed</span>
-                <span><i class='bx bxs-briefcase'></i> 5+ Yrs Exp</span>
-            </div>
-            <a href="tel:+919957245963" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:12px; color:var(--dark); font-weight:800; font-size: 1.2rem; background: var(--main); padding: 15px; border-radius: 15px; transition: 0.3s;">
-                <i class='bx bxs-phone-call'></i> +91 99572 45963
-            </a>
+            <a href="tel:+919957245963" class="btn-submit" style="text-decoration:none; display:block;">Call Now</a>
         </div>
     </section>
 
-    <div class="gallery-header">
-        <span class="section-tag">Our Portfolio</span>
-        <h2>Recent Quality Work</h2>
-    </div>
-    
+    <h2 style="text-align:center;">Recent Work</h2>
     <div id="gallery" class="gallery">
-        <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #94a3b8;">
-            <i class='bx bx-loader-alt bx-spin' style="font-size: 2rem;"></i>
-            <p>Loading projects...</p>
-        </div>
+        <p style="grid-column:1/-1; text-align:center;">Loading gallery...</p>
     </div>
 
-    <section id="contact-sec" class="contact-wrapper">
+    <div class="contact-wrapper" id="contact-sec">
         <div class="contact-text">
-            <h2>Book a Service</h2>
-            <p>Need an urgent repair? Send us your details for a quick quote.</p>
-            <div class="contact-items">
-                <div class="contact-item"><i class='bx bxs-map-pin'></i><span>Guwahati, Assam</span></div>
-                <div class="contact-item"><i class='bx bxs-phone'></i><span>+91 8822763566</span></div>
+            <h2 style="color:var(--main); font-size:2rem;">Book a Visit</h2>
+            <p>Get a price estimate instantly. We serve all areas in Guwahati.</p>
+            <div style="margin-top:20px;">
+                <p><i class='bx bxs-phone'></i> +91 99572 45963</p>
+                <p><i class='bx bxs-map'></i> Guwahati, Assam</p>
             </div>
         </div>
-        
+
         <div class="form-box">
             <form id="customerForm">
-                <input type="hidden" name="type" value="customer">
-                <div class="form-group">
-                    <label>Your Name</label>
-                    <input type="text" name="name" placeholder="Name" required>
+                <input type="hidden" name="type" value="addLead">
+                <input type="text" name="name" placeholder="Your Name" required>
+                <input type="tel" name="phone" placeholder="Phone Number" required>
+                
+               <select id="serviceSelect" name="service" onchange="calculateTotal()" required 
+        style="border: 2px solid rgba(255,204,0,0.3); background: rgba(255,255,255,0.05); font-weight: 600; color: #0a0a0a;">
+        <option value="0">⏳ Loading Services...</option>
+    </select>
+                <div style="position:relative;">
+                    <input type="text" name="location" id="locInput" placeholder="Area Name" required>
+                    <button type="button" onclick="getLocation()" id="gpsBtn" style="position:absolute; right:8px; top:8px; background:var(--main); border:none; padding:6px 10px; border-radius:8px; font-weight:bold; font-size:0.8rem;">GPS</button>
                 </div>
-                <div class="form-group">
-                    <label>Phone Number</label>
-                    <input type="text" name="phone" placeholder="Phone" required>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
+                    <div style="font-size:0.7rem; color:#94a3b8;">DISTANCE: <input type="text" name="distance" id="userDist" value="0" readonly style="margin-top:4px;"></div>
+                    <div style="font-size:0.7rem; color:var(--main);">ESTIMATE: <input type="text" name="quote" id="userQuote" readonly style="margin-top:4px; background:var(--main); color:var(--dark); font-weight:bold;"></div>
                 </div>
-                <div class="form-group">
-                    <label>Work Location (Area Name)</label>
-                    <input type="text" name="location" id="locInput" placeholder="e.g. Beltola" required>
-                </div>
-                <div class="form-group">
-                    <label>Calculate Travel Cost</label>
-                    <button type="button" onclick="getLocation()" id="gpsBtn" style="width:100%; padding:12px; background:rgba(255,255,255,0.1); color:var(--main); border:1px dashed var(--main); border-radius:12px; cursor:pointer; font-weight:800; margin-bottom:10px;">
-                        <i class='bx bx-target-lock'></i> Use My Current Location
-                    </button>
-                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-                        <div>
-                            <label style="font-size:0.7rem;">DISTANCE (KM)</label>
-                            <input type="text" name="distance" id="userDist" value="0" readonly>
-                        </div>
-                        <div>
-                            <label style="font-size:0.7rem;">Visiting Cosat(₹)</label>
-                            <input type="text" name="quote" id="userQuote" placeholder="Total" readonly style="background:var(--main); color:var(--dark); font-weight:800;">
-                        </div>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>Describe the Task</label>
-                    <textarea name="message" rows="3" placeholder="I need a fan repair..." required></textarea>
-                </div>
-                <button type="submit" class="btn-submit" id="sendBtn">
-                    Submit Inquiry <i class='bx bx-send'></i>
-                </button>
+
+                <textarea name="message" rows="3" placeholder="What needs fixing?" required></textarea>
+                <button type="submit" class="btn-submit" id="sendBtn">Submit Request</button>
             </form>
         </div>
-    </section>
+    </div>
 </div>
 
 <footer>
-    <div class="footer-socials">
-        <a href="#"><i class='bx bxl-github'></i></a>
-        <a href="#"><i class='bx bxl-linkedin'></i></a>
-    </div>
-    <p>&copy; 2026 Sparky Electrical. Designed by Jitumoni Kalita</p>
-    <a href="owner.html" class="admin-link">Staff Login</a>
+    <p>&copy; 2026 Sparky Electrical | <a href="owner.html" style="color:inherit;">Staff Login</a></p>
 </footer>
 
 <script>
-const URL = 'https://script.google.com/macros/s/AKfycbwSuapRAoadPZz_uO8S52bc6UYTEpcbqsILedK5TXN8zG493eUS2j7ABHrUfiB3D73D/exec';
-const SHOP_LAT = 26.128466936701948; 
-const SHOP_LON = 91.69378059579945;
+const URL = 'https://script.google.com/macros/s/AKfycbxcvNRL_K5QYVZw6EinCGGtNbvRqgZbRi6Al4dYLGyUVnFIckkHYr8hhCzjqAKe-XN4/exec';
+const SHOP_LAT = 26.1284; 
+const SHOP_LON = 91.6937;
 
-/**
- * FIXED: Calculate Cost Button Logic
- */
+async function loadGallery() {
+    const gal = document.getElementById('gallery');
+    try {
+        const res = await fetch(URL);
+        const data = await res.json();
+        if(data.length === 0) { gal.innerHTML = "<p>New projects coming soon!</p>"; return; }
+        gal.innerHTML = data.map(p => `
+            <div class="card">
+                <img src="${p.img}" loading="lazy">
+                <div class="card-body"><h3>${p.title}</h3><p>${p.desc || ''}</p></div>
+            </div>
+        `).join('');
+    } catch(e) { gal.innerHTML = "<p>Quality Electrical Work</p>"; }
+}
+
+async function loadServices() {
+    const sel = document.getElementById('serviceSelect');
+    try {
+        const res = await fetch(URL + '?mode=getServices');
+        const data = await res.json();
+        sel.innerHTML = '<option value="0">Select Service</option>';
+        data.forEach(s => { sel.innerHTML += `<option value="${s.price}">${s.name}</option>`; });
+    } catch(e) { sel.innerHTML = '<option value="150">General Inspection (₹150)</option>'; }
+}
+
+function calculateTotal() {
+    const dist = parseFloat(document.getElementById('userDist').value) || 0;
+    const price = parseFloat(document.getElementById('serviceSelect').value) || 0;
+    const travel = Math.max(0, dist - 7) * 5; 
+    document.getElementById('userQuote').value = "₹" + Math.round(price + travel);
+}
+
 function getLocation() {
-    const distInput = document.getElementById('userDist');
-    const quoteInput = document.getElementById('userQuote');
     const btn = document.getElementById('gpsBtn');
-
-    if (!navigator.geolocation) {
-        alert("Geolocation is not supported by your browser.");
-        return;
-    }
-
-    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Accessing GPS...";
-
-    navigator.geolocation.getCurrentPosition(
-        (position) => {
-          
-const userLat = position.coords.latitude;
-const userLon = position.coords.longitude;
-const distance = calculateHaversine(SHOP_LAT, SHOP_LON, userLat, userLon);
-
-// 1. Calculate how many KM are above the 7km limit
-// If distance is 5km, billableKm is 0. If distance is 10km, billableKm is 3.
-const billableKm = Math.max(0, distance - 7);
-
-// 2. Set your price per KM (e.g., ₹10 or ₹5)
-const ratePerKm = 5; 
-
-// 3. Final Calculation
-// No base fee added.
-const total = billableKm * ratePerKm;
-
-// Update your inputs
-distInput.value = distance.toFixed(2);
-quoteInput.value = Math.round(total);
-// Update the UI
-quoteInput.value = Math.round(totalQuote);
-            btn.innerHTML = "<i class='bx bx-check-circle'></i> Distance Calculated";
-            btn.style.background = "#10b981";
-            btn.style.color = "white";
-        }, 
-        (err) => {
-            console.error(err);
-            alert("Error: " + err.message + ". Please ensure location is ON.");
-            btn.innerHTML = "<i class='bx bx-target-lock'></i> Retry GPS";
-        },
-        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-    );
+    btn.innerText = "...";
+    navigator.geolocation.getCurrentPosition(pos => {
+        const d = calculateHaversine(SHOP_LAT, SHOP_LON, pos.coords.latitude, pos.coords.longitude);
+        document.getElementById('userDist').value = d.toFixed(1) + " KM";
+        calculateTotal();
+        btn.innerText = "OK";
+    }, () => { alert("Please enable Location"); btn.innerText = "GPS"; });
 }
 
 function calculateHaversine(lat1, lon1, lat2, lon2) {
     const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-              Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-    return R * c; 
-}
-
-async function loadGallery() {
-    const galleryDiv = document.getElementById('gallery');
-    try {
-        const res = await fetch(URL);
-        const data = await res.json();
-        if (!data || data.length === 0) {
-            galleryDiv.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>No projects posted yet.</p>";
-            return;
-        }
-        galleryDiv.innerHTML = data.reverse().map(item => `
-            <div class="card">
-                <img src="${item.img}" onerror="this.src='https://via.placeholder.com/400x300?text=Work'">
-                <div class="card-body">
-                    <h3>${item.title}</h3>
-                    <p>${item.desc || 'Quality electrical work.'}</p>
-                </div>
-            </div>
-        `).join('');
-    } catch (e) {
-        galleryDiv.innerHTML = "<p style='grid-column:1/-1; text-align:center;'>Unable to load projects.</p>";
-    }
+    const dLat = (lat2-lat1)*Math.PI/180;
+    const dLon = (lon2-lon1)*Math.PI/180;
+    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
 }
 
 document.getElementById('customerForm').onsubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('sendBtn');
-    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Sending...";
-    btn.disabled = true;
-
+    btn.innerText = "Sending..."; btn.disabled = true;
     try {
-        const formData = new URLSearchParams(new FormData(e.target));
-        await fetch(URL, { method: 'POST', mode: 'no-cors', body: formData });
-        alert("Success! Jitumoni will contact you shortly.");
+        await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)) });
+        alert("Success! Jitumoni will call you shortly.");
         e.target.reset();
-        document.getElementById('userDist').value = "0";
-        document.getElementById('userQuote').value = "";
-    } catch (err) {
-        alert("Error submitting inquiry.");
-    } finally {
-        btn.innerHTML = "Submit Inquiry <i class='bx bx-send'></i>";
-        btn.disabled = false;
-    }
+    } catch(e) { alert("Error connecting to server."); }
+    btn.innerText = "Submit Request"; btn.disabled = false;
 };
 
-document.addEventListener('DOMContentLoaded', loadGallery);
+window.onload = () => { loadGallery(); loadServices(); };
 </script>
 </body>
 </html>
