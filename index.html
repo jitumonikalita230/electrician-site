@@ -22,18 +22,33 @@
         }
 
         .container { width: 100%; max-width: 1100px; margin: auto; padding: 0 15px; }
+        
+        .bok {
+            padding: 3px 3px;
+            background: #f59e0b;
+            border-radius: 15px;
+            display: inline-block;
+            margin-top: 15px;
+        }
+        .bok a {
+            text-decoration: none;
+            color:black;
+            padding: 10px 20px;
+            display: block;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-weight: 800;
+        }
 
-        /* --- RESPONSIVE HERO --- */
+        /* --- HERO --- */
         .hero { 
             background: var(--dark); color: white; 
             padding: 80px 20px; text-align: center;
             border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
         }
-
         .hero h1 { font-size: clamp(2rem, 10vw, 3.5rem); margin: 0; color: var(--main); }
-        .hero p { font-size: 1.1rem; opacity: 0.9; margin: 15px auto; max-width: 500px; }
+        .hero h2 { font-size:20px; color: var(--main); font-style: italic; margin: 10px 0; }
 
-        /* --- PROFILE (Responsive Card) --- */
+        /* --- PROFILE --- */
         #Editorial-board { margin: -50px auto 40px; }
         .profile-card-1 {
             background: white; border-radius: var(--radius); padding: 30px 20px;
@@ -43,7 +58,7 @@
         .image1 { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--main); margin: 0 auto 15px; overflow: hidden; }
         .image1 img { width: 100%; height: 100%; object-fit: cover; }
 
-        /* --- GALLERY (Auto-Grid) --- */
+        /* --- GALLERY --- */
         .gallery { 
             display: grid; 
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
@@ -56,52 +71,42 @@
         .card img { width: 100%; height: 220px; object-fit: cover; display: block; }
         .card-body { padding: 15px; }
 
-        /* --- CONTACT WRAPPER (Mobile Stack / Desktop Side-by-Side) --- */
+        /* --- CONTACT --- */
         .contact-wrapper {
             background: var(--dark); border-radius: 30px; padding: 40px 20px;
             margin: 60px 0; color: white; display: flex; flex-direction: column; gap: 40px;
         }
-
         @media (min-width: 850px) {
             .contact-wrapper { flex-direction: row; padding: 60px; }
             .contact-text { flex: 1; }
             .form-box { flex: 1.2; }
         }
-
         .form-box { background: var(--slate); padding: 25px; border-radius: 20px; }
-        
-        /* --- FORM ELEMENTS (Touch Optimized) --- */
+        .note { background:var(--main); border-radius: 10px; padding: 10px; margin: 15px 0; color: black; font-size: 0.85rem; font-weight: 700; }
+
         input, select, textarea { 
             width: 100%; padding: 14px; margin-bottom: 12px;
             background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; color: white; font-size: 16px; /* Prevents iOS auto-zoom */
+            border-radius: 12px; color: white; font-size: 16px;
         }
+        select option { color: black; }
 
         .btn-submit { 
             background: var(--main); color: var(--dark); border: none; 
             padding: 16px; width: 100%; font-size: 1.1rem; font-weight: 800; 
             border-radius: 12px; cursor: pointer; transition: 0.2s;
         }
-        .btn-submit:active { transform: scale(0.98); }
 
         .floating-call {
             position: fixed; bottom: 20px; right: 20px; z-index: 999;
             background: var(--main); width: 55px; height: 55px;
             border-radius: 50%; display: flex; align-items: center; justify-content: center;
             font-size: 28px; text-decoration: none; box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            color: var(--dark);
         }
 
-        footer { padding: 40px 20px; text-align: center; opacity:1px; 
-            border-top: 1px solid #eee; margin-top:1px;
-            background: black;
-            color: white;
-
-        }
-        footer a { color:aqua; text-decoration: none; 
-            font-size: larger;
-            justify-content: space-between;
-
-        }
+        footer { padding: 40px 20px; text-align: center; background: black; color: white; }
+        footer a { color: var(--main); text-decoration: none; margin: 0 10px; font-size: 1.2rem; }
     </style>
 </head>
 <body>
@@ -110,15 +115,19 @@
 
 <section class="hero">
     <div class="container">
-        <h1>⚡ Sparky Electrical</h1>
+        <h1>⚡Sparky Electrical</h1>
+        <h2>Guwahati</h2>
         <p>Licensed Professionals for Wiring, Repairs & Maintenance.</p>
+        <div class="bok">
+            <a href="#form-box">Book Appointment</a>
+        </div>
     </div>
 </section>
 
 <div class="container">
     <section id="Editorial-board">
         <div class="profile-card-1">
-            <div class="image1"><img src="hod.png" alt="Electrician"></div>
+            <div class="image1"><img src="Lichika anochichan.jpeg" alt="Electrician"></div>
             <h3 style="margin:0;">Dildar Haque</h3>
             <p style="color:#f59e0b; font-weight:800; margin:5px 0;">Master Electrician</p>
             <div style="margin:15px 0; font-size:0.9rem; opacity:0.8;">
@@ -141,93 +150,105 @@
             <div style="margin-top:20px;">
                 <p><i class='bx bxs-phone'></i> +91 9957374788</p>
                 <p><i class='bx bxs-map'></i> Guwahati, Assam</p>
+                <div class="note">
+                    📌 WhatsApp Number is Preferable for faster communication.
+                </div>
             </div>
         </div>
 
-        <div class="form-box">
-            <form id="customerForm">
-                <input type="hidden" name="type" value="addLead">
-                <input type="text" name="name" placeholder="Your Name" required>
-                <input type="tel" name="phone" placeholder="Phone Number" required>
-                
-               <select id="serviceSelect" name="service" onchange="calculateTotal()" required 
-        style="border: 2px solid rgba(255,204,0,0.3); background: rgba(255,255,255,0.05); font-weight: 600; color: #e4d7d7;">
-        <option value="0">Services...</option>
-    </select>
-                <div style="position:relative;">
-                    <input type="text" name="location" id="locInput" placeholder="Area Name" required>
-                    <button type="button" onclick="getLocation()" id="gpsBtn" style="position:absolute; right:8px; top:8px; background:var(--main); border:none; padding:6px 10px; border-radius:8px; font-weight:bold; font-size:0.8rem;">GPS</button>
-                </div>
+   <div class="form-box" id="form-box">
+    <form id="customerForm">
+        <input type="hidden" name="type" value="addLead">
+        <input type="hidden" name="serviceName" id="hiddenServiceName">
+        
+        <input type="text" name="name" placeholder="Your Name" required>
+        <input type="tel" name="phone" placeholder="Phone Number" required>
+        
+        <select id="serviceSelect" onchange="calculateTotal()" required>
+            <option value="0">Select Service...</option>
+        </select>
 
-                <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
-                    <div style="font-size:0.7rem; color:#94a3b8;">DISTANCE: <input type="text" name="distance" id="userDist" value="0" readonly style="margin-top:4px;"></div>
-                    <div style="font-size:0.7rem; color:var(--main);">ESTIMATE: <input type="text" name="quote" id="userQuote" readonly style="margin-top:4px; background:var(--main); color:var(--dark); font-weight:bold;"></div>
-                </div>
-
-                <textarea name="message" rows="3" placeholder="What needs fixing?" required></textarea>
-                <button type="submit" class="btn-submit" id="sendBtn">Submit Request</button>
-            </form>
+        <div style="position:relative;">
+            <input type="text" name="location" id="locInput" placeholder="Area Name" required>
+            <button type="button" onclick="getLocation()" id="gpsBtn" style="position:absolute; right:8px; top:8px; background:var(--main); border:none; padding:6px 10px; border-radius:8px; font-weight:bold; font-size:0.8rem; cursor:pointer; color:black;">GPS</button>
         </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
+            <div style="font-size:0.7rem; color:#94a3b8;">DISTANCE: <input type="text" name="distance" id="userDist" value="0" readonly style="margin-top:4px;"></div>
+            <div style="font-size:0.7rem; color:var(--main);">ESTIMATE: <input type="text" name="quote" id="userQuote" readonly style="margin-top:4px; background:var(--main); color:var(--dark); font-weight:bold;"></div>
+        </div>
+
+        <textarea name="message" rows="3" placeholder="Describe the problem..." required></textarea>
+        <button type="submit" class="btn-submit" id="sendBtn">Submit Request</button>
+    </form>
+</div>
     </div>
 </div>
 
-<footer class="footer">
-   <p><a href="owner.html" style="color:inherit;">Staff Login</a></p>
-        <p>&copy; <strong>2026 Sparky Electrical |👨‍💻 Developed by</strong> 
-          <br><strong>~ Jitu Moni Kalita</strong><br></p>
-        <div class="footer-socials">
-          <a href="https://github.com/jitumonikalita230" target="_blank"
-            ><i class="bx bxl-github"></i
-          ></a>
-          <a href="mailto:jitumoni2005@gmail.com"
-            ><i class="bx bxl-gmail"></i
-          ></a>
-          <a
-            href="https://www.linkedin.com/in/jitumoni-kalita-b14a04308?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BuewoqLfZQSS8B6p9CVlZyQ%3D%3D"
-            ><i class="bx bxl-linkedin"></i
-          ></a>
-        </div>
-      </div>
-   
+<footer>
+    <p><a href="owner.html"><i class="bx bxs-briefcase"></i> Staff Login</a></p>
+    <p>&copy; 2026 Sparky Electrical | Developed by Jitu Moni Kalita</p>
+    <div class="footer-socials">
+        <a href="#"><i class="bx bxl-github"></i></a>
+        <a href="#"><i class="bx bxl-gmail"></i></a>
+        <a href="#"><i class="bx bxl-linkedin"></i></a>
+    </div>
 </footer>
 
 <script>
-const URL = 'https://script.google.com/macros/s/AKfycbxcvNRL_K5QYVZw6EinCGGtNbvRqgZbRi6Al4dYLGyUVnFIckkHYr8hhCzjqAKe-XN4/exec';
-const SHOP_LAT = 26.1284; 
-const SHOP_LON = 91.6937;
+const URL = 'https://script.google.com/macros/s/AKfycbwuEvUFzw98cYFIMDQsVkuiI72L7dizLwOsHT8fkYwogphIX-Ahxzu_ash00Iy41SRx/exec';
+const SHOP_LAT = 26.137430911373357; 
+const SHOP_LON = 91.70393019579977;
 
 async function loadGallery() {
     const gal = document.getElementById('gallery');
     try {
         const res = await fetch(URL);
         const data = await res.json();
-        if(data.length === 0) { gal.innerHTML = "<p>New projects coming soon!</p>"; return; }
+        if(!data || data.length === 0) { gal.innerHTML = "<p>No projects yet.</p>"; return; }
         gal.innerHTML = data.map(p => `
             <div class="card">
-                <img src="${p.img}" loading="lazy">
-                <div class="card-body"><h3>${p.title}</h3><p>${p.desc || ''}</p></div>
+                <img src="${p.imageUrl}" loading="lazy">
+                <div class="card-body"><h3>${p.title}</h3></div>
             </div>
         `).join('');
     } catch(e) { gal.innerHTML = "<p>Quality Electrical Work</p>"; }
 }
 
+
+
+function calculateTotal() {
+    const sel = document.getElementById('serviceSelect');
+    const hiddenName = document.getElementById('hiddenServiceName');
+    
+    // 1. Capture the NAME of the service (e.g., "Fan Repair")
+    if (sel.selectedIndex > 0) {
+        hiddenName.value = sel.options[sel.selectedIndex].text;
+    }
+
+    // 2. Calculate Price
+    const distText = document.getElementById('userDist').value;
+    const dist = parseFloat(distText) || 0;
+    const price = parseFloat(sel.value) || 0;
+    const travel = Math.max(0, dist - 7) * 5; 
+    
+    document.getElementById('userQuote').value = "₹" + Math.round(price + travel);
+}
+
+// Ensure loadServices uses the correct ID
 async function loadServices() {
     const sel = document.getElementById('serviceSelect');
     try {
         const res = await fetch(URL + '?mode=getServices');
         const data = await res.json();
         sel.innerHTML = '<option value="0">Select Service</option>';
-        data.forEach(s => { sel.innerHTML += `<option value="${s.price}">${s.name}</option>`; });
-    } catch(e) { sel.innerHTML = '<option value="150">General Inspection (₹150)</option>'; }
+        data.forEach(s => { 
+            sel.innerHTML += `<option value="${s.price}">${s.name}</option>`; 
+        });
+    } catch(e) { 
+        sel.innerHTML = '<option value="150">General Inspection</option>'; 
+    }
 }
-
-function calculateTotal() {
-    const dist = parseFloat(document.getElementById('userDist').value) || 0;
-    const price = parseFloat(document.getElementById('serviceSelect').value) || 0;
-    const travel = Math.max(0, dist - 7) * 5; 
-    document.getElementById('userQuote').value = "₹" + Math.round(price + travel);
-}
-
 function getLocation() {
     const btn = document.getElementById('gpsBtn');
     btn.innerText = "...";
@@ -236,7 +257,10 @@ function getLocation() {
         document.getElementById('userDist').value = d.toFixed(1) + " KM";
         calculateTotal();
         btn.innerText = "OK";
-    }, () => { alert("Please enable Location"); btn.innerText = "GPS"; });
+    }, () => { 
+        alert("Please enable Location"); 
+        btn.innerText = "GPS"; 
+    });
 }
 
 function calculateHaversine(lat1, lon1, lat2, lon2) {
@@ -250,16 +274,30 @@ function calculateHaversine(lat1, lon1, lat2, lon2) {
 document.getElementById('customerForm').onsubmit = async (e) => {
     e.preventDefault();
     const btn = document.getElementById('sendBtn');
+    
+    if(document.getElementById('serviceSelect').value == "0") {
+        alert("Please select a service");
+        return;
+    }
+
     btn.innerText = "Sending..."; btn.disabled = true;
     try {
-        await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)) });
+        const formData = new URLSearchParams(new FormData(e.target));
+        await fetch(URL, { method: 'POST', mode: 'no-cors', body: formData });
         alert("Success! Our team will call you shortly.");
         e.target.reset();
-    } catch(e) { alert("Error connecting to server."); }
+        document.getElementById('userDist').value = "0";
+        document.getElementById('userQuote').value = "";
+    } catch(e) { 
+        alert("Error connecting to server."); 
+    }
     btn.innerText = "Submit Request"; btn.disabled = false;
 };
 
-window.onload = () => { loadGallery(); loadServices(); };
+window.onload = () => { 
+    loadGallery(); 
+    loadServices(); 
+};
 </script>
 </body>
 </html>

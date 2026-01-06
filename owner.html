@@ -62,13 +62,14 @@
 
         /* --- BOTTOM NAV --- */
         .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; background: white;
+            position: fixed; bottom: 0; width: 100%; background: rgb(14, 13, 13);
             display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 10px;
             border-top: 1px solid #e2e8f0; z-index: 1000;
+            color:white;
         }
-        .nav-item { text-align: center; color: #64748b; font-size: 0.7rem; cursor: pointer; }
-        .nav-item.active { color: var(--primary); font-weight: bold; }
-        .nav-item i { font-size: 1.4rem; display: block; }
+        .nav-item { text-align: center; color: #f5f7f9; font-size:0.7rem; cursor: pointer;font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; }
+        .nav-item.active { color:aqua; font-weight: bold; }
+        .nav-item i { font-size:2rem; display: block; }
 
         input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #cbd5e1; margin-bottom: 12px; font-size: 1rem; }
         
@@ -81,18 +82,20 @@
 <div id="loginBox" style="position:fixed; inset:0; background:var(--primary); z-index:9999; display:flex; align-items:center; justify-content:center; color:white; flex-direction:column; padding:20px;">
     <i class='bx bxs-bolt-circle' style="font-size:5rem; color:var(--accent)"></i>
     <h2 style="margin:20px 0;">Sparky Admin</h2>
+    <p>Welcome Staff 😊, </p><p>before coming please enter your pin .</p>
     <input type="password" id="pass" placeholder="Enter PIN" style="width:100%; max-width:280px; text-align:center;">
     <button onclick="login()" class="btn" style="width:100%; max-width:280px; background:var(--accent);">Unlock Dashboard</button>
 </div>
 
 <div id="dashboard" class="hidden">
     <div class="sidebar">
-        <b><i class='bx bxs-zap' style="color:var(--accent)"></i> SPARKY OS</b>
+        <b><i class='bx bxs-zap' style="color:var(--accent)"></i> SPARKY STAFF PANAL</b>
         <div style="display:flex; gap:10px;">
-            <button onclick="refreshData()" style="background:transparent; color:white; border:none; font-size:1.4rem;"><i class='bx bx-refresh'></i></button>
-            <button onclick="logout()" class="logout-btn"><i class='bx bx-log-out'></i></button>
+            <button onclick="refreshData()" style="background:rgb(27, 27, 185); color:white; border:none; font-size:1.9rem; border-radius: 10px;"><i class='bx bx-refresh'></i></button>
+            <button onclick="logout()" class="logout-btn" style="background:red; border: #cbd5e1 ;" ><i class='bx bx-log-out'></i></button>
         </div>
     </div>
+    
 
     <div class="main-content">
         <div id="leadsSection">
@@ -113,8 +116,6 @@
     <div id="leadsList">Loading...</div>
 </div>
         <div id="leadsSection">
-            <h3 style="margin-bottom:20px;">Customer Inquiries</h3>
-            <div id="leadsList">Loading...</div>
         </div>
 
         <div id="uploadSection" class="hidden">
@@ -122,10 +123,11 @@
             <div class="card">
                 <form id="adminForm">
                     <input type="text" name="jobTitle" placeholder="Project Name" required>
+                    <input type="text" name="jobplace" placeholder="Place Name" required>
                     <input type="file" id="imgInp" accept="image/*" required>
                     <input type="hidden" name="imageUrl" id="b64">
                     <input type="hidden" name="type" value="admin">
-                    <button type="submit" id="pubBtn" class="btn" style="background:var(--primary); color:white;">Upload Project</button>
+                    <button type="submit" id="pubBtn" class="btn" style="background:var(--green); color:white;">Upload Project</button>
                 </form>
             </div>
             <h4>Live Portfolio</h4>
@@ -160,10 +162,10 @@
 </div>
 
 <script>
-const URL = 'https://script.google.com/macros/s/AKfycbyuCbMxLYFwoOoSVM7tdtbIGQaroBUZ-w89rMzGkXLuQi7bgznRX5alifggB-qUAK8T/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbzRKCjetsz1Pdn7wxZj_lTTTqaRhCdeXB4SF_p809HkSJ8RPqnbjwjSe-ub0k4ZYbSm/exec'; 
 
 function login() {
-    if(document.getElementById('pass').value === "sparky123") {
+    if(document.getElementById('pass').value === "JMK00") {
         localStorage.setItem('sparkyAuth', 'true');
         location.reload();
     } else { alert("Wrong PIN"); }
@@ -211,31 +213,43 @@ async function refreshData() {
         revEl.innerText = `₹${totalRevenue.toLocaleString('en-IN')}`;
         taskEl.innerText = data.length;
 
-        list.innerHTML = data.map(m => `
-            <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="status-badge ${m.status === 'COMPLETED' ? 'completed' : 'pending'}">${m.status}</span>
-                    <div style="display:flex; gap:10px;">
-                        <span style="font-size:0.75rem; color:#94a3b8;">${m.date}</span>
-                        <i class='bx bxs-trash' onclick="deleteLead(${m.index})" style="color:var(--red); cursor:pointer;"></i>
-                    </div>
-                </div>
-                <h3 style="margin:10px 0 5px 0;">${m.name}</h3>
-                <div class="service-box">
-                    <i class='bx bxs-bolt' style="color:var(--accent); font-size:1.3rem;"></i>
-                    <div>
-                        <small style="display:block; font-size:0.65rem; color:#64748b; text-transform:uppercase;">Selected Service</small>
-                        <b style="font-size:0.95rem; color:var(--primary);">${m.workType || 'Repair'}</b>
-                    </div>
-                </div>
-                <b style="color:var(--green); font-size:1.2rem;">₹${m.quote}</b>
-                <div class="action-row">
-                    <a href="tel:${m.phone}" class="btn btn-call"><i class='bx bxs-phone-call'></i> Call</a>
-                    <a href="https://wa.me/91${m.phone.replace(/\D/g,'')}" target="_blank" class="btn btn-wa"><i class='bx bxl-whatsapp'></i> WA</a>
-                </div>
-                ${m.status !== 'COMPLETED' ? `<button onclick="markDone(${m.index}, this)" class="btn btn-done">Mark Finished</button>` : ''}
+       list.innerHTML = data.map(m => `
+    <div class="card">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <span class="status-badge ${m.status === 'COMPLETED' ? 'completed' : 'pending'}">${m.status}</span>
+            <div style="display:flex; gap:10px;">
+                <span style="font-size:0.75rem; color:#94a3b8;">${m.date}</span>
+                <i class='bx bxs-trash' onclick="deleteLead(${m.index})" style="color:var(--red); cursor:pointer;"></i>
             </div>
-        `).join('');
+        </div>
+        
+        <h3 style="margin:10px 0 5px 0;">${m.name}</h3>
+        
+        <div class="service-box">
+            <i class='bx bxs-wrench' style="color:var(--accent); font-size:1.3rem;"></i>
+            <div>
+                <small style="display:block; font-size:0.65rem; color:#64748b; text-transform:uppercase;">Work Category</small>
+                <b style="font-size:0.95rem; color:var(--primary);">${m.workType || 'General Work'}</b>
+            </div>
+        </div>
+
+        <div style="margin: 10px 0; padding: 10px; background: #f1f5f9; border-radius: 8px;">
+            <small style="display:block; font-size:0.65rem; color:#64748b; font-weight:bold;">DETAILS & LOCATION:</small>
+            <p style="margin:4px 0 0 0; font-size:0.85rem; color: #334155;">
+                📍 <b>${m.location}</b><br>
+                💬 <i>${m.message || 'No description provided'}</i>
+            </p>
+        </div>
+
+        <b style="color:var(--green); font-size:1.2rem;">₹${m.quote}</b>
+        
+        <div class="action-row">
+            <a href="tel:${m.phone}" class="btn btn-call"><i class='bx bxs-phone-call'></i> Call</a>
+            <a href="https://wa.me/91${m.phone.replace(/\D/g,'')}" target="_blank" class="btn btn-wa"><i class='bx bxl-whatsapp'></i> WA</a>
+        </div>
+        ${m.status !== 'COMPLETED' ? `<button onclick="markDone(${m.index}, this)" class="btn btn-done">Mark Finished</button>` : ''}
+    </div>
+`).join('');
     } catch(e) { list.innerHTML = "Error."; }
 }
 
