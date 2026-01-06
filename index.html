@@ -248,11 +248,37 @@
                     <label>Email Address</label>
                     <input type="email" name="email" placeholder="john@example.com" required>
                 </div>
+    <div class="form-group">
+            <label>Work Location (Area Name)</label>
+            <input type="text" name="location" id="locInput" placeholder="e.g. Beltola" required>
+        </div>
 
-                <div class="form-group">
-                    <label>Describe the Task</label>
-                    <textarea name="message" rows="4" placeholder="e.g. Need kitchen rewiring and new switchboard installation..." required></textarea>
+        <div class="form-group">
+            <label>Calculate Travel Cost</label>
+            <button type="button" onclick="getLocation()" id="gpsBtn" style="width:100%; padding:12px; background:rgba(255,255,255,0.1); color:var(--main); border:1px dashed var(--main); border-radius:12px; cursor:pointer; font-weight:800; margin-bottom:10px;">
+                <i class='bx bx-target-lock'></i> Use My Current Location
+            </button>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+                <div>
+                    <label style="font-size:0.7rem;">DISTANCE (KM)</label>
+                    <input type="text" name="distance" id="userDist" value="0" readonly>
                 </div>
+                <div>
+                    <label style="font-size:0.7rem;">EST. QUOTE (₹)</label>
+                    <input type="text" name="quote" id="userQuote" readonly style="background:var(--main); color:var(--dark); font-weight:800;">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Describe the Task</label>
+            <textarea name="message" rows="3" required></textarea>
+        </div>
+
+       
+    </form>
+</div>
 
                 <button type="submit" class="btn-submit" id="sendBtn">
                     Submit Inquiry <i class='bx bx-send'></i>
@@ -279,58 +305,153 @@
 
 <script>
     // URL for Google Apps Script
-    const URL = 'https://script.google.com/macros/s/AKfycbzkdnKqilcoFdMM8YFG4h1RsmpIVC3H1yxchH-DKT-K1NVQxVoXFqNbwHfEn2xBRyyX/exec';
+const URL = 'https://script.google.com/macros/s/AKfycbwo22W2Idb-zje6T0DupJRDWZNL67I7LXy8iawszUUNKcQ_woYGAjexf5Fz5ViEci25/exec';
 
-    async function loadGallery() {
-        const galleryDiv = document.getElementById('gallery');
-        try {
-            const res = await fetch(URL);
-            const data = await res.json();
-            
-            if(!data || data.length === 0) {
-                galleryDiv.innerHTML = "<p style='grid-column:1/-1; text-align:center; padding: 40px; color:#94a3b8;'>No projects showcase available yet.</p>";
-                return;
-            }
+// 1. YOUR SHOP COORDINATES (Guwahati Shop Location)
+const SHOP_LAT = 26.128466936701948; 
+const SHOP_LON =91.69378059579945;
 
-            galleryDiv.innerHTML = data.reverse().map(item => `
-                <div class="card">
-                    <img src="${item.img || 'https://via.placeholder.com/400x300?text=Sparky+Work'}" alt="${item.title}" loading="lazy">
-                    <div class="card-body">
-                        <h3>${item.title}</h3>
-                        <p>${item.desc || 'Quality electrical installation by Sparky.'}</p>
-                    </div>
-                </div>
-            `).join('');
-        } catch (e) {
-            galleryDiv.innerHTML = "<p style='grid-column:1/-1; text-align:center; padding: 40px; color:red;'>Failed to load projects. Please refresh.</p>";
-        }
+/**
+ * Automatically fetch user location and calculate distance
+ */
+async function autoCalculateDistance() {
+    const distInput = document.getElementById('userDist');
+    const quoteInput = document.getElementById('userQuote');
+    const btn = document.getElementById('gpsBtn');
+
+    if (!navigator.geolocation) {
+        alert("Geolocation is not supported by your browser.");
+        return;
     }
 
-    document.getElementById('customerForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('sendBtn');
-        const originalText = btn.innerHTML;
+    // Check if running on a secure context
+    if (window.location.protocol === 'file:') {
+        alert("GPS does not work when opening the file directly. Please use a Local Server (like Live Server in VS Code) or upload to a website (HTTPS).");
+        return;
+    }
+
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Locating...";
+
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const userLat = position.coords.latitude;
+            const userLon = position.coords.longitude;
+            const distance = calculateHaversine(SHOP_LAT, SHOP_LON, userLat, userLon);
+            
+            distInput.value = distance.toFixed(2);
+            const total = 300 + (distance * 15);
+            quoteInput.value = Math.round(total);
+
+            btn.innerHTML = "<i class='bx bx-check-circle'></i> Location Verified";
+            btn.style.background = "#10b981";
+            btn.style.color = "white";
+        }, 
+        (err) => {
+            console.error(err);
+            if (err.code === 1) {
+                alert("Permission Denied. Please allow location access in your browser settings.");
+            } else {
+                alert("Location error: " + err.message);
+            }
+            btn.innerHTML = "<i class='bx bx-target-lock'></i> Retry GPS";
+        },
+        { enableHighAccuracy: true, timeout: 5000, maximumAge: 0 }
+    );
+}
+
+/**
+ * Mathematical formula for 'as-the-crow-flies' distance
+ */
+function calculateHaversine(lat1, lon1, lat2, lon2) {
+    const R = 6371; // Earth's radius in KM
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; 
+}
+
+
+
+/**
+ * Load Gallery with improved error handling and empty states
+ */
+async function loadGallery() {
+    const galleryDiv = document.getElementById('gallery');
+    try {
+        const res = await fetch(URL);
+        const data = await res.json();
         
-        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Sending...";
-        btn.disabled = true;
-
-        try {
-            await fetch(URL, { 
-                method: 'POST', 
-                mode: 'no-cors', 
-                body: new URLSearchParams(new FormData(e.target)) 
-            });
-            alert("Success! Your inquiry has been sent. Jitumoni will contact you shortly.");
-            e.target.reset();
-        } catch (err) {
-            alert("Error: Connection lost. Please call us directly.");
-        } finally {
-            btn.innerHTML = originalText;
-            btn.disabled = false;
+        if (!data || data.length === 0) {
+            galleryDiv.innerHTML = `
+                <div style='grid-column:1/-1; text-align:center; padding:40px; color:#94a3b8;'>
+                    <i class='bx bx-image-alt' style='font-size:3rem;'></i>
+                    <p>No projects to show right now.</p>
+                </div>`;
+            return;
         }
-    };
 
+        // Optimized rendering: Build string first, then inject once
+        const html = data.reverse().map(item => `
+            <div class="card">
+                <img src="${item.img || 'https://via.placeholder.com/400x300?text=Sparky+Work'}" 
+                     alt="${item.title}" loading="lazy" onerror="this.src='https://via.placeholder.com/400x300?text=Image+Error'">
+                <div class="card-body">
+                    <h3>${item.title || 'Untitled Project'}</h3>
+                    <p>${item.desc || 'Quality electrical installation by Sparky.'}</p>
+                </div>
+            </div>
+        `).join('');
+        
+        galleryDiv.innerHTML = html;
+    } catch (e) {
+        galleryDiv.innerHTML = "<p style='grid-column:1/-1; text-align:center; padding:40px; color:red;'>Check your internet connection and try again.</p>";
+    }
+}
+
+/**
+ * Form submission with improved UX
+ */
+document.getElementById('customerForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('sendBtn');
+    const originalText = btn.innerHTML;
+    
+    // UI Feedback
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Submitting Inqury...";
+    btn.disabled = true;
+
+    try {
+        const formData = new URLSearchParams(new FormData(e.target));
+        const response = await fetch(URL, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: formData 
+        });
+
+        // Since mode is no-cors, we assume success if no error is thrown
+        alert("Thank you! Jitumoni has received your request and will call you back shortly.");
+        e.target.reset();
+        
+        // Reset Quote/Distance displays if needed
+        document.getElementById('userDist').value = "0";
+        document.getElementById('userQuote').value = "";
+        
+    } catch (err) {
+        console.error("Submission error:", err);
+        alert("Submission failed. Please call +91 99572 45963 directly.");
+    } finally {
+        btn.innerHTML = originalText;
+        btn.disabled = false;
+    }
+};
+
+// Initialize
+document.addEventListener('DOMContentLoaded', () => {
     loadGallery();
+});
 </script>
 </body>
 </html>
