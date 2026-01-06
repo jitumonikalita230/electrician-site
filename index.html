@@ -16,6 +16,8 @@
             --accent-grad: linear-gradient(135deg, #ffcc00 0%, #f59e0b 100%);
         }
         
+        * { box-sizing: border-box; }
+
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
             margin: 0; 
@@ -31,23 +33,26 @@
         .hero { 
             background: var(--dark); 
             color: white; 
-            padding: 100px 20px; 
+            padding: 120px 20px; 
             text-align: center; 
             position: relative;
             overflow: hidden;
         }
 
-        .hero::after {
-            content: ""; position: absolute; bottom: 0; left: 0; width: 100%; height: 5px; background: var(--accent-grad);
+        .hero::before {
+            content: ""; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, rgba(255, 204, 0, 0.1) 0%, transparent 70%);
         }
 
-        .hero h1 { font-size: 3.5rem; margin: 0; letter-spacing: -2px; color: var(--main); }
-        .hero p { font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 20px auto; }
+        .hero h1 { font-size: clamp(2.5rem, 8vw, 4rem); margin: 0; letter-spacing: -2px; color: var(--main); position: relative; }
+        .hero p { font-size: 1.2rem; opacity: 0.9; max-width: 600px; margin: 20px auto; position: relative; }
         
         .cta-hero {
-            display: inline-block; padding: 15px 35px; background: var(--main); color: var(--dark);
+            display: inline-flex; align-items: center; gap: 10px; padding: 18px 40px; 
+            background: var(--main); color: var(--dark);
             text-decoration: none; border-radius: 50px; font-weight: 800; margin-top: 20px;
             transition: 0.3s; box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
+            position: relative;
         }
         .cta-hero:hover { transform: translateY(-3px); box-shadow: 0 15px 25px rgba(255, 204, 0, 0.4); }
 
@@ -58,26 +63,25 @@
 
         .profile-card-1 {
             background: white; border-radius: 30px; padding: 40px; text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.06); max-width: 400px; margin: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.06); max-width: 450px; margin: auto;
             border: 1px solid rgba(0,0,0,0.05);
         }
 
         .image1 {
-            width: 130px; height: 130px; border-radius: 40px; overflow: hidden;
-            margin: 0 auto 20px; border: 5px solid var(--main);
+            width: 140px; height: 140px; border-radius: 50%; overflow: hidden;
+            margin: 0 auto 20px; border: 5px solid var(--main); box-shadow: 0 10px 20px rgba(0,0,0,0.1);
         }
         .image1 img { width: 100%; height: 100%; object-fit: cover; }
         
-        .profile-card-1 h3 { margin: 10px 0; font-size: 1.5rem; }
-        .profile-info { display: flex; justify-content: center; gap: 15px; font-size: 0.9rem; color: #64748b; margin-top: 15px; }
+        .profile-info { display: flex; justify-content: center; gap: 20px; font-size: 0.9rem; color: #64748b; margin: 20px 0; padding: 15px; background: #f8fafc; border-radius: 15px; }
         .profile-info i { color: var(--main); font-size: 1.2rem; }
 
         /* --- GALLERY --- */
-        .gallery-header { display: flex; justify-content: space-between; align-items: flex-end; margin: 60px 0 30px; }
-        .gallery-header h2 { font-size: 2.2rem; margin: 0; letter-spacing: -1px; }
+        .gallery-header { margin: 80px 0 40px; text-align: center; }
+        .gallery-header h2 { font-size: 2.5rem; margin: 0; letter-spacing: -1px; }
 
         .gallery { 
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 30px; 
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; 
         }
 
         .card { 
@@ -87,119 +91,180 @@
         }
         
         .card:hover { transform: translateY(-10px); box-shadow: 0 25px 40px rgba(0,0,0,0.1); }
-        .card img { width: 100%; height: 240px; object-fit: cover; }
+        .card img { width: 100%; height: 250px; object-fit: cover; }
         .card-body { padding: 25px; }
-        .card-body h3 { margin: 0 0 10px 0; font-size: 1.25rem; }
-        .card-body p { color: #64748b; font-size: 0.95rem; margin: 0; }
+        .card-body h3 { margin: 0 0 10px 0; font-size: 1.3rem; color: var(--dark); }
+        .card-body p { color: #64748b; font-size: 0.95rem; line-height: 1.5; }
 
         /* --- CONTACT FORM --- */
         .contact-wrapper {
-            background: var(--dark); border-radius: 40px; padding: 60px; margin: 80px 0;
-            color: white; display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; align-items: center;
+            background: var(--dark); border-radius: 40px; padding: 80px 60px; margin: 100px 0;
+            color: white; display: grid; grid-template-columns: 1fr 1.2fr; gap: 60px; align-items: start;
         }
 
-        @media (max-width: 900px) { .contact-wrapper { grid-template-columns: 1fr; padding: 40px 20px; } }
+        @media (max-width: 992px) { 
+            .contact-wrapper { grid-template-columns: 1fr; padding: 40px 25px; margin: 60px 0; }
+            .hero { padding: 80px 20px; }
+        }
 
-        .contact-text h2 { font-size: 2.5rem; margin: 0 0 20px; color: var(--main); }
-        .contact-text p { opacity: 0.7; font-size: 1.1rem; }
+        .contact-text h2 { font-size: 2.8rem; margin: 0 0 20px; color: var(--main); letter-spacing: -1px; }
+        .contact-text p { opacity: 0.8; font-size: 1.1rem; margin-bottom: 40px; }
 
-        .form-box { background: var(--slate); padding: 30px; border-radius: 25px; }
+        .contact-items { display: grid; gap: 20px; }
+        .contact-item { display: flex; align-items: center; gap: 15px; font-size: 1.1rem; }
+        .contact-item i { width: 45px; height: 45px; background: rgba(255,204,0,0.1); color: var(--main); display: flex; align-items: center; justify-content: center; border-radius: 12px; font-size: 1.4rem; }
+
+        .form-box { background: var(--slate); padding: 35px; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; color: #94a3b8; font-weight: 600; }
+        
         input, textarea { 
-            width: 100%; padding: 16px; margin-bottom: 15px; background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white;
-            font-family: inherit; font-size: 1rem; box-sizing: border-box;
+            width: 100%; padding: 16px; background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; color: white;
+            font-family: inherit; font-size: 1rem; transition: 0.3s;
         }
-        input:focus, textarea:focus { border-color: var(--main); outline: none; background: rgba(255,255,255,0.1); }
+        input:focus, textarea:focus { border-color: var(--main); outline: none; background: rgba(255,255,255,0.1); box-shadow: 0 0 0 4px rgba(255,204,0,0.1); }
 
-        button { 
-            background: var(--main); color: var(--dark); border: none; padding: 18px; 
-            width: 100%; font-size: 1.1rem; font-weight: 800; cursor: pointer; border-radius: 12px; transition: 0.3s;
+        .btn-submit { 
+            background: var(--main); color: var(--dark); border: none; padding: 20px; 
+            width: 100%; font-size: 1.1rem; font-weight: 800; cursor: pointer; border-radius: 14px; 
+            transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        button:hover { background: #ffda47; transform: scale(1.02); }
+        .btn-submit:hover { background: #ffda47; transform: translateY(-2px); }
 
-        /* --- FOOTER --- */
-        footer { padding: 60px 20px; text-align: center; border-top: 1px solid #e2e8f0; }
-        .footer-socials { margin-top: 20px; }
-        .footer-socials a {
-            font-size: 28px; color: var(--dark); margin: 0 12px; transition: 0.3s;
+        /* --- FLOATING CALL BUTTON (MOBILE) --- */
+        .floating-call {
+            position: fixed; bottom: 30px; right: 30px; z-index: 100;
+            background: var(--main); color: var(--dark); width: 60px; height: 60px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 30px; box-shadow: 0 10px 25px rgba(255,204,0,0.4);
+            text-decoration: none; animation: pulse 2s infinite;
         }
-        .footer-socials a:hover { color: var(--main); }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(255,204,0,0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(255,204,0,0); }
+            100% { box-shadow: 0 0 0 0 rgba(255,204,0,0); }
+        }
+
+        footer { padding: 80px 20px; text-align: center; background: #fff; border-top: 1px solid #e2e8f0; }
+        .footer-socials { margin: 30px 0; }
+        .footer-socials a { font-size: 28px; color: var(--dark); margin: 0 15px; transition: 0.3s; }
+        .footer-socials a:hover { color: var(--main); transform: translateY(-3px); display: inline-block; }
         
         .admin-link {
-            text-decoration: none; color: #94a3b8; font-size: 0.75rem; 
-            margin-top: 40px; display: inline-block; padding: 8px 15px; 
-            border: 1px dashed #cbd5e1; border-radius: 8px;
+            text-decoration: none; color: #94a3b8; font-size: 0.8rem; font-weight: 600;
+            margin-top: 40px; display: inline-block; padding: 10px 20px; 
+            border: 1px solid #e2e8f0; border-radius: 10px; transition: 0.3s;
         }
+        .admin-link:hover { background: var(--dark); color: white; border-color: var(--dark); }
     </style>
 </head>
 <body>
 
+<a href="tel:+919957245963" class="floating-call" title="Call Us Now">
+    <i class='bx bxs-phone-call'></i>
+</a>
+
 <section class="hero">
     <div class="container">
+        <span style="background: rgba(255,204,0,0.1); color: var(--main); padding: 8px 20px; border-radius: 50px; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 20px; display: inline-block;">Available 24/7 in Guwahati</span>
         <h1>⚡ Sparky Electrical</h1>
-        <p>Your trusted local electrician for high-quality residential and commercial wiring solutions in Assam.</p>
-        <a href="#contact-sec" class="cta-hero">Get Free Quote</a>
+        <p>Reliable, safe, and professional electrical services for your home and business. From emergency repairs to full rewiring.</p>
+        <a href="#contact-sec" class="cta-hero">Get a Free Consultation <i class='bx bx-right-arrow-alt'></i></a>
     </div>
 </section>
 
 <div class="container">
     
     <section id="Editorial-board">
-        <span class="section-tag">Meet your Expert</span>
+        <span class="section-tag">Your Master Electrician</span>
         <div class="profile-card-1">
             <div class="image1">
-                <img src="hod.png" alt="Electrician Photo" onerror="this.src='https://via.placeholder.com/150?text=Profile'">
+                <img src="hod.png" alt="Jitumoni Kalita" onerror="this.src='https://via.placeholder.com/150?text=JK'">
             </div>
-            <h3>Jitumoni Kalita</h3>
-            <p style="color:var(--main); font-weight:bold; margin-bottom: 20px;">Master Electrician</p>
+            <h3 style="margin-bottom:5px;">Jitumoni Kalita</h3>
+            <p style="color:var(--main); font-weight:800; margin: 0;">Certified Master Electrician</p>
             
             <div class="profile-info">
-                <span><i class='bx bxs-check-shield'></i> Licensed</span>
-                <span><i class='bx bxs-time-five'></i> 5+ Years Exp</span>
+                <span><i class='bx bxs-badge-check'></i> Licensed</span>
+                <span><i class='bx bxs-briefcase'></i> 5+ Yrs Exp</span>
             </div>
             
-            <div style="margin-top:25px;">
-                <a href="tel:+919957245963" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; color:var(--dark); font-weight:bold;">
-                    <i class='bx bxs-phone-call' style="font-size:1.5rem; color:var(--main)"></i> +91 99572 45963
-                </a>
-            </div>
+            <a href="tel:+919957245963" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:12px; color:var(--dark); font-weight:800; font-size: 1.2rem; background: var(--main); padding: 15px; border-radius: 15px; transition: 0.3s;">
+                <i class='bx bxs-phone-call'></i> +91 99572 45963
+            </a>
         </div>
     </section>
 
     <div class="gallery-header">
-        <div>
-            <span class="section-tag" style="text-align:left;">Portfolio</span>
-            <h2>Our Recent Work</h2>
-        </div>
+        <span class="section-tag">Our Portfolio</span>
+        <h2>Recent Quality Work</h2>
     </div>
     
-    <div id="gallery" class="gallery">Loading projects...</div>
+    <div id="gallery" class="gallery">
+        <div style="grid-column: 1/-1; text-align: center; padding: 50px; color: #94a3b8;">
+            <i class='bx bx-loader-alt bx-spin' style="font-size: 2rem;"></i>
+            <p>Loading projects...</p>
+        </div>
+    </div>
 
     <section id="contact-sec" class="contact-wrapper">
         <div class="contact-text">
-            <h2>Ready to start your project?</h2>
-            <p>Fill out the form with your service requirements and address. We'll get back to you within 24 hours to schedule a visit.</p>
-            <div style="margin-top:30px; display:grid; gap:15px;">
-                <div style="display:flex; align-items:center; gap:12px;"><i class='bx bxs-map-pin' style="color:var(--main)"></i> Guwahati, Assam</div>
-                <div style="display:flex; align-items:center; gap:12px;"><i class='bx bxs-envelope' style="color:var(--main)"></i> jitumoni2005@gmail.com</div>
+            <h2>Book a Service</h2>
+            <p>Need an urgent repair or planning a new installation? Send us your details and we'll provide a competitive quote within 24 hours.</p>
+            
+            <div class="contact-items">
+                <div class="contact-item">
+                    <i class='bx bxs-map-pin'></i>
+                    <span>Guwahati, Assam, India</span>
+                </div>
+                <div class="contact-item">
+                    <i class='bx bxs-phone'></i>
+                    <span>+91 99572 45963</span>
+                </div>
+                <div class="contact-item">
+                    <i class='bx bxs-envelope'></i>
+                    <span>jitumoni2005@gmail.com</span>
+                </div>
             </div>
         </div>
         
         <div class="form-box">
             <form id="customerForm">
                 <input type="hidden" name="type" value="customer">
-                <input type="text" name="name" placeholder="Full Name" required>
-                <input type="email" name="email" placeholder="Email Address" required>
-                <textarea name="message" rows="5" placeholder="What service do you need? (Wiring, Repair, Installation...)" required></textarea>
-                <button type="submit" id="sendBtn">Send Inquiry</button>
+                
+                <div class="form-group">
+                    <label>Your Name</label>
+                    <input type="text" name="name" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Phone Number</label>
+                    <input type="text" name="phone" placeholder="+91 XXXXX XXXXX" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="john@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Describe the Task</label>
+                    <textarea name="message" rows="4" placeholder="e.g. Need kitchen rewiring and new switchboard installation..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit" id="sendBtn">
+                    Submit Inquiry <i class='bx bx-send'></i>
+                </button>
             </form>
         </div>
     </section>
 </div>
 
 <footer>
-    <p>&copy; 2026 Sparky Electrical Services. All Rights Reserved.</p>
-    <p style="font-size: 0.9rem;">Designed with ❤️ by <strong>Jitumoni Kalita</strong></p>
+    <h2 style="color: var(--dark); font-weight: 800; margin-bottom: 10px;">⚡ Sparky</h2>
+    <p style="color: #64748b;">Providing safety and brightness to Guwahati since 2019.</p>
     
     <div class="footer-socials">
         <a href="https://github.com/jitumonikalita230" target="_blank"><i class='bx bxl-github'></i></a>
@@ -207,39 +272,46 @@
         <a href="https://www.linkedin.com/in/jitumoni-kalita-b14a04308" target="_blank"><i class='bx bxl-linkedin'></i></a>
     </div>
 
-    <a href="owner.html" class="admin-link">Dashboard Login</a>
+    <p style="font-size: 0.9rem; color: #94a3b8;">&copy; 2026 Sparky Electrical Services. Designed by Jitumoni Kalita</p>
+    
+    <a href="owner.html" class="admin-link">Staff Login</a>
 </footer>
 
 <script>
-    const URL = 'https://script.google.com/macros/s/AKfycby_X-rIQc-SoB41vOA1seLNLPP3c8mfVstk35Z2ns7Ar0LFFKvKoIQrOQjqL1EFJ-bC/exec';
+    // URL for Google Apps Script
+    const URL = 'https://script.google.com/macros/s/AKfycbzkdnKqilcoFdMM8YFG4h1RsmpIVC3H1yxchH-DKT-K1NVQxVoXFqNbwHfEn2xBRyyX/exec';
 
     async function loadGallery() {
         const galleryDiv = document.getElementById('gallery');
         try {
             const res = await fetch(URL);
             const data = await res.json();
-            if(data.length === 0) {
-                galleryDiv.innerHTML = "<p>No projects uploaded yet.</p>";
+            
+            if(!data || data.length === 0) {
+                galleryDiv.innerHTML = "<p style='grid-column:1/-1; text-align:center; padding: 40px; color:#94a3b8;'>No projects showcase available yet.</p>";
                 return;
             }
+
             galleryDiv.innerHTML = data.reverse().map(item => `
                 <div class="card">
-                    <img src="${item.img || 'https://via.placeholder.com/400x300?text=Sparky+Electrical'}" alt="Project Image">
+                    <img src="${item.img || 'https://via.placeholder.com/400x300?text=Sparky+Work'}" alt="${item.title}" loading="lazy">
                     <div class="card-body">
                         <h3>${item.title}</h3>
-                        <p>${item.desc}</p>
+                        <p>${item.desc || 'Quality electrical installation by Sparky.'}</p>
                     </div>
                 </div>
             `).join('');
         } catch (e) {
-            galleryDiv.innerHTML = "<p>Unable to load projects right now.</p>";
+            galleryDiv.innerHTML = "<p style='grid-column:1/-1; text-align:center; padding: 40px; color:red;'>Failed to load projects. Please refresh.</p>";
         }
     }
 
     document.getElementById('customerForm').onsubmit = async (e) => {
         e.preventDefault();
         const btn = document.getElementById('sendBtn');
-        btn.innerText = "Sending...";
+        const originalText = btn.innerHTML;
+        
+        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Sending...";
         btn.disabled = true;
 
         try {
@@ -248,12 +320,12 @@
                 mode: 'no-cors', 
                 body: new URLSearchParams(new FormData(e.target)) 
             });
-            alert("Success! We have received your request.");
+            alert("Success! Your inquiry has been sent. Jitumoni will contact you shortly.");
             e.target.reset();
         } catch (err) {
-            alert("Connection error. Please try again.");
+            alert("Error: Connection lost. Please call us directly.");
         } finally {
-            btn.innerText = "Send Inquiry";
+            btn.innerHTML = originalText;
             btn.disabled = false;
         }
     };
