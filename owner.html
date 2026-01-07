@@ -290,7 +290,39 @@ function renderLeads(data, container) {
     `).join('');
 }
 
-// ... Keep your handleBillPrompt, markDone, and sendBill functions as they are ...
+function handleBillPrompt(index, btn) {
+    const amount = prompt("Enter Final Bill Amount (₹):");
+    if (amount !== null && amount !== "") {
+        btn.innerText = "Sending...";
+        btn.disabled = true;
+        sendBill(index, amount);
+    }
+}
+
+async function markDone(index, btn) {
+    btn.innerText = "Saving..."; btn.disabled = true;
+    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'markDone', index: index}) });
+    setTimeout(refreshData, 2000); 
+}
+
+const sendBill = async (index, amount) => {
+  try {
+    await fetch(URL, {
+      method: 'POST',
+      mode: 'no-cors', 
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: new URLSearchParams({
+        'type': 'updateBill',
+        'index': index,
+        'bill': amount
+      })
+    });
+    alert("Bill updated successfully!");
+    refreshData(); 
+  } catch (err) {
+    alert("Error updating bill.");
+  }
+}
 
 function viewPDF(index) {
     const m = globalData.find(item => item.index === index);
