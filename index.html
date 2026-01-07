@@ -40,6 +40,32 @@
         }
 
         /* --- HERO --- */
+        .filter-btn {
+    padding: 8px 18px;
+    margin: 5px;
+    border: 2px solid var(--main);
+    background: transparent;
+    color: var(--dark);
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: 0.3s;
+}
+
+.filter-btn.active, .filter-btn:hover {
+    background: var(--main);
+    color: var(--dark);
+}
+
+/* Animation for images when filtering */
+.card {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
         .hero { 
             background: var(--dark); color: white; 
             padding: 80px 20px; text-align: center;
@@ -138,9 +164,16 @@
         </div>
     </section>
 
-    <h2 style="text-align:center;">Recent Work</h2>
-    <div id="gallery" class="gallery">
-        <p style="grid-column:1/-1; text-align:center;">Loading gallery...</p>
+    
+    <h2 style="text-align:center; margin-top: 40px;">Our Specialized Work</h2>
+
+<div style="text-align:center; margin-bottom: 20px;">
+    <button class="filter-btn active" onclick="filterGallery('all')">All</button>
+    <button class="filter-btn" onclick="filterGallery('electrical')">Electrical </button>
+    <button class="filter-btn" onclick="filterGallery('painting')">Professional Painting & False Ceiling</button>
+</div>
+
+<div id="gallery" class="gallery">
     </div>
 
     <div class="contact-wrapper" id="contact-sec">
@@ -196,25 +229,55 @@
 </footer>
 
 <script>
-const URL = 'https://script.google.com/macros/s/AKfycbwPECDDXJqMkYIBlwpbD_jCVhFM336oXelAKOOZXa9a0dlC1Dc8QI0pbvvmYIvuqZBX/exec';
+const URL = 'https://script.google.com/macros/s/AKfycbwtKzU7fFwelUVUuEpnV9iLjKXdaWjt5H-xTXZao4rCi0aO3orrL5CCFRMoXQ79WLPu/exec';
 const SHOP_LAT = 26.137430911373357; 
 const SHOP_LON = 91.70393019579977;
+
+let allProjects = []; // Global variable to store fetched data
 
 async function loadGallery() {
     const gal = document.getElementById('gallery');
     try {
         const res = await fetch(URL);
-        const data = await res.json();
-        if(!data || data.length === 0) { gal.innerHTML = "<p>No projects yet.</p>"; return; }
-        gal.innerHTML = data.map(p => `
-            <div class="card">
-                <img src="${p.imageUrl}" loading="lazy">
-                <div class="card-body"><h3>${p.title}</h3></div>
-            </div>
-        `).join('');
-    } catch(e) { gal.innerHTML = "<p>Quality Electrical Work</p>"; }
+        allProjects = await res.json();
+        renderGallery(allProjects);
+    } catch(e) { 
+        gal.innerHTML = "<p>Error loading gallery.</p>"; 
+    }
 }
 
+function renderGallery(projects) {
+    const gal = document.getElementById('gallery');
+    if(!projects || projects.length === 0) { 
+        gal.innerHTML = "<p>No projects found in this category.</p>"; 
+        return; 
+    }
+    
+    gal.innerHTML = projects.map(p => `
+        <div class="card">
+            <img src="${p.imageUrl}" loading="lazy">
+            <div class="card-body">
+                <span style="font-size:0.7rem; color:#f59e0b; font-weight:bold; text-transform:uppercase;">${p.category}</span>
+                <h3 style="margin:5px 0;">${p.title}</h3>
+            </div>
+        </div>
+    `).join('');
+}
+
+function filterGallery(category) {
+    // Update active button UI
+    const btns = document.querySelectorAll('.filter-btn');
+    btns.forEach(btn => btn.classList.remove('active'));
+    event.target.classList.add('active');
+
+    // Filter logic
+    if (category === 'all') {
+        renderGallery(allProjects);
+    } else {
+        const filtered = allProjects.filter(p => p.category.toLowerCase() === category);
+        renderGallery(filtered);
+    }
+}
 
 
 function calculateTotal() {

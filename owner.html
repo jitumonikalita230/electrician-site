@@ -154,33 +154,76 @@
     <div id="leadsList">Loading...</div>
 </div>
         <div id="leadsSection">
+
         </div>
 
-        <div id="uploadSection" class="hidden">
-            <h3>Publish Portfolio</h3>
-            <div class="card">
-                <form id="adminForm">
-                    <input type="text" name="jobTitle" placeholder="Project Name" required>
-                    
-                    <input type="file" id="imgInp" accept="image/*" required>
-                    <input type="hidden" name="imageUrl" id="b64">
-                    <input type="hidden" name="type" value="admin">
-                    <button type="submit" id="pubBtn" class="btn" style="background:var(--green); color:white;">Upload Project</button>
-                </form>
+      <div id="uploadSection" class="hidden">
+    <div class="card" style="border: 2px dashed #ffcc00; background: #fffcf0;">
+        <h3 style="margin-top: 0; display: flex; align-items: center; gap: 10px;">
+            <i class='bx bxs-cloud-upload' style="font-size: 1.5rem; color: #ffcc00;"></i> 
+            Add New Project
+        </h3>
+        
+        <form id="portfolioForm">
+            <input type="hidden" name="type" value="addProject">
+            
+            <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">PROJECT TITLE</label>
+            <input type="text" name="title" placeholder="e.g. Luxury False Ceiling in Paltan Bazaar" required>
+            
+            <label style="font-size: 0.8rem; font-weight: bold; color: #64748b; margin-top: 2px;margin-bottom: 2px;">WORK CATEGORY</label>
+            <select name="category" required style="background: white; border: 2px solid #cbd5e1; color: black; padding: 10px 1px; border-radius: 15px;font-size: medium;">
+                <option value="electrical">⚡ Electrical </option>
+                <option value="painting">🎨 Professional Painting & False Ceiling</option>
+            </select>
+            
+       <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">UPLOAD WORK PHOTO</label>
+<div style="margin-bottom: 12px;">
+    <input type="file" id="fileInput" accept="image/*" style="display: none;">
+    <button type="button" onclick="document.getElementById('fileInput').click()" 
+            style="background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; padding: 10px; width: 100%; border-radius: 10px; cursor: pointer; font-weight: 600;">
+        <i class='bx bx-image-add'></i> Select from Gallery
+    </button>
+    <input type="hidden" name="imageUrl" id="imageUrlInput">
+</div>
+
+<div id="previewBox" style="display: none; margin-bottom: 15px; border-radius: 12px; overflow: hidden; border: 1px solid #ddd; position: relative;">
+    <p style="font-size: 0.7rem; background: rgba(0,0,0,0.5); color: white; margin: 0; padding: 5px; text-align: center; position: absolute; width: 100%;">Image Selected</p>
+    <img id="imgPreview" src="" style="width: 100%; height: 200px; object-fit: cover;">
+    <button type="button" onclick="clearSelection()" style="position: absolute; right: 5px; bottom: 5px; background: var(--red); color: white; border: none; border-radius: 5px; padding: 5px; cursor: pointer;">Remove</button>
+</div>
+
+            <div id="previewBox" style="display: none; margin-bottom: 15px; border-radius: 12px; overflow: hidden; border: 1px solid #ddd;">
+                <p style="font-size: 0.7rem; background: #eee; margin: 0; padding: 5px; text-align: center;">Live Preview</p>
+                <img id="imgPreview" src="" style="width: 100%; height: 150px; object-fit: cover;">
             </div>
+            
+            <button type="submit" class="btn-submit" id="portBtn" style="box-shadow: 0 4px 10px rgba(255, 204, 0, 0.3); font-size: large;border-radius: 10px;background-color: var(--green);color: white;font-family:Georgia, 'Times New Roman', Times, serif;font-weight: bolde;">
+                Publish to Gallery
+            </button>
+        </form>
+         </div>
             <h4>Live Portfolio</h4>
             <div id="portfolioManageList" class="card" style="padding:5px;">Loading...</div>
         </div>
+    </div>
+    
+</div>
+           
 
         <div id="serviceSection" class="hidden">
             <h3>Services & Prices</h3>
             <div class="card">
                 <form id="serviceForm">
-                    <input type="hidden" name="type" value="addService">
-                    <input type="text" name="serviceName" placeholder="Service Name" required>
-                    <input type="number" name="servicePrice" placeholder="Base Price (₹)" required>
-                    <button type="submit" id="servBtn" class="btn" style="background:var(--green); color:white;">Add Service</button>
-                </form>
+    <label>SERVICE NAME</label>
+    <input type="text" name="serviceName" placeholder="e.g. Copper Wiring" required>
+    
+    <label>PRICE (₹)</label>
+    <input type="number" name="servicePrice" placeholder="500" required>
+    
+    <button type="submit" id="servBtn" class="btn" style="background:var(--green); color:white;">
+        Add Pricing Service
+    </button>
+</form>
             </div>
             <div id="currentServices">Loading...</div>
         </div>
@@ -201,7 +244,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 
-const URL = 'https://script.google.com/macros/s/AKfycbwPECDDXJqMkYIBlwpbD_jCVhFM336oXelAKOOZXa9a0dlC1Dc8QI0pbvvmYIvuqZBX/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbwtKzU7fFwelUVUuEpnV9iLjKXdaWjt5H-xTXZao4rCi0aO3orrL5CCFRMoXQ79WLPu/exec'; 
 
 function login() {
     if(document.getElementById('pass').value === "JMK00") {
@@ -515,113 +558,230 @@ function viewPDF(index) {
     }
 }
 // --- PORTFOLIO & DELETE ---
-async function loadPortfolio() {
-    const container = document.getElementById('portfolioManageList');
-    container.innerHTML = "<div style='padding:20px; text-align:center;'>Loading Portfolio...</div>";
-    try {
-        // Fetching mode from your backend (no mode is specified for Admin in your doGet, 
-        // so it defaults to the Admin/Portfolio sheet)
-        const res = await fetch(`${URL}?mode=portfolio&t=${Date.now()}`);
-        const data = await res.json();
+const fileInput = document.getElementById('fileInput');
+    const imageUrlInput = document.getElementById('imageUrlInput');
+    const previewBox = document.getElementById('previewBox');
+    const imgPreview = document.getElementById('imgPreview');
+
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        previewBox.style.display = 'block';
+        imgPreview.style.opacity = '0.5';
+
+        const reader = new FileReader();
+        reader.onload = function(event) {
+            const img = new Image();
+            img.src = event.target.result;
+            img.onload = function() {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                
+                // Max size 800px width for Google Sheets limit
+                const maxWidth = 800;
+                const scale = maxWidth / img.width;
+                canvas.width = maxWidth;
+                canvas.height = img.height * scale;
+
+                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                
+                imageUrlInput.value = compressedBase64;
+                imgPreview.src = compressedBase64;
+                imgPreview.style.opacity = '1';
+            };
+        };
+        reader.readAsDataURL(file);
+    });
+
+    // --- LOAD PORTFOLIO ---
+    async function loadPortfolio() {
+        const container = document.getElementById('portfolioManageList');
+        container.innerHTML = "<div style='padding:20px; text-align:center;'><i class='bx bx-loader-alt bx-spin'></i> Loading...</div>";
         
-        if (data.length === 0) {
-            container.innerHTML = "<div style='padding:20px; text-align:center;'>No projects found.</div>";
-            return;
+        try {
+            const res = await fetch(`${URL}?mode=admin&t=${Date.now()}`);
+            const data = await res.json();
+            
+            if (!data || data.length === 0) {
+                container.innerHTML = "<div style='padding:20px; text-align:center;'>No projects yet.</div>";
+                return;
+            }
+
+            container.innerHTML = data.map(p => {
+                const isPainting = p.category?.toLowerCase() === 'painting';
+                const themeColor = isPainting ? '#3b82f6' : '#f59e0b';
+                return `
+                    <div class="port-item">
+                        <img src="${p.imageUrl}">
+                        <div style="flex-grow:1;">
+                            <div style="font-weight:700; font-size:0.9rem;">${p.title}</div>
+                            <span style="font-size:0.6rem; background:${themeColor}20; color:${themeColor}; padding:2px 8px; border-radius:10px; font-weight:bold;">
+                                ${p.category.toUpperCase()}
+                            </span>
+                        </div>
+                        <button onclick="deleteProject(event, ${p.index}, '${p.title.replace(/'/g, "\\'")}')" 
+                                style="background:#fee2e2; border:none; color:var(--red); width:35px; height:35px; border-radius:8px;">
+                            <i class='bx bxs-trash'></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        } catch(e) { 
+            container.innerHTML = "Error loading list."; 
         }
-
-        container.innerHTML = data.map(p => `
-            <div class="port-item" style="display:flex; align-items:center; gap:15px; padding:10px; border-bottom:1px solid #eee;">
-                <img src="${p.imageUrl}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
-                <div style="flex-grow:1;">
-                    <div style="font-weight:bold; color:#1e293b;">${p.title}</div>
-                    <div style="font-size:0.75rem; color:#64748b;">Index: ${p.index}</div>
-                </div>
-                <button onclick="deleteProject(${p.index}, '${p.title.replace(/'/g, "\\'")}')" 
-                        style="background:none; border:none; color:#ef4444; font-size:1.4rem; cursor:pointer; padding:5px;">
-                    <i class='bx bxs-trash'></i>
-                </button>
-            </div>
-        `).join('');
-    } catch(e) { 
-        console.error(e);
-        container.innerHTML = "<div style='color:red; padding:20px;'>Error loading portfolio.</div>"; 
     }
-}
 
-async function deleteProject(index, title) {
-    if(!confirm(`Are you sure you want to delete "${title}"?`)) return;
-    
-    // Change type to 'deletePortfolio' to match your new backend
-    try {
-        await fetch(URL, { 
-            method: 'POST', 
-            mode: 'no-cors', 
-            body: new URLSearchParams({
-                type: 'deletePortfolio', 
-                index: index
-            }) 
-        });
-        
-        // Immediate feedback
-        alert("Delete request sent!");
-        loadPortfolio(); // Refresh list
-    } catch (e) {
-        alert("Failed to delete.");
+    // --- DELETE LOGIC ---
+    async function deleteProject(event, index, title) {
+        if(!confirm(`Delete "${title}"?`)) return;
+        const btn = event.currentTarget;
+        btn.disabled = true;
+        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
+
+        try {
+            await fetch(URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: new URLSearchParams({ type: 'deletePortfolio', index: index }) 
+            });
+            alert("Deleted!");
+            loadPortfolio();
+        } catch (e) { alert("Failed to delete."); }
     }
-}
 
+    // --- FORM SUBMIT ---
+    document.getElementById('portfolioForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('portBtn');
+        btn.disabled = true;
+        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Publishing...";
+
+        try {
+            await fetch(URL, { 
+                method: 'POST', 
+                mode: 'no-cors', 
+                body: new URLSearchParams(new FormData(e.target)) 
+            });
+            alert("Success!");
+            e.target.reset();
+            previewBox.style.display = 'none';
+            loadPortfolio();
+        } catch (e) { alert("Error!"); }
+        btn.disabled = false;
+        btn.innerHTML = "Publish to Website";
+    };
 // --- SERVICES ---
+document.getElementById('serviceForm').addEventListener('submit', async function(e) {
+    e.preventDefault(); 
+    
+    const btn = document.getElementById('servBtn');
+    const originalContent = btn.innerHTML;
+    
+    // 1. Show Loading State
+    btn.disabled = true;
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Saving...";
+
+    // 2. Extract values from form fields
+    const sName = e.target.serviceName.value;
+    const sPrice = e.target.servicePrice.value;
+
+    // 3. Prepare URL-encoded data for the Backend
+    const params = new URLSearchParams();
+    params.append('type', 'addService');
+    params.append('serviceName', sName);
+    params.append('servicePrice', sPrice);
+
+    try {
+        // 4. Send to Google Apps Script
+        await fetch(URL, {
+            method: 'POST',
+            mode: 'no-cors', // Required for Google Apps Script
+            body: params
+        });
+
+        // 5. Reset UI & Feedback
+        alert(`✅ "${sName}" added successfully!`);
+        e.target.reset(); // Clears the input fields
+        loadServices(); // Refresh the list below
+        
+    } catch (err) {
+        console.error("Save Error:", err);
+        alert("❌ Failed to save service. Check internet.");
+    } finally {
+        // 6. Restore Button
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
+    }
+});
 async function loadServices() {
     const container = document.getElementById('currentServices');
-    container.innerHTML = "<div style='padding:20px; text-align:center;'>Loading Services...</div>";
+    container.innerHTML = "<div style='padding:20px; text-align:center;'><i class='bx bx-loader-alt bx-spin'></i> Syncing...</div>";
     try {
         const res = await fetch(`${URL}?mode=getServices&t=${Date.now()}`);
         const services = await res.json();
         
-        if (services.length === 0) {
+        if (!services || services.length === 0) {
             container.innerHTML = "<div style='padding:20px; text-align:center;'>No services found.</div>";
             return;
         }
 
         container.innerHTML = services.map(s => `
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:10px; border-left: 5px solid var(--green);">
                 <div>
-                    <b style="color: #1e293b;">${s.name}</b><br>
-                    <span style="color: #16a34a; font-weight: bold;">₹${s.price}</span>
+                    <b style="color: #1e293b; display:block;">${s.name || 'Untitled'}</b>
+                    <span style="color: var(--green); font-weight: 800;">₹${Number(s.price || 0).toLocaleString('en-IN')}</span>
                 </div>
-                <button onclick="deleteService(${s.index}, '${s.name.replace(/'/g, "\\'")}')" 
-                        style="background:none; border:none; color:#ef4444; font-size:1.5rem; cursor:pointer; padding:5px;">
-                    <i class='bx bxs-trash'></i>
-                </button>
+               
+<button onclick="deleteService(event, ${s.index}, '${s.name.replace(/'/g, "\\'")}')" 
+        style="background:#fee2e2; border:none; color:#ef4444; width:40px; height:40px; border-radius:10px; cursor:pointer;">
+    <i class='bx bxs-trash-alt'></i>
+</button>
             </div>
         `).join('');
     } catch(e) { 
-        container.innerHTML = "<div style='color:red; padding:20px;'>Error loading services.</div>"; 
+        container.innerHTML = "<div style='color:red; padding:20px; text-align:center;'>⚠️ Failed to load pricing.</div>"; 
     }
 }
+// Add 'event' to the function arguments
+async function deleteService(event, index, name) {
+    if(!confirm(`Permanently remove "${name}"?`)) return;
 
-async function deleteService(index, name) {
-    if(!confirm(`Are you sure you want to delete the service: "${name}"?`)) return;
+    // Use the passed event to find the button
+    const btn = event.currentTarget;
+    const originalContent = btn.innerHTML;
+    const rowElement = btn.closest('.card'); 
+
+    btn.disabled = true;
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
 
     try {
-        // We use the 'index' to tell Google Sheets exactly which row to remove
+        const params = new URLSearchParams();
+        params.append('type', 'deleteService');
+        params.append('index', index);
+
         await fetch(URL, { 
             method: 'POST', 
             mode: 'no-cors', 
-            body: new URLSearchParams({
-                type: 'deleteService', 
-                index: index 
-            }) 
+            body: params 
         });
 
-        // Show instant success and reload
-        alert("Service deleted successfully!");
-        loadServices(); 
+        // UI Animation
+        rowElement.style.transition = "0.4s ease";
+        rowElement.style.transform = "translateX(50px)";
+        rowElement.style.opacity = "0";
+
+        setTimeout(() => {
+            loadServices(); // Refresh the list
+        }, 400);
+
     } catch (e) {
-        alert("Error deleting service. Please try again.");
+        alert("❌ Error deleting. Check connection.");
+        btn.disabled = false;
+        btn.innerHTML = originalContent;
     }
 }
-
 // --- UPLOAD HANDLER ---
 document.getElementById('imgInp').onchange = e => {
     const reader = new FileReader();
