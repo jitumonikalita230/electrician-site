@@ -132,9 +132,18 @@
     
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 25px;">
         <div class="card" style="margin-bottom:0; padding:15px; text-align:center; border-bottom: 4px solid var(--green);">
-            <small style="color:#64748b; font-weight:bold; text-transform:uppercase; font-size:0.65rem;">Total Revenue</small>
-            <div id="totalRevenue" style="font-size:1.5rem; font-weight:800; color:var(--primary);">₹0</div>
-        </div>
+      <div class="stats-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+    <div class="stat-card" style="background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <small style="color:#64748b; font-weight:bold; text-transform:uppercase; font-size:0.65rem;">Total Revenue</small>
+        <div id="totalRevenue" style="font-size:1.5rem; font-weight:800; color:#1e293b;">₹0</div>
+    </div>
+
+    <div class="stat-card" style="background: #eff6ff; padding: 20px; border-radius: 12px; border: 1px solid #bfdbfe;">
+        <small id="monthLabel" style="color:#3b82f6; font-weight:bold; text-transform:uppercase; font-size:0.65rem;">This Month</small>
+        <div id="monthlyRevenue" style="font-size:1.5rem; font-weight:800; color:#1d4ed8;">₹0</div>
+    </div>
+</div>
+</div>
         <div class="card" style="margin-bottom:0; padding:15px; text-align:center; border-bottom: 4px solid var(--accent);">
             <small style="color:#64748b; font-weight:bold; text-transform:uppercase; font-size:0.65rem;">Total Tasks</small>
             <div id="totalTasks" style="font-size:1.5rem; font-weight:800; color:var(--primary);">0</div>
@@ -152,7 +161,7 @@
             <div class="card">
                 <form id="adminForm">
                     <input type="text" name="jobTitle" placeholder="Project Name" required>
-                    <input type="text" name="jobplace" placeholder="Place Name" required>
+                    
                     <input type="file" id="imgInp" accept="image/*" required>
                     <input type="hidden" name="imageUrl" id="b64">
                     <input type="hidden" name="type" value="admin">
@@ -192,7 +201,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
 
-const URL = 'https://script.google.com/macros/s/AKfycbxPcfCj_Wwt-14nS1QNnVgE3vU07ZC6mosPDdyYqPgIhKuzYto3xucuyYyFeKz2sag/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbwPECDDXJqMkYIBlwpbD_jCVhFM336oXelAKOOZXa9a0dlC1Dc8QI0pbvvmYIvuqZBX/exec'; 
 
 function login() {
     if(document.getElementById('pass').value === "JMK00") {
@@ -255,16 +264,66 @@ async function refreshData() {
     }
 }
 
-function updateDashboardStats(data, revEl, taskEl) {
-    let totalRevenue = 0;
-    data.forEach(m => {
-        if(m.status === 'COMPLETED') { 
-            let val = m.bill || m.quote || 0;
-            totalRevenue += Number(String(val).replace(/[^0-9.-]+/g,"")) || 0;
+function updateDashboardStats(data) {
+    const now = new Date();
+    const currentMonth = now.getMonth(); 
+    const currentYear = now.getFullYear();
+
+    let totalRev = 0;
+    let monthRev = 0;
+    let completedCount = 0;
+
+    data.forEach(item => {
+        // 1. Check if status is COMPLETED
+        if (item.status === 'COMPLETED') {
+            completedCount++;
+            
+            // 2. Extract value: Priority is item.bill, fallback to item.quote
+            let val = item.bill || item.quote || 0;
+            
+            // Clean string in case it contains currency symbols or commas
+            const billValue = Number(String(val).replace(/[^0-9.-]+/g, "")) || 0;
+            
+            totalRev += billValue;
+
+            // 3. Handle Monthly Logic
+            // item.date format from backend: "dd MMM yyyy HH:mm"
+            const itemDate = new Date(item.date);
+            
+            if (itemDate.getMonth() === currentMonth && itemDate.getFullYear() === currentYear) {
+                monthRev += billValue;
+            }
         }
     });
-    revEl.innerText = `₹${totalRevenue.toLocaleString('en-IN')}`;
-    taskEl.innerText = data.length;
+
+    // --- Update the UI Elements ---
+    
+    // Update Total Revenue
+    const totalRevEl = document.getElementById('totalRevenue');
+    if (totalRevEl) {
+        totalRevEl.innerText = `₹${totalRev.toLocaleString('en-IN')}`;
+    }
+
+    // Update Monthly Revenue
+    const monthlyRevEl = document.getElementById('monthlyRevenue');
+    if (monthlyRevEl) {
+        monthlyRevEl.innerText = `₹${monthRev.toLocaleString('en-IN')}`;
+    }
+
+    // Update Monthly Label
+    const monthLabelEl = document.getElementById('monthLabel');
+    if (monthLabelEl) {
+        const months = ["January", "February", "March", "April", "May", "June", 
+                        "July", "August", "September", "October", "November", "December"];
+        monthLabelEl.innerText = `Revenue in ${months[currentMonth]}`;
+    }
+
+    // Update Task Count (Optional: using leadsList length or completedCount)
+    const taskCountEl = document.getElementById('totalTasks');
+    if (taskCountEl) {
+        taskCountEl.innerText = data.length; // Total Leads
+        // Use completedCount if you only want to show finished tasks
+    }
 }
 
 function renderLeads(data, container) {
@@ -318,7 +377,28 @@ function renderLeads(data, container) {
         </div>
     `).join('');
 }
-
+async function deleteLead(index) {
+    if (!confirm("Are you sure you want to delete this lead?")) return;
+    
+    try {
+        // Send delete request to Google Script
+        await fetch(URL, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: new URLSearchParams({type: 'deleteLead', index: index}) 
+        });
+        
+        // Remove from local data and re-render immediately for speed
+        globalData = globalData.filter(item => item.index !== index);
+        renderLeads(globalData, document.getElementById('leadsList'));
+        updateDashboardStats(globalData, document.getElementById('totalRevenue'), document.getElementById('totalTasks'));
+        
+        alert("Lead deleted successfully");
+    } catch (e) {
+        alert("Error deleting lead");
+        refreshData();
+    }
+}
 
 function handleBillPrompt(index, btn) {
     const amount = prompt("Enter Final Bill Amount (₹):");
@@ -437,45 +517,109 @@ function viewPDF(index) {
 // --- PORTFOLIO & DELETE ---
 async function loadPortfolio() {
     const container = document.getElementById('portfolioManageList');
-    container.innerHTML = "Loading...";
+    container.innerHTML = "<div style='padding:20px; text-align:center;'>Loading Portfolio...</div>";
     try {
-        const res = await fetch(`${URL}?mode=getPortfolio&t=${Date.now()}`);
+        // Fetching mode from your backend (no mode is specified for Admin in your doGet, 
+        // so it defaults to the Admin/Portfolio sheet)
+        const res = await fetch(`${URL}?mode=portfolio&t=${Date.now()}`);
         const data = await res.json();
+        
+        if (data.length === 0) {
+            container.innerHTML = "<div style='padding:20px; text-align:center;'>No projects found.</div>";
+            return;
+        }
+
         container.innerHTML = data.map(p => `
-            <div class="port-item">
-                <img src="${p.imageUrl}">
-                <div style="flex-grow:1;"><b>${p.title}</b></div>
-                <button onclick="deleteProject('${p.title}')" style="background:none; border:none; color:var(--red); font-size:1.4rem; cursor:pointer;"><i class='bx bxs-trash'></i></button>
+            <div class="port-item" style="display:flex; align-items:center; gap:15px; padding:10px; border-bottom:1px solid #eee;">
+                <img src="${p.imageUrl}" style="width:60px; height:60px; object-fit:cover; border-radius:8px;">
+                <div style="flex-grow:1;">
+                    <div style="font-weight:bold; color:#1e293b;">${p.title}</div>
+                    <div style="font-size:0.75rem; color:#64748b;">Index: ${p.index}</div>
+                </div>
+                <button onclick="deleteProject(${p.index}, '${p.title.replace(/'/g, "\\'")}')" 
+                        style="background:none; border:none; color:#ef4444; font-size:1.4rem; cursor:pointer; padding:5px;">
+                    <i class='bx bxs-trash'></i>
+                </button>
             </div>
         `).join('');
-    } catch(e) { container.innerHTML = "Error."; }
+    } catch(e) { 
+        console.error(e);
+        container.innerHTML = "<div style='color:red; padding:20px;'>Error loading portfolio.</div>"; 
+    }
 }
 
-async function deleteProject(title) {
-    if(!confirm(`Delete "${title}"?`)) return;
-    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'deleteProject', projectTitle: title}) });
-    setTimeout(loadPortfolio, 1500);
+async function deleteProject(index, title) {
+    if(!confirm(`Are you sure you want to delete "${title}"?`)) return;
+    
+    // Change type to 'deletePortfolio' to match your new backend
+    try {
+        await fetch(URL, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: new URLSearchParams({
+                type: 'deletePortfolio', 
+                index: index
+            }) 
+        });
+        
+        // Immediate feedback
+        alert("Delete request sent!");
+        loadPortfolio(); // Refresh list
+    } catch (e) {
+        alert("Failed to delete.");
+    }
 }
 
 // --- SERVICES ---
 async function loadServices() {
     const container = document.getElementById('currentServices');
+    container.innerHTML = "<div style='padding:20px; text-align:center;'>Loading Services...</div>";
     try {
         const res = await fetch(`${URL}?mode=getServices&t=${Date.now()}`);
         const services = await res.json();
+        
+        if (services.length === 0) {
+            container.innerHTML = "<div style='padding:20px; text-align:center;'>No services found.</div>";
+            return;
+        }
+
         container.innerHTML = services.map(s => `
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:10px;">
-                <div><b>${s.name}</b><br><span style="color:var(--green)">₹${s.price}</span></div>
-                <button onclick="deleteService('${s.name}')" style="background:none; border:none; color:var(--red); font-size:1.5rem; cursor:pointer;"><i class='bx bxs-trash'></i></button>
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:10px; border: 1px solid #e2e8f0; border-radius: 8px;">
+                <div>
+                    <b style="color: #1e293b;">${s.name}</b><br>
+                    <span style="color: #16a34a; font-weight: bold;">₹${s.price}</span>
+                </div>
+                <button onclick="deleteService(${s.index}, '${s.name.replace(/'/g, "\\'")}')" 
+                        style="background:none; border:none; color:#ef4444; font-size:1.5rem; cursor:pointer; padding:5px;">
+                    <i class='bx bxs-trash'></i>
+                </button>
             </div>
         `).join('');
-    } catch(e) { container.innerHTML = "Error."; }
+    } catch(e) { 
+        container.innerHTML = "<div style='color:red; padding:20px;'>Error loading services.</div>"; 
+    }
 }
 
-async function deleteService(name) {
-    if(!confirm(`Delete ${name}?`)) return;
-    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams({type:'deleteService', serviceName:name}) });
-    setTimeout(loadServices, 1500);
+async function deleteService(index, name) {
+    if(!confirm(`Are you sure you want to delete the service: "${name}"?`)) return;
+
+    try {
+        // We use the 'index' to tell Google Sheets exactly which row to remove
+        await fetch(URL, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: new URLSearchParams({
+                type: 'deleteService', 
+                index: index 
+            }) 
+        });
+
+        // Show instant success and reload
+        alert("Service deleted successfully!");
+        loadServices(); 
+    } catch (e) {
+        alert("Error deleting service. Please try again.");
+    }
 }
 
 // --- UPLOAD HANDLER ---
@@ -518,54 +662,51 @@ document.getElementById('serviceForm').onsubmit = async (e) => {
 };
 </script>
 <div id="billCustomModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); z-index:10000; align-items:center; justify-content:center;">
-    <div class="modal-box" style="background:white; padding:20px; border-radius:12px; width:90%; max-width:400px;">
-        <h3 style="margin:0 0 15px 0;">Customize Invoice</h3>
+    <div class="modal-box" style="background:white; padding:20px; border-radius:12px; width:90%; max-width:400px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);">
+        <h3 style="margin:0 0 15px 0; color: #1e293b; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">Customize Invoice</h3>
         <input type="hidden" id="custIndex">
         
-        <label>Work Description</label>
-        <input type="text" id="custWork" style="width:100%; margin-bottom:10px; padding:8px;">
+        <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">Work Description</label>
+        <input type="text" id="custWork" style="width:100%; margin-bottom:12px; padding:10px; border: 1px solid #cbd5e1; border-radius: 8px;">
         
         <div style="display:flex; gap:10px;">
             <div style="flex:1;">
-                <label>Total Days</label>
-                <input type="number" id="custDay" value="1" style="width:100%; margin-bottom:10px; padding:8px;">
+                <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">Total Days</label>
+                <input type="number" id="custDay" value="1" style="width:100%; margin-bottom:12px; padding:10px; border: 1px solid #cbd5e1; border-radius: 8px;">
             </div>
             <div style="flex:1;">
-                <label>Daily Rate (₹)</label>
-                <input type="number" id="custLab" style="width:100%; margin-bottom:10px; padding:8px;">
+                <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">Daily Rate (₹)</label>
+                <input type="number" id="custLab" style="width:100%; margin-bottom:12px; padding:10px; border: 1px solid #cbd5e1; border-radius: 8px;">
             </div>
         </div>
 
-        <label>Material Charges (₹)</label>
-        <input type="number" id="custMat" value="0" style="width:100%; margin-bottom:10px; padding:8px;">
+        <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">Material Charges (₹)</label>
+        <input type="number" id="custMat" value="0" style="width:100%; margin-bottom:12px; padding:10px; border: 1px solid #cbd5e1; border-radius: 8px;">
 
-        <label>Discount (₹)</label>
-        <input type="number" id="custDisc" value="0" style="width:100%; margin-bottom:10px; padding:8px;">
+        <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">Discount (₹)</label>
+        <input type="number" id="custDisc" value="0" style="width:100%; margin-bottom:15px; padding:10px; border: 1px solid #cbd5e1; border-radius: 8px;">
 
-        <div style="display:flex; gap:10px; margin-top:20px;">
-            <button onclick="closeCustModal()" style="flex:1; padding:12px; border-radius:8px; border:none; background:#f1f5f9; cursor:pointer;">Cancel</button>
-            <button onclick="generateFinalPDF()" style="flex:1; padding:12px; border-radius:8px; border:none; background:#ef4444; color:white; cursor:pointer; font-weight:bold;">Generate PDF</button>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+            <div style="display:flex; gap:10px;">
+                <button onclick="closeCustModal()" style="flex:1; padding:12px; border-radius:8px; border:none; background:#f1f5f9; color:#475569; cursor:pointer; font-weight:600;">Cancel</button>
+                <button onclick="generateFinalPDF()" style="flex:1; padding:12px; border-radius:8px; border:none; background:#ef4444; color:white; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class='bx bxs-file-pdf'></i> View PDF
+                </button>
+            </div>
+            <button onclick="shareToWhatsApp()" style="width:100%; padding:14px; border-radius:8px; border:none; background:#25D366; color:white; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:10px; font-size: 1rem;">
+                <i class='bx bxl-whatsapp' style="font-size:1.4rem;"></i> Send Bill on WhatsApp
+            </button>
         </div>
-        <div style="display:flex; flex-direction:column; gap:10px; margin-top:20px;">
-    <div style="display:flex; gap:10px;">
-        <button onclick="closeCustModal()" style="flex:1; padding:12px; border-radius:8px; border:none; background:#f1f5f9; cursor:pointer;">Cancel</button>
-        <button onclick="generateFinalPDF()" style="flex:1; padding:12px; border-radius:8px; border:none; background:#ef4444; color:white; cursor:pointer; font-weight:bold;">View PDF</button>
-    </div>
-    <button onclick="shareToWhatsApp()" style="width:100%; padding:12px; border-radius:8px; border:none; background:#25D366; color:white; cursor:pointer; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:8px;">
-        <i class='bx bxl-whatsapp' style="font-size:1.5rem;"></i> Send Bill on WhatsApp
-    </button>
-</div>
     </div>
 </div>
-<script>
-  function openCustModal(index) {
+<script>// Function to open modal and pre-fill data
+// Pre-fill Modal when opening
+function openCustModal(index) {
     const m = globalData.find(item => item.index == index);
     if (!m) return;
 
     document.getElementById('custIndex').value = index;
     document.getElementById('custWork').value = m.workType || "Electrical Maintenance";
-    
-    // Logic: If bill exists, set it as daily rate, default days to 1
     document.getElementById('custLab').value = m.bill || 0;
     document.getElementById('custDay').value = 1; 
     document.getElementById('custMat').value = 0;
@@ -578,102 +719,9 @@ function closeCustModal() {
     document.getElementById('billCustomModal').style.display = 'none';
 }
 
-function generateFinalPDF() {
-    const index = parseInt(document.getElementById('custIndex').value);
-    const work = document.getElementById('custWork').value;
-    const day = parseFloat(document.getElementById('custDay').value) || 1;
-    const mat = parseFloat(document.getElementById('custMat').value) || 0;
-    const lab = parseFloat(document.getElementById('custLab').value) || 0;
-    const disc = parseFloat(document.getElementById('custDisc').value) || 0;
-
-    closeCustModal();
-    renderActualPDF(index, work, day, mat, lab, disc);
-}
-
-function renderActualPDF(index, work, day, mat, lab, disc) {
-    const m = globalData.find(item => item.index == index);
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    
-    const totalLabor = lab * day;
-    const finalTotal = (totalLabor + mat) - disc;
-
-    // Design: Header
-    doc.setFillColor(30, 41, 59);
-    doc.rect(0, 0, 210, 45, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(24);
-    doc.text("SPARKY ELECTRICALS", 20, 25);
-    doc.setFontSize(10);
-    doc.text("Official Service Invoice | Guwahati, Assam", 20, 33);
-
-    // Bill Details
-    doc.setTextColor(0,0,0);
-    doc.setFont("helvetica", "bold");
-    doc.text("BILL TO:", 20, 60);
-    doc.setFont("helvetica", "normal");
-    doc.text(`Customer: ${m.name}`, 20, 67);
-    doc.text(`Contact: ${m.phone}`, 20, 73);
-    doc.text(`Date: ${m.date}`, 145, 67);
-    doc.text(`Invoice No: #SE-${index}`, 145, 73);
-
-    // Table Header
-    doc.setFillColor(241, 245, 249);
-    doc.rect(20, 85, 170, 10, 'F');
-    doc.setFont("helvetica", "bold");
-    doc.text("Description", 25, 92);
-    doc.text("Days", 110, 92);
-    doc.text("Rate", 140, 92);
-    doc.text("Total", 170, 92);
-
-    // Table Rows
-    doc.setFont("helvetica", "normal");
-    doc.text(work, 25, 105);
-    doc.text(day.toString(), 110, 105);
-    doc.text(lab.toFixed(2), 140, 105);
-    doc.text(totalLabor.toFixed(2), 170, 105);
-
-    doc.text("Materials & Parts", 25, 115);
-    doc.text("-", 110, 115);
-    doc.text("-", 140, 115);
-    doc.text(mat.toFixed(2), 170, 115);
-
-    if(disc > 0) {
-        doc.setTextColor(200, 0, 0);
-        doc.text("Discount Applied", 25, 125);
-        doc.text(`- ${disc.toFixed(2)}`, 170, 125);
-    }
-
-    doc.setDrawColor(200);
-    doc.line(20, 130, 190, 130);
-
-    // Grand Total
-    doc.setTextColor(22, 101, 52);
-    doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.text("NET PAYABLE", 110, 142);
-    doc.text(`INR ${finalTotal.toLocaleString('en-IN')}`, 170, 142);
-
-    // UPI QR Code
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky&am=${finalTotal}&cu=INR`;
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiLink)}`;
-    doc.addImage(qrUrl, 'PNG', 20, 150, 35, 35);
-    
-    doc.setTextColor(0,0,0);
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "normal");
-    doc.text("Scan to pay via GPay/PhonePe", 20, 190);
-
-    window.open(doc.output('bloburl'), '_blank');
-}
-
-// MOVED OUTSIDE: This function must be separate to work
-function shareToWhatsApp() {
+// Sync amount to Dashboard and Google Sheets
+async function syncCustomBill() {
     const index = document.getElementById('custIndex').value;
-    const m = globalData.find(item => item.index == index);
-    if (!m) return;
-    
-    const work = document.getElementById('custWork').value;
     const day = parseFloat(document.getElementById('custDay').value) || 1;
     const mat = parseFloat(document.getElementById('custMat').value) || 0;
     const lab = parseFloat(document.getElementById('custLab').value) || 0;
@@ -681,25 +729,105 @@ function shareToWhatsApp() {
 
     const finalTotal = ((lab * day) + mat) - disc;
 
-    // Format Message
-    const message = `*INVOICE FROM SPARKY ELECTRICALS*%0A` +
+    // Update Local UI instantly
+    const lead = globalData.find(item => item.index == index);
+    if (lead) {
+        lead.bill = finalTotal;
+        lead.status = 'COMPLETED';
+    }
+    
+    // Refresh Dashboard Stats & Leads List
+    if (typeof updateDashboardStats === "function") {
+        updateDashboardStats(globalData, document.getElementById('totalRevenue'), document.getElementById('totalTasks'));
+    }
+    renderLeads(globalData, document.getElementById('leadsList'));
+
+    // Update Google Sheets in background
+    try {
+        fetch(URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: new URLSearchParams({ type: 'updateBill', index: index, bill: finalTotal })
+        });
+    } catch (e) { console.error("Sync failed", e); }
+
+    return { index, finalTotal, day, mat, lab, disc };
+}
+
+// VIEW PDF ACTION
+async function generateFinalPDF() {
+    const work = document.getElementById('custWork').value;
+    const data = await syncCustomBill(); // Updates DB first
+    closeCustModal();
+    renderActualPDF(data.index, work, data.day, data.mat, data.lab, data.disc);
+}
+
+// WHATSAPP ACTION
+async function shareToWhatsApp() {
+    const work = document.getElementById('custWork').value;
+    const data = await syncCustomBill(); // Updates DB first
+    const m = globalData.find(item => item.index == data.index);
+    if (!m) return;
+
+    const message = `*INVOICE: SPARKY ELECTRICALS*%0A` +
                     `-----------------------------------%0A` +
                     `*Customer:* ${m.name}%0A` +
                     `*Service:* ${work}%0A` +
-                    `*Duration:* ${day} Day(s)%0A%0A` +
-                    `*Labor Charges:* ₹${(lab * day).toFixed(2)}%0A` +
-                    `*Material Charges:* ₹${mat.toFixed(2)}%0A` +
-                    `*Discount:* -₹${disc.toFixed(2)}%0A` +
+                    `*Duration:* ${data.day} Day(s)%0A%0A` +
+                    `*Labor Charges:* ₹${(data.lab * data.day).toFixed(2)}%0A` +
+                    `*Material Charges:* ₹${data.mat.toFixed(2)}%0A` +
+                    `*Discount:* -₹${data.disc.toFixed(2)}%0A` +
                     `-----------------------------------%0A` +
-                    `*NET PAYABLE: ₹${finalTotal.toLocaleString('en-IN')}*%0A%0A` +
+                    `*NET PAYABLE: ₹${data.finalTotal.toLocaleString('en-IN')}*%0A%0A` +
                     `*Pay via UPI:* ${UPI_ID}%0A%0A` +
                     `Thank you for your business! 🙏`;
 
     const cleanPhone = m.phone.replace(/\D/g, '');
-    const waUrl = `https://wa.me/91${cleanPhone}?text=${message}`;
+    window.open(`https://wa.me/91${cleanPhone}?text=${message}`, '_blank');
+    closeCustModal();
+}
+
+// THE PDF ENGINE
+function renderActualPDF(index, work, day, mat, lab, disc) {
+    const m = globalData.find(item => item.index == index);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const totalLabor = lab * day;
+    const finalTotal = (totalLabor + mat) - disc;
+
+    // Header Design
+    doc.setFillColor(30, 41, 59); doc.rect(0, 0, 210, 45, 'F');
+    doc.setTextColor(255, 255, 255); doc.setFontSize(22); doc.text("SPARKY ELECTRICALS", 20, 25);
+    doc.setFontSize(10); doc.text("Service Invoice | Guwahati, Assam", 20, 33);
+
+    // Body Text
+    doc.setTextColor(0, 0, 0); doc.setFontSize(12); doc.text("BILL TO:", 20, 60);
+    doc.setFontSize(10); doc.text(`Customer: ${m.name}`, 20, 67);
+    doc.text(`Contact: ${m.phone}`, 20, 73); doc.text(`Date: ${m.date}`, 140, 67);
+
+    // Table
+    doc.setFillColor(241, 245, 249); doc.rect(20, 85, 170, 10, 'F');
+    doc.setFont("helvetica", "bold"); doc.text("Description", 25, 92); doc.text("Total", 170, 92);
+    doc.setFont("helvetica", "normal");
+    doc.text(`${work} (${day} Days)`, 25, 105); doc.text(totalLabor.toFixed(2), 170, 105);
+    doc.text("Materials & Parts", 25, 115); doc.text(mat.toFixed(2), 170, 115);
+    if(disc > 0) { doc.setTextColor(200,0,0); doc.text("Discount", 25, 125); doc.text(`- ${disc.toFixed(2)}`, 170, 125); }
+
+    // Total
+    doc.setTextColor(22, 101, 52); doc.setFontSize(14); doc.setFont("helvetica", "bold");
+    doc.text("NET PAYABLE", 110, 142); doc.text(`INR ${finalTotal.toLocaleString('en-IN')}`, 170, 142);
+
+    // QR Code
+    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky&am=${finalTotal}&cu=INR`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiLink)}`;
+    doc.addImage(qrUrl, 'PNG', 20, 150, 35, 35);
     
-    window.open(waUrl, '_blank');
-}</script>
+    // Output
+    const pdfOutput = doc.output('bloburl');
+    const win = window.open(pdfOutput, '_blank');
+    if(!win) doc.save(`Invoice_${m.name}.pdf`); // Download if popup blocked
+}
+</script>
 </div>
 </body>
 </html>
