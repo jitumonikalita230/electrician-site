@@ -75,6 +75,35 @@
         
         .port-item { display: flex; align-items: center; gap: 15px; padding: 12px; border-bottom: 1px solid #f1f5f9; }
         .port-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 8px; }
+        #billCustomModal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 10000;
+    align-items: center; justify-content: center;
+}
+.modal-box {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 400px;
+}
+.modal-box label {
+    display: block;
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-top: 10px;
+}
+.modal-box input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    margin-top: 4px;
+}
     </style>
 </head>
 <body>
@@ -282,13 +311,14 @@ function renderLeads(data, container) {
             <div style="margin-top:10px; display:flex; flex-direction:column; gap:8px;">
                 ${m.status !== 'COMPLETED' ? `<button onclick="markDone(${m.index}, this)" class="btn btn-done" style="width:100%;">Mark as Finished</button>` : ''}
                 ${!m.bill ? `<button onclick="handleBillPrompt(${m.index}, this)" class="btn" style="background:#6366f1; color:white; width:100%; border:none; padding:10px; border-radius:8px; cursor:pointer;">Generate Bill</button>` : ''}
-                ${m.bill ? `<button onclick="viewPDF(${m.index})" class="btn" style="background:#ef4444; color:white; width:100%; border:none; padding:10px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-                    <i class='bx bxs-file-pdf'></i> View Invoice
-                </button>` : ''}
+               ${m.bill ? `<button onclick="openCustModal(${m.index})" class="btn" style="background:#ef4444; color:white; width:100%; border:none; padding:10px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+    <i class='bx bxs-file-pdf'></i> View & Edit Bill
+</button>` : ''}
             </div>
         </div>
     `).join('');
 }
+
 
 function handleBillPrompt(index, btn) {
     const amount = prompt("Enter Final Bill Amount (₹):");
@@ -487,5 +517,121 @@ document.getElementById('serviceForm').onsubmit = async (e) => {
     setTimeout(loadServices, 1500);
 };
 </script>
+<div id="billCustomModal">
+    <div class="modal-box">
+        <h3 style="margin:0 0 15px 0;">Customize Invoice</h3>
+        <input type="hidden" id="custIndex">
+        
+        <label>Work Description</label>
+        <input type="text" id="custWork">
+
+        <label>Material Charges (₹)</label>
+        <input type="number" id="custMat" value="0">
+
+        <label>Labor / Service Charges (₹)</label>
+        <input type="number" id="custLab" value="0">
+
+        <label>Discount (₹)</label>
+        <input type="number" id="custDisc" value="0">
+
+        <div style="display:flex; gap:10px; margin-top:20px;">
+            <button onclick="closeCustModal()" style="flex:1; padding:12px; border-radius:8px; border:none; background:#f1f5f9; cursor:pointer;">Cancel</button>
+            <button onclick="generateFinalPDF()" style="flex:1; padding:12px; border-radius:8px; border:none; background:#ef4444; color:white; cursor:pointer; font-weight:bold;">Generate PDF</button>
+        </div>
+    </div>
+
+<script>    function openCustModal(index) {
+    const m = globalData.find(item => item.index === index);
+    if (!m) return;
+
+    document.getElementById('custIndex').value = index;
+    document.getElementById('custWork').value = m.workType || "Electrical Maintenance";
+    // Set default Labor as the current bill amount
+    document.getElementById('custLab').value = m.bill || 0;
+    document.getElementById('custMat').value = 0;
+    document.getElementById('custDisc').value = 0;
+    
+    document.getElementById('billCustomModal').style.display = 'flex';
+}
+
+function closeCustModal() {
+    document.getElementById('billCustomModal').style.display = 'none';
+}
+
+function generateFinalPDF() {
+    const index = parseInt(document.getElementById('custIndex').value);
+    const work = document.getElementById('custWork').value;
+    const mat = parseFloat(document.getElementById('custMat').value) || 0;
+    const lab = parseFloat(document.getElementById('custLab').value) || 0;
+    const disc = parseFloat(document.getElementById('custDisc').value) || 0;
+
+    closeCustModal();
+    // Call the actual PDF generator with these new values
+    renderActualPDF(index, work, mat, lab, disc);
+}
+
+function renderActualPDF(index, work, mat, lab, disc) {
+    const m = globalData.find(item => item.index === index);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    
+    const finalTotal = (mat + lab) - disc;
+
+    // Design: Header
+    doc.setFillColor(30, 41, 59);
+    doc.rect(0, 0, 210, 45, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(24);
+    doc.text("SPARKY ELECTRICALS", 20, 25);
+    doc.setFontSize(10);
+    doc.text("Guwahati, Assam | Mobile Service Invoice", 20, 33);
+
+    // Design: Details
+    doc.setTextColor(0,0,0);
+    doc.setFont("helvetica", "bold");
+    doc.text("BILL TO:", 20, 60);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Customer: ${m.name}`, 20, 67);
+    doc.text(`Contact: ${m.phone}`, 20, 73);
+    doc.text(`Date: ${m.date}`, 150, 67);
+
+    // Design: Table
+    doc.setFillColor(241, 245, 249);
+    doc.rect(20, 85, 170, 10, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.text("Description of Service", 25, 92);
+    doc.text("Amount", 160, 92);
+
+    doc.setFont("helvetica", "normal");
+    doc.text(work, 25, 105);
+    doc.text(`INR ${lab.toFixed(2)}`, 160, 105);
+    
+    doc.text("Parts & Materials", 25, 115);
+    doc.text(`INR ${mat.toFixed(2)}`, 160, 115);
+
+    if(disc > 0) {
+        doc.setTextColor(200, 0, 0);
+        doc.text("Discount Applied", 25, 125);
+        doc.text(`- INR ${disc.toFixed(2)}`, 160, 125);
+    }
+
+    doc.line(20, 130, 190, 130);
+    doc.setTextColor(22, 101, 52);
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.text("TOTAL PAID", 110, 140);
+    doc.text(`INR ${finalTotal.toLocaleString('en-IN')}`, 160, 140);
+
+    // UPI QR Code
+    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky&am=${finalTotal}&cu=INR`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiLink)}`;
+    doc.addImage(qrUrl, 'PNG', 20, 150, 30, 30);
+    doc.setTextColor(0,0,0);
+    doc.setFontSize(8);
+    doc.text("Scan to Pay", 25, 185);
+
+    window.open(doc.output('bloburl'), '_blank');
+}</script>
+</div>
 </body>
 </html>
