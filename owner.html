@@ -251,6 +251,9 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
+    // Initialize permanent revenue from browser memory or start at 0
+let totalPermanentRevenue = parseFloat(localStorage.getItem('sparky_total_rev')) || 0;
+let totalPermanentTasks = parseInt(localStorage.getItem('sparky_total_tasks')) || 0;
 
 const URL = 'https://script.google.com/macros/s/AKfycbwFu7ZoLCUSTZ1NqWOsZkEGkFs7afoV1jJa2Gvngv5DgM_puyrFiWgPvP5x1e_Llqlw/exec'; 
 
@@ -316,63 +319,31 @@ async function refreshData() {
 }
 
 function updateDashboardStats(data) {
+    // 1. Update Revenue Display
+    const revEl = document.getElementById('totalRevenue');
+    if (revEl) revEl.innerText = `₹${totalPermanentRevenue.toLocaleString('en-IN')}`;
+
+    // 2. Update Monthly Revenue (Calculated from CURRENT active leads)
     const now = new Date();
-    const currentMonth = now.getMonth(); 
+    const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
-
-    let totalRev = 0;
+    
     let monthRev = 0;
-    let completedTasks = 0;
-
     data.forEach(m => {
-        // 1. Force bill to number
-        const billAmt = Number(m.bill) || 0;
-        totalRev += billAmt;
-
-        if (m.status === 'COMPLETED') {
-            completedTasks++;
-        }
-
-        // 2. Handle Date Parsing carefully
-        if (m.date) {
-            let dateStr = m.date.toString();
-            
-            // Fix for DD/MM/YYYY format which JS sometimes hates
-            if (dateStr.includes('/')) {
-                const parts = dateStr.split('/');
-                if (parts[0].length <= 2) { 
-                    // Converts DD/MM/YYYY to MM/DD/YYYY for JS compatibility
-                    dateStr = `${parts[1]}/${parts[0]}/${parts[2]}`;
-                }
-            }
-
-            const leadDate = new Date(dateStr);
-
-            // 3. Strict Check
-            if (!isNaN(leadDate.getTime())) {
-                const isThisMonth = leadDate.getMonth() === currentMonth;
-                const isThisYear = leadDate.getFullYear() === currentYear;
-
-                if (isThisMonth && isThisYear) {
-                    monthRev += billAmt;
-                }
+        if (m.status === 'COMPLETED' && m.date && Number(m.bill)>0) {
+            const d = new Date(m.date.split('/').reverse().join('-')); // Adjust date for JS
+            if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+                monthRev += (Number(m.bill) || 0);
             }
         }
     });
 
-    // --- UI Update with Fallbacks ---
-    const updateEl = (id, value) => {
-        const el = document.getElementById(id);
-        if (el) el.innerText = value;
-    };
+    const monthEl = document.getElementById('monthlyRevenue');
+    if (monthEl) monthEl.innerText = `₹${monthRev.toLocaleString('en-IN')}`;
 
-    updateEl('monthlyRevenue', `₹${monthRev.toLocaleString('en-IN')}`);
-    updateEl('totalRevenue', `₹${totalRev.toLocaleString('en-IN')}`);
-    updateEl('totalTasks', completedTasks);
-
-    const months = ["January", "February", "March", "April", "May", "June", 
-                    "July", "August", "September", "October", "November", "December"];
-    updateEl('monthLabel', `Revenue in ${months[currentMonth]}`);
+    // 3. Update Task Count
+    const taskEl = document.getElementById('totalTasks');
+    if (taskEl) taskEl.innerText = totalPermanentTasks;
 }
 // Inside deleteLead...
 
@@ -432,6 +403,7 @@ function renderLeads(data, container) {
                     <button onclick="downloadPDF(${m.index})" class="btn" style="background:#f8fafc; color:#1e293b; border:1px solid #e2e8f0; width:100%; padding:10px; border-radius:8px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
                         <i class='bx bxs-file-pdf' style='color:#ef4444;'></i> Download PDF Receipt
                     </button>
+                   
                 ` : ''}
             </div>
         </div>
@@ -487,44 +459,34 @@ function calculateLiveTotal() {
 
 // 3. CORE SYNC LOGIC (Cloud + Local)
 async function syncCustomBill() {
-    const index = document.getElementById('custIndex').value;
-    const work = document.getElementById('custWork').value;
+    const lab = parseFloat(document.getElementById('custLab').value) || 0;
     const day = parseFloat(document.getElementById('custDay').value) || 1;
     const mat = parseFloat(document.getElementById('custMat').value) || 0;
-    const lab = parseFloat(document.getElementById('custLab').value) || 0;
     const disc = parseFloat(document.getElementById('custDisc').value) || 0;
+    const finalTotal = (lab * day) + mat - disc;
 
-    const finalTotal = ((lab * day) + mat) - disc;
-
-    // 1. Update Local memory for immediate UI change
-    const leadIndex = globalData.findIndex(item => item.index == index);
-    if (leadIndex !== -1) {
-        globalData[leadIndex].bill = finalTotal;
-        globalData[leadIndex].workType = work;
-        globalData[leadIndex].status = 'COMPLETED';
-    }
+    // --- PERMANENT MATH ---
+    // We only add to the permanent vault if this is a NEW completion
+    const index = document.getElementById('custIndex').value;
+    const existingLead = globalData.find(item => item.index == index);
     
-    // 2. Refresh UI and Dashboards
-    renderLeads(globalData, document.getElementById('leadsList'));
-    if (typeof updateDashboardStats === "function") updateDashboardStats(globalData);
-
-    // 3. Google Sheets Sync
-    try {
-        const params = new URLSearchParams({
-            type: 'updateBill',
-            index: index,
-            bill: finalTotal,
-            workType: work
-        });
-        // Use fetch with 'no-cors' for Apps Script POST
-        fetch(URL, { method: 'POST', mode: 'no-cors', body: params });
-    } catch (e) { 
-        console.error("Cloud sync failed:", e); 
+    if (existingLead && existingLead.status !== 'COMPLETED') {
+        totalPermanentRevenue += finalTotal;
+        totalPermanentTasks += 1;
+        
+        // Save to browser memory so it survives a refresh
+        localStorage.setItem('sparky_total_rev', totalPermanentRevenue);
+        localStorage.setItem('sparky_total_tasks', totalPermanentTasks);
     }
 
-    return { index, finalTotal, day, mat, lab, disc, work };
-}
+    // Update the local data for UI
+    if (existingLead) {
+        existingLead.bill = finalTotal;
+        existingLead.status = 'COMPLETED';
+    }
 
+    return { index, finalTotal };
+}
 // 4. ACTION: GENERATE PDF
 async function generateFinalPDF() {
     const btn = event.currentTarget;
@@ -547,34 +509,42 @@ async function shareToWhatsApp() {
     const m = globalData.find(item => item.index == data.index);
     if (!m) return;
 
+    const UPI_ID = "yourname@upi"; // Ensure this is defined
     const formattedAmt = parseFloat(data.finalTotal).toFixed(2);
+    
+    // 1. Create the UPI Link (Encoded for the message)
     const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent("Sparky Electricals")}&am=${formattedAmt}&cu=INR&tn=${encodeURIComponent('Inv-' + data.index)}`;
 
-    const message = 
-        `✨ *SPARKY ELECTRICALS* ✨%0A` +
-        `*Official Digital Invoice*%0A` +
-        `-------------------------------------------%0A` +
-        `📌 *JOB DETAILS*%0A` +
-        `• *Invoice:* #INV-${data.index}%0A` +
-        `• *Customer:* ${m.name}%0A` +
-        `• *Work:* ${data.work}%0A` +
-        `-------------------------------------------%0A` +
-        `💰 *BILLING SUMMARY*%0A` +
-        `• Labor: ₹${(data.lab * data.day).toLocaleString('en-IN')}%0A` +
-        `• Materials: ₹${data.mat.toLocaleString('en-IN')}%0A` +
-        (data.disc > 0 ? `• Discount: -₹${data.disc.toLocaleString('en-IN')}%0A` : '') +
-        `⭐ *TOTAL AMOUNT: ₹${data.finalTotal.toLocaleString('en-IN')}*%0A` +
-        `-------------------------------------------%0A%0A` +
-        `📲 *PAY VIA UPI:*%0A` +
-        `${upiLink}%0A%0A` +
-        `💡 _Note: If link isn't clickable, reply 'OK' to enable it._%0A%0A` +
-        `Thank you! 🙏`;
+    // 2. Build the Message
+    const message = `✨ *SPARKY ELECTRICALS* ✨
+*Official Digital Invoice*
+-------------------------------------------
+📌 *JOB DETAILS*
+• *Invoice:* #INV-${data.index}
+• *Customer:* ${m.name}
+• *Service:* ${data.work}
+-------------------------------------------
+💰 *PAYMENT SUMMARY*
+• Work Charges: ₹${(data.lab * data.day).toFixed(2)}
+• Materials: ₹${data.mat.toFixed(2)}
+${data.disc > 0 ? `• Discount: -₹${data.disc.toFixed(2)}\n` : ''}⭐ *TOTAL: ₹${data.finalTotal.toLocaleString('en-IN')}*
+-------------------------------------------
 
+📲 *TAP TO PAY:*
+${upiLink}
+
+💡 _Save our contact to enable the link._
+
+Thank you! 🙏`;
+
+    // 3. Clean Phone & Encode the WHOLE message
     const cleanPhone = m.phone.replace(/\D/g, '');
-    window.open(`https://wa.me/91${cleanPhone}?text=${message}`, '_blank');
+    // Using encodeURIComponent on the entire message is what fixes the "cut off" issue
+    const finalUrl = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(message)}`;
+    
+    window.open(finalUrl, '_blank');
     closeCustModal();
 }
-
 function closeCustModal() {
     document.getElementById('billCustomModal').style.display = 'none';
 }
@@ -741,60 +711,72 @@ async function downloadPDF(index) {
     doc.save(`Invoice_${m.name.replace(/\s+/g, '_')}.pdf`);
 }
 async function deleteLead(index) {
-    // 1. Safety check for the URL (Variable naming check)
-    // IMPORTANT: Ensure your Script URL variable is named 'URL' or change this.
-    if (typeof URL === 'undefined' || !URL) {
-        alert("Configuration Error: API URL is not defined.");
-        return;
-    }
+    if (!confirm("Remove lead from list? (Revenue history is safe)")) return;
 
-    if (!confirm("Are you sure you want to delete this lead?")) return;
-    
-    // 2. Visual Feedback (UI)
+    // 1. UI Feedback
     const card = document.querySelector(`[onclick="deleteLead(${index})"]`)?.closest('.card');
-    if (card) {
-        card.style.opacity = '0.3';
-        card.style.pointerEvents = 'none'; // Prevent double clicks
-    }
+    if (card) card.style.opacity = '0.3';
 
     try {
-        // 3. Send request to Google Apps Script
+        // 2. Remove from Local Array
+        globalData = globalData.filter(item => item.index !== index);
+        
+        // 3. Update Display
+        renderLeads(globalData, document.getElementById('leadsList'));
+        updateDashboardStats(globalData); // The vault numbers remain unchanged!
+
+        // 4. Update Google Sheets
         await fetch(URL, { 
             method: 'POST', 
             mode: 'no-cors', 
-            body: new URLSearchParams({
-                'type': 'deleteLead', 
-                'index': index
-            }) 
+            body: new URLSearchParams({ 'type': 'deleteLead', 'index': index }) 
         });
 
-        // 4. Update Local Memory (Optimistic UI)
-        // We filter out the item so the UI feels fast
-        globalData = globalData.filter(item => item.index !== index);
-        
-        // 5. Re-render UI and Stats
-        renderLeads(globalData, document.getElementById('leadsList'));
-        
-        if (typeof updateDashboardStats === "function") {
-            updateDashboardStats(globalData);
-        }
-
-        console.log("Deleted index:", index);
-
-        // 6. CRITICAL: Refresh data from server
-        // This ensures row indexes in the sheet match the UI for the next delete
-        setTimeout(() => {
-            if (typeof refreshData === "function") refreshData();
-        }, 1500);
-
     } catch (e) {
-        console.error("Delete error:", e);
-        alert("Connection Error. Please refresh.");
-        if (card) card.style.opacity = '1';
+        console.error("Delete failed", e);
     }
 }
 async function markDone(index, btn) {
     if (!confirm("Mark this job as completed?")) return;
+
+    // 1. UI Loading State
+    const originalContent = btn.innerHTML;
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Saving...";
+    btn.disabled = true;
+
+    try {
+        // 2. Sync with Google Sheets
+        await fetch(URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: new URLSearchParams({
+                'type': 'markDone',
+                'index': index
+            })
+        });
+
+        // 3. Update local data so UI refreshes immediately
+        const lead = globalData.find(item => item.index == index);
+        if (lead) {
+            lead.status = 'COMPLETED';
+        }
+
+        // 4. Re-render leads list to show "Completed" badge
+        renderLeads(globalData, document.getElementById('leadsList'));
+        
+        // 5. Update dashboard counters if function exists
+        if (typeof updateDashboardStats === "function") {
+            updateDashboardStats(globalData, document.getElementById('totalRevenue'), document.getElementById('totalTasks'));
+        }
+
+    } catch (err) {
+        alert("Error marking job as done. Check connection.");
+        btn.innerHTML = originalContent;
+        btn.disabled = false;
+    }
+}
+async function billpaid(index, btn) {
+    if (!confirm("Mark this bill as paid ?")) return;
 
     // 1. UI Loading State
     const originalContent = btn.innerHTML;
@@ -1141,7 +1123,7 @@ document.getElementById('serviceForm').onsubmit = async (e) => {
         <div style="margin-top:20px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
          <div style="margin-top:20px; display:grid; grid-template-columns: 1fr; gap:10px;">
     <button id="pdfBtn" onclick="generateFinalPDF()" style="background:#1e293b; color:white; padding:14px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-        <i class='bx bxs-file-pdf'></i> Download & Share PDF
+        <i class='bx bxs-file-pdf'></i> Download 
     </button>
 </div>
             <button id="waBtn" onclick="shareToWhatsApp()" style="background:#22c55e; color:white; padding:14px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
@@ -1271,30 +1253,42 @@ async function sharePDFDirectly(index) {
 async function shareToWhatsApp() {
     const data = await syncCustomBill();
     const m = globalData.find(item => item.index == data.index);
+    if (!m) return;
+
+    const UPI_ID = "yourname@upi"; // Ensure this is defined
+    const formattedAmt = parseFloat(data.finalTotal).toFixed(2);
     
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent("Sparky Electricals")}&am=${data.finalTotal.toFixed(2)}&cu=INR&tn=Inv${data.index}`;
+    // 1. Create the UPI Link (Encoded for the message)
+    const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent("Sparky Electricals")}&am=${formattedAmt}&cu=INR&tn=${encodeURIComponent('Inv-' + data.index)}`;
 
-    const message = 
-        `✨ *SPARKY ELECTRICALS* ✨%0A` +
-        `*Official Digital Invoice*%0A` +
-        `-------------------------------------------%0A` +
-        `📌 *JOB DETAILS*%0A` +
-        `• *Invoice:* #INV-${data.index}%0A` +
-        `• *Customer:* ${m.name}%0A` +
-        `• *Service:* ${data.work}%0A` +
-        `-------------------------------------------%0A` +
-        `💰 *PAYMENT SUMMARY*%0A` +
-        `• Work Charges: ₹${(data.lab * data.day).toFixed(2)}%0A` +
-        `• Materials: ₹${data.mat.toFixed(2)}%0A` +
-        (data.disc > 0 ? `• Discount: -₹${data.disc.toFixed(2)}%0A` : '') +
-        `⭐ *TOTAL: ₹${data.finalTotal.toLocaleString('en-IN')}*%0A` +
-        `-------------------------------------------%0A%0A` +
-        `📲 *TAP TO PAY:*%0A` +
-        `${upiLink}%0A%0A` +
-        `💡 _Save our contact to enable the link._%0A%0A` +
-        `Thank you! 🙏`;
+    // 2. Build the Message
+    const message = `✨ *SPARKY ELECTRICALS* ✨
+*Official Digital Invoice*
+-------------------------------------------
+📌 *JOB DETAILS*
+• *Invoice:* #INV-${data.index}
+• *Customer:* ${m.name}
+• *Service:* ${data.work}
+-------------------------------------------
+💰 *PAYMENT SUMMARY*
+• Work Charges: ₹${(data.lab * data.day).toFixed(2)}
+• Materials: ₹${data.mat.toFixed(2)}
+${data.disc > 0 ? `• Discount: -₹${data.disc.toFixed(2)}\n` : ''}⭐ *TOTAL: ₹${data.finalTotal.toLocaleString('en-IN')}*
+-------------------------------------------
 
-    window.open(`https://wa.me/91${m.phone.replace(/\D/g, '')}?text=${message}`, '_blank');
+📲 *TAP TO PAY:*
+${upiLink}
+
+💡 _Save our contact to enable the link._
+
+Thank you! 🙏`;
+
+    // 3. Clean Phone & Encode the WHOLE message
+    const cleanPhone = m.phone.replace(/\D/g, '');
+    // Using encodeURIComponent on the entire message is what fixes the "cut off" issue
+    const finalUrl = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(message)}`;
+    
+    window.open(finalUrl, '_blank');
     closeCustModal();
 }
 function renderActualPDF(index, work, day, mat, lab, disc) {
