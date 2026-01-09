@@ -129,23 +129,26 @@
     <div class="main-content">
         <div id="leadsSection">
     <h3 style="margin-bottom:15px;">Business Overview</h3>
-    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 25px;">
+    <div class="dashboard-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 20px; background: #f1f5f9; border-radius: 16px; margin-bottom: 25px;">
     
-    <div class="stat-card" style="background: #ecfdf5; padding: 15px; border-radius: 12px; border: 1px solid #10b981; text-align: center;">
-        <small style="color:#059669; font-weight:bold; text-transform:uppercase; font-size:0.6rem; display:block; margin-bottom:5px;">Lifetime Earnings</small>
-        <div id="totalRevenue" style="font-size:1.4rem; font-weight:800; color:#064e3b;">₹0</div>
+    <div class="stat-card" style="background: #1e293b; color: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+        <small style="opacity: 0.7; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Lifetime Revenue</small>
+        <h2 id="vaultRevenue" style="margin: 5px 0; font-size: 1.4rem;">₹0</h2>
+        <div style="font-size: 0.7rem; color: #94a3b8;">Total Permanent Earnings</div>
     </div>
 
-    <div class="stat-card" style="background: #eff6ff; padding: 15px; border-radius: 12px; border: 1px solid #3b82f6; text-align: center;">
-        <small id="monthLabel" style="color:#3b82f6; font-weight:bold; text-transform:uppercase; font-size:0.6rem; display:block; margin-bottom:5px;">This Month</small>
-        <div id="monthlyRevenue" style="font-size:1.4rem; font-weight:800; color:#1d4ed8;">₹0</div>
+    <div class="stat-card" style="background: white; color: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <small style="color: #64748b; font-size: 0.75rem; text-transform: uppercase;">This Month</small>
+        <h2 id="monthlyRevenue" style="margin: 5px 0; font-size: 1.4rem; color: #6366f1;">₹0</h2>
+        <div id="monthName" style="font-size: 0.7rem; color: #94a3b8;">Loading...</div>
     </div>
 
-    <div class="stat-card" style="background: white; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0; text-align: center; border-bottom: 4px solid #6366f1;">
-        <small style="color:#64748b; font-weight:bold; text-transform:uppercase; font-size:0.6rem; display:block; margin-bottom:5px;">Jobs Done</small>
-        <div id="totalTasks" style="font-size:1.4rem; font-weight:800; color:#1e293b;">0</div>
+    <div class="stat-card" style="background: white; color: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
+        <small style="color: #64748b; font-size: 0.75rem; text-transform: uppercase;">Jobs Done</small>
+        <h2 id="vaultTasks" style="margin: 5px 0; font-size: 1.4rem;">0</h2>
+        <div style="font-size: 0.7rem; color: #94a3b8;">Total Verified Jobs</div>
     </div>
-
+</div>
 </div>
     <h3 style="margin-bottom:20px;">Customer Inquiries</h3>
     <div id="leadsList">Loading...</div>
@@ -253,7 +256,7 @@
 // 1. CONFIGURATION & PERMANENT VAULT
 // ==========================================
 let globalData = [];
-const URL = 'https://script.google.com/macros/s/AKfycbwFu7ZoLCUSTZ1NqWOsZkEGkFs7afoV1jJa2Gvngv5DgM_puyrFiWgPvP5x1e_Llqlw/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbzdGGYHbTKyBk4kkRp7pzjDmQ0zRYShxKhF-cKwm-y-ZeBc6uiRcTpURr9DmlnIwT1q/exec'; 
 const UPI_ID = "jitumoni2005-1@okhdfcbank"; 
 
 // Permanent Storage: Survives lead deletions
@@ -328,7 +331,6 @@ function switchTab(tab) {
 // ==========================================
 // 1. CONFIGURATION & PERMANENT VAULT
 // ==========================================
-
 async function refreshData() {
     const list = document.getElementById('leadsList');
     if(!list) return;
@@ -340,7 +342,10 @@ async function refreshData() {
         const data = await res.json();
         globalData = data; 
         localStorage.setItem('cachedLeads', JSON.stringify(data));
+        
+        // --- ADDED: Refresh Dashboard Stats ---
         updateDashboardStats(data);
+        
         renderLeads(data, list);
     } catch(e) { 
         const cached = localStorage.getItem('cachedLeads');
@@ -352,63 +357,51 @@ async function refreshData() {
     }
 }
 
-function updateDashboardStats(data) {
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    let monthRev = 0;
+async function updateDashboardStats(data) {
+    try {
+        // 1. Fetch Permanent Vault Data from Sheet
+        const vaultRes = await fetch(`${URL}?mode=vault`);
+        const vaultData = await vaultRes.json();
 
-    data.forEach(m => {
-        // Only count COMPLETED tasks with a valid bill
-        if (m.status === 'COMPLETED' && m.bill && Number(m.bill) > 0) {
-            
-            try {
-                // Handle DD/MM/YYYY format
-                const parts = m.date.split('/');
-                if (parts.length === 3) {
-                    const day = parseInt(parts[0]);
-                    const month = parseInt(parts[1]) - 1; // JS months are 0-11
-                    const year = parseInt(parts[2]);
+        // Update Permanent UI Elements
+        document.getElementById('vaultRevenue').innerText = `₹${Number(vaultData.totalRevenue || 0).toLocaleString('en-IN')}`;
+        document.getElementById('vaultTasks').innerText = vaultData.totalTasks || 0;
 
-                    if (month === currentMonth && year === currentYear) {
-                        monthRev += Number(m.bill);
+        // 2. Calculate Monthly Revenue from the active globalData
+        const now = new Date();
+        const currentMonth = now.getMonth();
+        const currentYear = now.getFullYear();
+        
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        if(document.getElementById('monthName')) {
+            document.getElementById('monthName').innerText = `Total in ${monthNames[currentMonth]}`;
+        }
+
+        let monthlyTotal = 0;
+        data.forEach(lead => {
+            if (lead.status === 'COMPLETED' && lead.bill) {
+                // Parse date (dd/mm/yyyy)
+                const parts = lead.date.split('/');
+                if(parts.length === 3) {
+                    const leadDate = new Date(parts[2], parts[1] - 1, parts[0]);
+                    if (leadDate.getMonth() === currentMonth && leadDate.getFullYear() === currentYear) {
+                        monthlyTotal += Number(lead.bill);
                     }
                 }
-            } catch (e) {
-                console.error("Date error for lead:", m.name, e);
             }
+        });
+
+        if(document.getElementById('monthlyRevenue')) {
+            document.getElementById('monthlyRevenue').innerText = `₹${monthlyTotal.toLocaleString('en-IN')}`;
         }
-    });
 
-    // Update the UI Elements
-    const revEl = document.getElementById('totalRevenue');
-    const monthEl = document.getElementById('monthlyRevenue');
-    const taskEl = document.getElementById('totalTasks');
-
-    // Total Permanent Revenue (from Vault)
-    if (revEl) revEl.innerText = `₹${totalPermanentRevenue.toLocaleString('en-IN')}`;
-    
-    // Monthly Revenue (calculated from current leads)
-    if (monthEl) monthEl.innerText = `₹${monthRev.toLocaleString('en-IN')}`;
-    
-    // Total Tasks (from Vault)
-    if (taskEl) taskEl.innerText = totalPermanentTasks;
+    } catch (err) {
+        console.error("Dashboard Stats Error:", err);
+    }
 }
 // ==========================================
 // 1. CORE DATA & SYNC
 // ==========================================
-
-// ==========================================
-// 1. CORE DATA SYNC & DASHBOARD ACTIVATION
-// ==========================================
-
-// ==========================================
-// 1. CORE DATA SYNC & DASHBOARD ACTIVATION
-// ==========================================
-// ==========================================
-// 1. CORE DATA SYNC & DELETE LOGIC
-// ==========================================
-
 async function cloudSync(payload) {
     try {
         await fetch(URL, {
@@ -418,53 +411,40 @@ async function cloudSync(payload) {
         });
         return true;
     } catch (e) {
-        console.error("Cloud Sync failed:", e);
         return false;
     }
 }
 
 async function markDone(index, btn) {
     const lead = globalData.find(item => item.index == index);
-    if (!lead || !lead.bill) return alert("Please generate a bill first!");
+    if (!lead || !lead.bill) return alert("Please save a bill amount first!");
 
     btn.innerHTML = `<i class='bx bx-loader-alt bx-spin'></i> Syncing...`;
     btn.disabled = true;
 
-    // Update Dashboard Stats & Status
     lead.status = 'COMPLETED';
     totalPermanentRevenue += Number(lead.bill);
     totalPermanentTasks += 1;
     
     if (typeof saveToVault === "function") saveToVault();
 
-    const success = await cloudSync({ 
-        'type': 'markDone', 
-        'index': index, 
-        'bill': lead.bill 
-    });
-
-    if (!success) alert("Dashboard updated locally, but Cloud sync failed.");
+    await cloudSync({ 'type': 'markDone', 'index': index, 'bill': lead.bill });
+    
+    // Final UI refresh
     refreshData();
 }
 
 async function deleteLead(index) {
-    if (!confirm("Are you sure you want to remove this lead?")) return;
-    
-    // Remove lead from local state
+    if (!confirm("Remove this lead?")) return;
     globalData = globalData.filter(item => item.index !== index);
-    
-    // Update UI and Dashboard counters
     renderLeads(globalData, document.getElementById('leadsList'));
     if (typeof updateDashboardStats === "function") updateDashboardStats(globalData);
-    
-    // Notify Cloud
     await cloudSync({ 'type': 'deleteLead', 'index': index });
 }
 
 // ==========================================
-// 2. RENDERING LOGIC (Fixed Persistence)
+// 2. RENDERING LOGIC (Buttons won't disappear)
 // ==========================================
-
 function renderLeads(data, container) {
     if (!container) return;
     
@@ -478,7 +458,7 @@ function renderLeads(data, container) {
             <div style="display:flex; justify-content:space-between; align-items:start;">
                 <div>
                     <span style="background:${isDone ? '#dcfce7' : '#fef3c7'}; color:${isDone ? '#166534' : '#92400e'}; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:bold;">${m.status}</span>
-                    <h3 style="margin:5px 0; color: #1e293b;">${m.name}</h3>
+                    <h3 style="margin:5px 0; color: #1e293b; font-size:1.1rem;">${m.name}</h3>
                 </div>
                 <i class='bx bx-trash' onclick="deleteLead(${m.index})" style="color:#ef4444; cursor:pointer; font-size: 1.2rem;"></i>
             </div>
@@ -489,7 +469,7 @@ function renderLeads(data, container) {
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top: 1px solid #f1f5f9;">
                 <div><small style="color:#94a3b8;">Quote: ₹${m.quote}</small></div>
-                ${hasBill ? `<div style="text-align:right;"><b style="color:#1e293b;">Bill: ₹${Number(m.bill).toLocaleString('en-IN')}</b></div>` : ''}
+                ${hasBill ? `<div style="text-align:right;"><b style="color:#1e293b;">Final Bill: ₹${Number(m.bill).toLocaleString('en-IN')}</b></div>` : ''}
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
@@ -504,7 +484,7 @@ function renderLeads(data, container) {
             <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
                 ${!isDone ? `
                     <button onclick="openCustModal(${m.index})" style="background:#1e293b; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">
-                        <i class='bx bx-receipt'></i> ${hasBill ? 'Edit Bill / View Preview' : 'Generate Bill'}
+                        <i class='bx bx-edit'></i> ${hasBill ? 'Edit / Send Bill' : 'Generate Bill'}
                     </button>
                     
                     ${hasBill ? `
@@ -524,57 +504,144 @@ function renderLeads(data, container) {
 }
 
 // ==========================================
-// 3. BILLING LOGIC & MODAL ACTION
+// 3. IMPROVED MODAL ACTIONS
 // ==========================================
 
+// --- 1. LIVE CALCULATION ---
 function calculateLiveTotal() {
     const getValue = (id) => parseFloat(document.getElementById(id)?.value) || 0;
     const lab  = getValue('custLab');
     const day  = Math.max(1, getValue('custDay'));
     const mat  = getValue('custMat');
     const disc = getValue('custDisc');
+    
     const total = (lab * day) + mat - disc;
     
     const display = document.getElementById('liveTotalDisplay');
-    if (display) display.innerHTML = `Final Bill: <b style="color:#22c55e;">₹${total.toLocaleString('en-IN')}</b>`;
+    if (display) {
+        display.innerHTML = `Total Amount: <b style="color:#6366f1;">₹${total.toLocaleString('en-IN')}</b>`;
+    }
     return total;
 }
 
-// Saves data permanently and refreshes UI to show 'Mark Paid'
-async function finalizeBill() {
+// --- 2. TEMPORARY SYNC (Saves draft for Preview/WA) ---
+function syncDraft() {
     const index = document.getElementById('custIndex').value;
     const lead = globalData.find(item => item.index == index);
-    
     if (lead) {
         lead.bill = calculateLiveTotal();
         lead.workType = document.getElementById('custWork').value;
-        
+        // Save to local storage but DON'T change status to COMPLETED yet
         if (typeof saveToVault === "function") saveToVault();
-        
-        alert("Bill Saved! You can now mark this lead as Paid.");
-        closeCustModal();
-        renderLeads(globalData, document.getElementById('leadsList'));
+    }
+    return lead;
+}
+function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
+    const m = globalData.find(item => item.index == index);
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const finalTotal = (lab * day) + mat - disc;
+
+    // --- Styling ---
+    doc.setFillColor(30, 41, 59); doc.rect(0, 0, 210, 35, 'F');
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22); doc.text("SPARKY ELECTRICALS", 20, 23);
+    
+    // --- Billing Details ---
+    doc.setTextColor(0); doc.setFontSize(12);
+    doc.text(`Invoice To: ${m.name}`, 20, 50);
+    doc.text(`Work: ${work}`, 20, 60);
+    doc.text(`Date: ${m.date || new Date().toLocaleDateString()}`, 150, 50);
+
+    // --- Price Table ---
+    doc.line(20, 70, 190, 70);
+    doc.text(`Labor/Service (${day} Days @ ${lab}):`, 20, 80);
+    doc.text(`Rs. ${(lab * day).toFixed(2)}`, 160, 80);
+    
+    doc.text(`Materials/Hardware:`, 20, 90);
+    doc.text(`Rs. ${mat.toFixed(2)}`, 160, 90);
+    
+    if(disc > 0) {
+        doc.setTextColor(220, 38, 38);
+        doc.text(`Discount Applied:`, 20, 100);
+        doc.text(`- Rs. ${disc.toFixed(2)}`, 160, 100);
+    }
+
+    doc.setTextColor(0); doc.setFont("helvetica", "bold");
+    doc.line(140, 110, 190, 110);
+    doc.text(`GRAND TOTAL:`, 110, 120);
+    doc.text(`Rs. ${finalTotal.toLocaleString('en-IN')}`, 160, 120);
+
+    // --- Output Logic ---
+    if (viewOnly) {
+        const blob = doc.output('bloburl');
+        window.open(blob, '_blank');
+    } else {
+        doc.save(`Invoice_${m.name}.pdf`);
     }
 }
 
-// Opens PDF in new tab, does NOT download
-async function viewInvoiceOnly(index) {
-    const leadIndex = index || document.getElementById('custIndex').value;
-    if (typeof downloadPDF === "function") {
-        downloadPDF(leadIndex, true); 
+// --- 3. PREVIEW & WHATSAPP (Doesn't close modal) ---
+async function viewInvoiceOnly() {
+    const lead = syncDraft(); 
+    if (lead) {
+        // Pass live inputs directly to PDF for instant preview
+        const day = parseFloat(document.getElementById('custDay').value) || 1;
+        const mat = parseFloat(document.getElementById('custMat').value) || 0;
+        const lab = parseFloat(document.getElementById('custLab').value) || 0;
+        const disc = parseFloat(document.getElementById('custDisc').value) || 0;
+        
+        renderActualPDF(lead.index, lead.workType, day, mat, lab, disc, true);
     }
 }
 
 async function shareToWhatsApp() {
-    const index = document.getElementById('custIndex').value;
-    const lead = globalData.find(item => item.index == index);
+    const lead = syncDraft();
     if (!lead) return;
 
-    const total = calculateLiveTotal();
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky%20Electricals&am=${total}&cu=INR`;
-    const message = encodeURIComponent(`✨ *SPARKY ELECTRICALS*\nTotal: ₹${total}\nPay via UPI: ${upiLink}`);
+    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky%20Electricals&am=${lead.bill}&cu=INR`;
+    const message = encodeURIComponent(
+        `✨ *SPARKY ELECTRICALS*\n` +
+        `--------------------------\n` +
+        `*Invoice:* #INV-${lead.index}\n` +
+        `*Work:* ${lead.workType}\n` +
+        `*Amount:* ₹${lead.bill}\n\n` +
+        `✅ *Pay via UPI:*\n${upiLink}\n\n` +
+        `Thank you for choosing Sparky!`
+    );
 
     window.open(`https://wa.me/91${lead.phone.toString().replace(/\D/g, '')}?text=${message}`, '_blank');
+}
+
+// --- 4. FINALIZE (Closes modal and shows 'Mark Paid' on card) ---
+async function finalizeBill() {
+    syncDraft();
+    closeCustModal();
+    // Refresh UI to show the "Mark Paid" button on the lead card
+    renderLeads(globalData, document.getElementById('leadsList'));
+}
+
+// FIX: downloadPDF must handle the viewOnly flag correctly
+function downloadPDF(index, viewOnly = false) {
+    const lead = globalData.find(m => m.index == index);
+    const doc = new jspdf.jsPDF(); // Ensure you use the correct constructor
+    
+    // Simple PDF content
+    doc.setFontSize(20);
+    doc.text("SPARKY ELECTRICALS", 20, 20);
+    doc.setFontSize(12);
+    doc.text(`Customer: ${lead.name}`, 20, 40);
+    doc.text(`Work: ${lead.workType}`, 20, 50);
+    doc.text(`Total Bill: Rs. ${lead.bill}`, 20, 60);
+    doc.text("Status: " + (lead.status === 'COMPLETED' ? "PAID" : "UNPAID"), 20, 70);
+    
+    if(viewOnly) {
+        // This is the most reliable way to open a preview
+        const blob = doc.output('bloburl');
+        window.open(blob, '_blank');
+    } else {
+        doc.save(`Invoice_${lead.name}.pdf`);
+    }
 }
 
 function openCustModal(index) {
@@ -582,7 +649,7 @@ function openCustModal(index) {
     if (!m) return;
 
     document.getElementById('custIndex').value = index;
-    document.getElementById('custWork').value = m.workType || "";
+    document.getElementById('custWork').value = m.workType || "Electrical Service";
     document.getElementById('custLab').value = m.bill || m.quote || 0;
     document.getElementById('custDay').value = 1;
     document.getElementById('custMat').value = 0;
@@ -590,7 +657,7 @@ function openCustModal(index) {
     
     document.getElementById('billCustomModal').style.display = 'flex';
     calculateLiveTotal();
-}
+}j
 function downloadPDF(index, viewOnly = false) {
     const doc = new jsPDF();
     // ... (Your PDF Design Code) ...
@@ -906,246 +973,25 @@ document.getElementById('serviceForm').onsubmit = async (e) => {
             Total: ₹0.00
         </div>
 
-<div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
-    <button onclick="finalizeBill()" style="background:#1e293b; color:white; padding:15px; border-radius:8px; font-weight:bold;">
-        ✅ Save Bill (Activates Mark Paid)
+<div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 20px;">
+    <button onclick="finalizeBill()" style="background:#1e293b; color:white; padding:15px; border-radius:10px; font-weight:bold; border:none; cursor:pointer; font-size:1rem;">
+        ✅ Save & Update Card
     </button>
     
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <button onclick="viewInvoiceOnly()" style="background:#f1f5f9; color:#1e293b; padding:12px; border-radius:8px;">
+        <button onclick="viewInvoiceOnly()" style="background:#f1f5f9; color:#1e293b; padding:12px; border-radius:10px; border:none; font-weight:600; cursor:pointer;">
             <i class='bx bx-show'></i> Preview
         </button>
-        <button onclick="shareToWhatsApp()" style="background:#dcfce7; color:#166534; padding:12px; border-radius:8px;">
-            <i class='bx bxl-whatsapp'></i> Send to WhatsApp
+        <button onclick="shareToWhatsApp()" style="background:#dcfce7; color:#166534; padding:12px; border-radius:10px; border:none; font-weight:600; cursor:pointer;">
+            <i class='bx bxl-whatsapp'></i> WhatsApp
         </button>
     </div>
+</div>
 </div>
         </div>
     </div>
 </div>
-<script>
-// 1. OPEN MODAL & PREFILL
-// Function to calculate and show total in real-time
-function calculateLiveTotal() {
-    const lab = parseFloat(document.getElementById('custLab').value) || 0;
-    const day = parseFloat(document.getElementById('custDay').value) || 1;
-    const mat = parseFloat(document.getElementById('custMat').value) || 0;
-    const disc = parseFloat(document.getElementById('custDisc').value) || 0;
-    
-    const total = (lab * day) + mat - disc;
-    document.getElementById('liveTotalDisplay').innerHTML = `Total: <span style="color:#6366f1;">₹${total.toLocaleString('en-IN', {minimumFractionDigits: 2})}</span>`;
-    return total;
-}
 
-function openCustModal(index) {
-    const m = globalData.find(item => item.index == index);
-    if (!m) return;
-
-    document.getElementById('custIndex').value = index;
-    document.getElementById('custWork').value = m.workType || "Electrical Maintenance";
-    
-    // Auto-clean currency strings if they exist in m.bill/m.quote
-    const basePrice = m.bill || m.quote || 0;
-    document.getElementById('custLab').value = String(basePrice).replace(/[^\d.]/g, '');
-    
-    document.getElementById('custDay').value = 1; 
-    document.getElementById('custMat').value = 0;
-    document.getElementById('custDisc').value = 0;
-    
-    document.getElementById('billCustomModal').style.display = 'flex';
-    calculateLiveTotal();
-}
-
-async function syncCustomBill() {
-    const index = document.getElementById('custIndex').value;
-    const work = document.getElementById('custWork').value;
-    const day = parseFloat(document.getElementById('custDay').value) || 1;
-    const mat = parseFloat(document.getElementById('custMat').value) || 0;
-    const lab = parseFloat(document.getElementById('custLab').value) || 0;
-    const disc = parseFloat(document.getElementById('custDisc').value) || 0;
-    const finalTotal = (lab * day) + mat - disc;
-
-    // Update Local UI instantly
-    const lead = globalData.find(item => item.index == index);
-    if (lead) {
-        lead.bill = finalTotal;
-        lead.workType = work;
-        lead.status = 'COMPLETED';
-    }
-    renderLeads(globalData, document.getElementById('leadsList'));
-    if (window.updateDashboardStats) updateDashboardStats(globalData);
-
-    // Sync to Sheets
-    try {
-        const params = new URLSearchParams({
-            type: 'updateBill',
-            index: index,
-            bill: finalTotal,
-            workType: work
-        });
-        fetch(URL, { method: 'POST', mode: 'no-cors', body: params });
-    } catch (e) { console.error("Sync failed", e); }
-
-    return { index, finalTotal, day, mat, lab, disc, work };
-}
-
-async function generateFinalPDF() {
-    const btn = document.getElementById('pdfBtn');
-    const originalText = btn.innerHTML;
-    btn.disabled = true;
-    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Generating...";
-
-    // 1. Sync data to Sheet and local memory
-    const data = await syncCustomBill();
-    
-    // 2. Generate and download PDF
-    const fileName = `Invoice_${data.index}_${data.work.substring(0,10)}.pdf`;
-    const doc = renderActualPDF(data.index, data.work, data.day, data.mat, data.lab, data.disc);
-    doc.save(fileName);
-
-    // 3. UI Update: Offer WhatsApp Sharing of the link or confirmation
-    btn.style.background = "#22c55e";
-    btn.innerHTML = "<i class='bx bxl-whatsapp'></i> Send on WhatsApp";
-    btn.onclick = () => shareToWhatsApp(); // Link to existing WA function
-
-    // Close modal after a short delay
-    setTimeout(() => {
-        closeCustModal();
-        btn.innerHTML = originalText;
-        btn.style.background = "#1e293b";
-        btn.onclick = generateFinalPDF; // Reset click action
-        btn.disabled = false;
-    }, 3000);
-}
-async function sharePDFDirectly(index) {
-    const m = globalData.find(item => item.index == index);
-    const doc = renderActualPDF(index, m.workType, 1, 0, m.bill, 0); // Get doc object
-    const pdfBlob = doc.output('blob');
-    const file = new File([pdfBlob], `Invoice_${index}.pdf`, { type: 'application/pdf' });
-
-    if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        try {
-            await navigator.share({
-                files: [file],
-                title: 'Invoice',
-                text: `Invoice from Sparky Electricals for ${m.name}`,
-            });
-        } catch (err) {
-            console.log("Sharing failed", err);
-            // Fallback to standard WhatsApp message if native share fails
-            shareToWhatsApp(); 
-        }
-    } else {
-        // Fallback for Desktop: Send the text invoice via WhatsApp
-        shareToWhatsApp();
-    }
-}
-
-async function shareToWhatsApp() {
-    const data = await syncCustomBill();
-    const m = globalData.find(item => item.index == data.index);
-    if (!m) return;
-
-    const UPI_ID = "yourname@upi"; // Ensure this is defined
-    const formattedAmt = parseFloat(data.finalTotal).toFixed(2);
-    
-    // 1. Create the UPI Link (Encoded for the message)
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=${encodeURIComponent("Sparky Electricals")}&am=${formattedAmt}&cu=INR&tn=${encodeURIComponent('Inv-' + data.index)}`;
-
-    // 2. Build the Message
-    const message = `✨ *SPARKY ELECTRICALS* ✨
-*Official Digital Invoice*
--------------------------------------------
-📌 *JOB DETAILS*
-• *Invoice:* #INV-${data.index}
-• *Customer:* ${m.name}
-• *Service:* ${data.work}
--------------------------------------------
-💰 *PAYMENT SUMMARY*
-• Work Charges: ₹${(data.lab * data.day).toFixed(2)}
-• Materials: ₹${data.mat.toFixed(2)}
-${data.disc > 0 ? `• Discount: -₹${data.disc.toFixed(2)}\n` : ''}⭐ *TOTAL: ₹${data.finalTotal.toLocaleString('en-IN')}*
--------------------------------------------
-
-📲 *TAP TO PAY:*
-${upiLink}
-
-💡 _Save our contact to enable the link._
-
-Thank you! 🙏`;
-
-    // 3. Clean Phone & Encode the WHOLE message
-    const cleanPhone = m.phone.replace(/\D/g, '');
-    // Using encodeURIComponent on the entire message is what fixes the "cut off" issue
-    const finalUrl = `https://wa.me/91${cleanPhone}?text=${encodeURIComponent(message)}`;
-    
-    window.open(finalUrl, '_blank');
-    closeCustModal();
-}
-function renderActualPDF(index, work, day, mat, lab, disc) {
-    const m = globalData.find(item => item.index == index);
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    const finalTotal = (lab * day) + mat - disc;
-
-    // --- Branding & Colors ---
-    const primaryColor = [30, 41, 59];
-    const accentColor = [99, 102, 241];
-
-    doc.setFillColor(...primaryColor); doc.rect(0, 0, 210, 40, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(22); doc.setFont("helvetica", "bold");
-    doc.text("SPARKY ELECTRICALS", 20, 25);
-    doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    doc.text("Guwahati, Assam | GST Exempted", 20, 33);
-    
-    // --- Billing Info ---
-    doc.setTextColor(100); doc.text("INVOICE TO", 20, 55);
-    doc.setTextColor(0); doc.setFontSize(12); doc.setFont("helvetica", "bold");
-    doc.text(m.name.toUpperCase(), 20, 62);
-    doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    doc.text(`Contact: ${m.phone}`, 20, 68);
-    doc.text(`Invoice No: #INV-${index}`, 150, 62);
-    doc.text(`Date: ${m.date}`, 150, 68);
-
-    // --- Table Headers ---
-    doc.setFillColor(248, 250, 252); doc.rect(20, 80, 170, 10, 'F');
-    doc.setFont("helvetica", "bold"); doc.text("Service Description", 25, 87); doc.text("Total (INR)", 185, 87, {align: 'right'});
-
-    // --- Line Items ---
-    doc.setFont("helvetica", "normal");
-    doc.text(`${work}`, 25, 100);
-    doc.text(`${(lab * day).toFixed(2)}`, 185, 100, {align: 'right'});
-    doc.setFontSize(8); doc.setTextColor(100);
-    doc.text(`(${day} Days @ ${lab}/day)`, 25, 104);
-    
-    doc.setFontSize(10); doc.setTextColor(0);
-    doc.text("Materials & Hardware", 25, 115);
-    doc.text(`${mat.toFixed(2)}`, 185, 115, {align: 'right'});
-
-    if(disc > 0) {
-        doc.setTextColor(220, 38, 38);
-        doc.text("Discount Applied", 25, 125);
-        doc.text(`- ${disc.toFixed(2)}`, 185, 125, {align: 'right'});
-    }
-
-    // --- Summary ---
-    doc.setDrawColor(226, 232, 240); doc.line(120, 135, 190, 135);
-    doc.setTextColor(...accentColor); doc.setFontSize(14); doc.setFont("helvetica", "bold");
-    doc.text("GRAND TOTAL", 120, 145);
-    doc.text(`INR ${finalTotal.toLocaleString('en-IN')}`, 185, 145, {align: 'right'});
-
-    // --- QR Zone ---
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky&am=${finalTotal.toFixed(2)}&cu=INR`;
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent(upiLink)}`;
-    doc.addImage(qrUrl, 'PNG', 20, 160, 35, 35);
-    doc.setFontSize(8); doc.setTextColor(150);
-    doc.text("Scan to pay via UPI", 20, 200);
-
-    doc.save(`Invoice_${index}_${m.name}.pdf`);
-}
-
-</script>
 </div>
 </body>
 </html>
