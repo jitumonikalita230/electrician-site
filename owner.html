@@ -45,6 +45,23 @@
             display: flex; align-items: center; gap: 10px;
         }
 
+        #leadsContainer {
+    display: grid;
+    /* This creates a grid that automatically fits as many 320px columns as possible */
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+    padding: 15px;
+    max-width: 1400px; /* Prevents the container from getting too wide */
+    margin: 0 auto;    /* Centers the container on desktop */
+}
+
+/* Specific fix for very small phones (iPhone SE/older Androids) */
+@media (max-width: 350px) {
+    #leadsContainer {
+        grid-template-columns: 1fr;
+        padding: 10px;
+    }
+}
         /* --- BUTTONS --- */
         .btn { 
             padding: 14px; border-radius: 12px; border: none; 
@@ -129,28 +146,30 @@
     <div class="main-content">
         <div id="leadsSection">
     <h3 style="margin-bottom:15px;">Business Overview</h3>
-    <div class="dashboard-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 20px; background: #f1f5f9; border-radius: 16px; margin-bottom: 25px;">
-    
-    <div class="stat-card" style="background: #1e293b; color: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-        <small style="opacity: 0.7; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px;">Lifetime Revenue</small>
-        <h2 id="vaultRevenue" style="margin: 5px 0; font-size: 1.4rem;">₹0</h2>
-        <div style="font-size: 0.7rem; color: #94a3b8;">Total Permanent Earnings</div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 10px;">
+    <div style="background: #1e293b; color: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <small style="text-transform: uppercase; font-size: 10px; opacity: 0.7; font-weight: 700;">Lifetime Revenue</small>
+        <h2 id="vaultRevenue" style="margin: 5px 0; font-size: 1.8rem;">₹0</h2>
+        <small style="font-size: 10px; opacity: 0.6;">Total Permanent Earnings</small>
     </div>
 
-    <div class="stat-card" style="background: white; color: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
-        <small style="color: #64748b; font-size: 0.75rem; text-transform: uppercase;">This Month</small>
-        <h2 id="monthlyRevenue" style="margin: 5px 0; font-size: 1.4rem; color: #6366f1;">₹0</h2>
-        <div id="monthName" style="font-size: 0.7rem; color: #94a3b8;">Loading...</div>
+    <div style="background: white; color: #1e293b; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
+        <small id="monthName" style="text-transform: uppercase; font-size: 10px; color: #64748b; font-weight: 700;">This Month</small>
+        <h2 id="monthlyRevenue" style="margin: 5px 0; font-size: 1.8rem; color: #6366f1;">₹0</h2>
+        <small style="font-size: 10px; color: #94a3b8;">Total in Current Month</small>
     </div>
 
-    <div class="stat-card" style="background: white; color: #1e293b; padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
-        <small style="color: #64748b; font-size: 0.75rem; text-transform: uppercase;">Jobs Done</small>
-        <h2 id="vaultTasks" style="margin: 5px 0; font-size: 1.4rem;">0</h2>
-        <div style="font-size: 0.7rem; color: #94a3b8;">Total Verified Jobs</div>
+    <div style="background: white; color: #1e293b; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
+        <small style="text-transform: uppercase; font-size: 10px; color: #64748b; font-weight: 700;">Jobs Done</small>
+        <h2 id="vaultTasks" style="margin: 5px 0; font-size: 1.8rem;">0</h2>
+        <small style="font-size: 10px; color: #94a3b8;">Total Verified Jobs</small>
     </div>
-      <h3 style="margin-bottom:20px;">Customer Inquiries</h3>
-    <div id="leadsList">Loading...</div>
 </div>
+
+    <h3 style="margin: 30px 0 15px 0;">Customer Leads</h3>
+    <div id="leadsList" style="min-height: 200px;">
+        <p style="text-align:center; color:#94a3b8; padding: 20px;">Fetching leads...</p>
+    </div>
 </div>
 
 
@@ -172,9 +191,8 @@
             <label style="font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase;">Work Category</label>
             <select name="category" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px; background: white;">
                 <option value="Electrical">⚡ Electrical Work</option>
-                <option value="Painting">🎨 Professional Painting</option>
-                <option value="Ceiling">🏠 False Ceiling</option>
-                <option value="Plumbing">🚿 Plumbing Services</option>
+                <option value="Painting">🎨 Professional Painting & 🏠 False Ceiling</option>
+               
             </select>
             
             <label style="font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase;">Upload Work Photo</label>
@@ -218,9 +236,9 @@
             <h3>Services & Prices</h3>
             <div class="card">
                 <form id="serviceForm" onsubmit="addService(event)">
-    <input type="text" name="serviceName" placeholder="Service Name" required>
-    <input type="number" name="servicePrice" placeholder="Price" required>
-    <button type="submit" id="servBtn">Add Service</button>
+    <input type="text" name="serviceName" placeholder="Service Name" required  style="font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase;">
+    <input type="number" name="servicePrice" placeholder="Price" required  style="font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase;">
+    <button type="submit" id="servBtn" >Add Service</button>
 </form>
             </div>
             <div id="currentServices">Loading...</div>
@@ -234,7 +252,7 @@
         <div class="nav-item" id="navUpload" onclick="switchTab('upload')">
             <i class='bx bxs-camera'></i>Portfolio
         </div>
-        <div class="nav-item" id="navService" onclick="switchTab('service')">
+        <div class="nav-item" id="navService" onclick="switchTab('service')" >
             <i class='bx bxs-wrench'></i>Prices
         </div>
     </div>
@@ -246,7 +264,7 @@
 // 1. CONFIGURATION & PERMANENT VAULT
 // ==========================================
 let globalData = [];
-const URL = 'https://script.google.com/macros/s/AKfycbxq1euXjNtWdPBIV8bXckNGZqVbFOxS2NAQ53DEMdpqWz2aTndsY_WejZvSpIzdso17/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbx6a9l4RTQXwjuZJ42GXchwRKL3C2pVMYlErkdk0w2xPHWtYfXb-fZxe2o34ZKCM-c9/exec'; 
 const UPI_ID = "jitumoni2005-1@okhdfcbank"; 
 
 // Permanent Storage: Survives lead deletions
@@ -633,62 +651,65 @@ async function deleteLead(index) {
 // ==========================================
 function renderLeads(data, container) {
     if (!container) return;
-    
-    container.innerHTML = data.map(m => {
-        const cleanPhone = m.phone ? m.phone.toString().replace(/\D/g, '') : "";
-        const isDone = m.status === 'COMPLETED';
-        const hasBill = m.bill && Number(m.bill) > 0;
+   container.innerHTML = data.map(m => {
+    const cleanPhone = m.phone ? m.phone.toString().replace(/\D/g, '') : "";
+    const isDone = m.status === 'COMPLETED';
+    const hasBill = m.bill && Number(m.bill) > 0;
 
-        return `
-        <div class="card" style="border-left: 5px solid ${isDone ? '#22c55e' : '#f59e0b'}; margin-bottom: 15px; padding: 15px; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
-            <div style="display:flex; justify-content:space-between; align-items:start;">
-                <div>
-                    <span style="background:${isDone ? '#dcfce7' : '#fef3c7'}; color:${isDone ? '#166534' : '#92400e'}; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:bold;">${m.status}</span>
-                    <h3 style="margin:5px 0; color: #1e293b; font-size:1.1rem;">${m.name}</h3>
-                </div>
-                <i class='bx bx-trash' onclick="deleteLead(${m.index})" style="color:#ef4444; cursor:pointer; font-size: 1.2rem;"></i>
-            </div>
-
-            <div style="margin:10px 0; font-weight:bold; color:#6366f1;">
-                <i class='bx bxs-wrench'></i> ${m.workType || 'Electrical Service'}
-            </div>
-
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top: 1px solid #f1f5f9;">
-                <div><small style="color:#94a3b8;">Quote: ₹${m.quote}</small></div>
-                ${hasBill ? `<div style="text-align:right;"><b style="color:#1e293b;">Final Bill: ₹${Number(m.bill).toLocaleString('en-IN')}</b></div>` : ''}
-            </div>
-
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
-                <a href="tel:${cleanPhone}" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:#f1f5f9; color:#1e293b; padding:12px; border-radius:8px; font-weight:600;">
-                    <i class='bx bxs-phone'></i> Call
-                </a>
-                <a href="https://wa.me/91${cleanPhone}" target="_blank" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:#dcfce7; color:#166534; padding:12px; border-radius:8px; font-weight:600;">
-                    <i class='bx bxl-whatsapp'></i> WhatsApp
-                </a>
-            </div>
-
-            <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-                ${!isDone ? `
-                    <button onclick="openCustModal(${m.index})" style="background:#1e293b; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">
-                        <i class='bx bx-edit'></i> ${hasBill ? 'Edit / Send Bill' : 'Generate Bill'}
-                    </button>
-                    
-                    ${hasBill ? `
-                        <button onclick="markDone(${m.index}, this)" style="background:#22c55e; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">
-                            <i class='bx bx-check-double'></i> Mark Paid
-                        </button>
-                    ` : ''}
-                ` : `
-                    <button onclick="viewInvoiceOnly(${m.index})" style="background:#f8fafc; color:#1e293b; border:1px solid #cbd5e1; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">
-                        <i class='bx bxs-file-pdf' style="color:#ef4444;"></i> View Paid Receipt
-                    </button>
-                `}
-            </div>
+    return `
+    <div class="card" style="position: relative; background: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); border-left: 6px solid ${isDone ? '#22c55e' : '#f59e0b'}; margin-bottom: 20px;">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <span style="background:${isDone ? '#dcfce7' : '#fef3c7'}; color:${isDone ? '#166534' : '#92400e'}; padding:4px 12px; border-radius:10px; font-size:11px; font-weight:800; text-transform:uppercase;">
+                ${m.status}
+            </span>
+            <i class='bx bx-trash' onclick="deleteLead(${m.index})" style="color:#f87171; cursor:pointer; font-size: 1.2rem;"></i>
         </div>
-        `;
-    }).join('');
-}
 
+        <h3 style="margin:0; font-size:1.3rem; color:#0f172a; font-weight:800;">${m.name}</h3>
+        <div style="color:#6366f1; font-weight:600; margin: 8px 0; display:flex; align-items:center; gap:6px;">
+            <i class='bx bxs-wrench'></i> ${m.workType || 'Electrical Service'}
+        </div>
+
+        <div style="background:#f8fafc; padding:15px; border-radius:12px; margin:15px 0; display:flex; justify-content:space-between; align-items:center;">
+            <div>
+                <div style="font-size:10px; color:#94a3b8; font-weight:700; text-transform:uppercase;">Quote</div>
+                <div style="font-weight:700; color:#475569;">₹${m.quote}</div>
+            </div>
+            ${hasBill ? `
+            <div style="text-align:right;">
+                <div style="font-size:10px; color:#6366f1; font-weight:700; text-transform:uppercase;">Final Bill</div>
+                <div style="font-size:1.1rem; font-weight:800; color:#1e293b;">₹${Number(m.bill).toLocaleString('en-IN')}</div>
+            </div>` : ''}
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-bottom:12px;">
+            <a href="tel:${cleanPhone}" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:#f1f5f9; color:#1e293b; height:45px; border-radius:12px; font-weight:700; font-size:0.9rem;">
+                <i class='bx bxs-phone'></i> Call
+            </a>
+            <a href="https://wa.me/91${cleanPhone}" target="_blank" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:#dcfce7; color:#166534; height:45px; border-radius:12px; font-weight:700; font-size:0.9rem;">
+                <i class='bx bxl-whatsapp'></i> WhatsApp
+            </a>
+        </div>
+
+        ${!isDone ? `
+            <button onclick="openCustModal(${m.index})" style="width:100%; background:#1e293b; color:white; border:none; height:50px; border-radius:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;">
+                <i class='bx bx-receipt'></i> ${hasBill ? 'Edit / Send Bill' : 'Generate Bill'}
+            </button>
+            ${hasBill ? `
+                <button onclick="markDone(${m.index}, this)" style="width:100%; margin-top:10px; background:#22c55e; color:white; border:none; height:50px; border-radius:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;">
+                    <i class='bx bx-check-circle'></i> Mark as Paid
+                </button>
+            ` : ''}
+        ` : `
+            <button onclick="viewInvoiceOnly(${m.index})" style="width:100%; background:white; color:#1e293b; border:2px solid #e2e8f0; height:50px; border-radius:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;">
+                <i class='bx bxs-file-pdf' style="color:#ef4444;"></i> View Receipt
+            </button>
+        `}
+    </div>
+    `;
+}).join('');
+}
 // ==========================================
 // 3. IMPROVED MODAL ACTIONS
 // ==========================================
@@ -836,7 +857,9 @@ function openCustModal(index) {
 
     document.getElementById('custIndex').value = index;
     document.getElementById('custWork').value = m.workType || "Electrical Service";
-    document.getElementById('custLab').value = m.bill || m.quote || 0;
+    // This removes any non-numeric characters before putting it in the box
+const defaultAmount = m.bill || m.quote || 0;
+document.getElementById('custLab').value = String(defaultAmount).replace(/[^\d.]/g, '');;
     document.getElementById('custDay').value = 1;
     document.getElementById('custMat').value = 0;
     document.getElementById('custDisc').value = 0;
