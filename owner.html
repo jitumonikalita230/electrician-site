@@ -448,116 +448,141 @@ function renderLeads(data, container) {
     }).join('');
 }
 
-async function markDone(index, btn) {
-    const lead = globalData.find(item => item.index == index);
-    if (!lead) return;
-
-    if (!lead.bill) return alert("Please generate a bill amount first!");
-
-    btn.innerHTML = "Saving...";
-    btn.disabled = true;
-
-    // Permanent Vault Update
-    totalPermanentRevenue += Number(lead.bill);
-    totalPermanentTasks += 1;
-    saveToVault();
-
-    lead.status = 'COMPLETED';
-    
+// Helper for cleaner network requests
+async function cloudSync(payload) {
     try {
-        await fetch(URL, {
+        const response = await fetch(URL, {
             method: 'POST',
-            mode: 'no-cors',
-            body: new URLSearchParams({ 'type': 'markDone', 'index': index, 'bill': lead.bill })
+            // Note: If using Google Apps Script, 'no-cors' is common, 
+            // but ensure your backend handles URLSearchParams correctly.
+            mode: 'no-cors', 
+            body: new URLSearchParams(payload)
         });
-        refreshData();
+        return true;
     } catch (e) {
-        alert("Saved locally, but cloud sync failed.");
-        refreshData();
+        console.error("Sync failed:", e);
+        return false;
     }
 }
 
+async function markDone(index, btn) {
+    const lead = globalData.find(item => item.index == index);
+    if (!lead) return;
+    if (!lead.bill) return alert("Please generate a bill amount first!");
+
+    // UI Feedback
+    const originalText = btn.innerHTML;
+    btn.innerHTML = `<span class="spinner"></span> Saving...`;
+    btn.disabled = true;
+
+    // Update Local State
+    lead.status = 'COMPLETED';
+    totalPermanentRevenue += Number(lead.bill);
+    totalPermanentTasks += 1;
+    saveToVault(); // Save to localStorage/Vault immediately
+
+    const success = await cloudSync({ 
+        'type': 'markDone', 
+        'index': index, 
+        'bill': lead.bill 
+    });
+
+    if (!success) {
+        alert("Saved locally, but cloud sync failed. It will retry later.");
+    }
+
+    refreshData(); // Re-render UI
+}
+
 async function deleteLead(index) {
-    if(!confirm("Remove lead? Revenue stays safe.")) return;
+    if (!confirm("Remove lead? Revenue stats will remain saved in the vault.")) return;
+    
+    // Optimistic UI update
     globalData = globalData.filter(item => item.index !== index);
     renderLeads(globalData, document.getElementById('leadsList'));
     updateDashboardStats(globalData);
     
-    await fetch(URL, {
-        method: 'POST',
-        mode: 'no-cors',
-        body: new URLSearchParams({ 'type': 'deleteLead', 'index': index })
-    });
+    await cloudSync({ 'type': 'deleteLead', 'index': index });
 }
 
-// --- Placeholder functions for Modals ---
-
-// ==========================================
-// 4. MODAL & BILLING LOGIC
-// ==========================================
-function openCustModal(index) {
-    const m = globalData.find(item => item.index == index);
-    if (!m) return;
-    document.getElementById('custIndex').value = index;
-    document.getElementById('custWork').value = m.workType || "";
-    document.getElementById('custLab').value = m.bill || m.quote || 0;
-    document.getElementById('billCustomModal').style.display = 'flex';
-    calculateLiveTotal();
-    console.log("Opening modal for lead", index);
-}
+// --- Billing Logic ---
 
 function calculateLiveTotal() {
-    const lab = parseFloat(document.getElementById('custLab').value) || 0;
-    const day = parseFloat(document.getElementById('custDay').value) || 1;
-    const mat = parseFloat(document.getElementById('custMat').value) || 0;
-    const disc = parseFloat(document.getElementById('custDisc').value) || 0;
+    const getValue = (id) => parseFloat(document.getElementById(id)?.value) || 0;
+    
+    const lab  = getValue('custLab');
+    const day  = Math.max(1, getValue('custDay')); // Ensure at least 1 day
+    const mat  = getValue('custMat');
+    const disc = getValue('custDisc');
+    
     const total = (lab * day) + mat - disc;
+    
     const display = document.getElementById('liveTotalDisplay');
-    if (display) display.innerHTML = `Final Bill: <span style="color:#22c55e;">₹${total.toLocaleString('en-IN')}</span>`;
+    if (display) {
+        display.innerHTML = `Final Bill: <b style="color:#22c55e;">₹${total.toLocaleString('en-IN')}</b>`;
+    }
     return total;
 }
 
-async function syncCustomBill() {
-    const total = calculateLiveTotal();
+/** * Syncs modal inputs to the globalData object 
+ */
+function syncLeadData() {
     const index = document.getElementById('custIndex').value;
-    const work = document.getElementById('custWork').value;
     const lead = globalData.find(item => item.index == index);
     
     if (lead) {
-        lead.bill = total;
-        lead.workType = work;
+        lead.bill = calculateLiveTotal();
+        lead.workType = document.getElementById('custWork').value;
+        return lead;
     }
-    return { index, total, work };
+    return null;
 }
 
 async function shareToWhatsApp() {
-    const data = await syncCustomBill();
-    const m = globalData.find(item => item.index == data.index);
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky&am=${data.total}&cu=INR`;
-    const message = encodeURIComponent(`✨ *SPARKY ELECTRICALS*\nInvoice: #INV-${data.index}\nService: ${data.work}\nTotal: ₹${data.total}\n\nPay: ${upiLink}`);
-    window.open(`https://wa.me/91${m.phone.replace(/\D/g,'')}?text=${message}`, '_blank');
+    const lead = syncLeadData();
+    if (!lead) return;
+
+    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky%20Electricals&am=${lead.bill}&cu=INR`;
+    const message = encodeURIComponent(
+        `✨ *SPARKY ELECTRICALS*\n` +
+        `--------------------------\n` +
+        `Invoice: #INV-${lead.index}\n` +
+        `Service: ${lead.workType}\n` +
+        `Total Amount: ₹${lead.bill}\n\n` +
+        `Click to pay via UPI: ${upiLink}`
+    );
+
+    window.open(`https://wa.me/91${lead.phone.replace(/\D/g, '')}?text=${message}`, '_blank');
+    
     closeCustModal();
     renderLeads(globalData, document.getElementById('leadsList'));
 }
 
 async function generateFinalPDF() {
-    const data = await syncCustomBill();
+    const lead = syncLeadData();
+    if (!lead) return;
+    
     closeCustModal();
-    // Assuming you have your renderActualPDF and downloadPDF logic available globally
-    downloadPDF(data.index);
+    // Use the existing download function
+    if (typeof downloadPDF === "function") {
+        downloadPDF(lead.index);
+    }
 }
 
-function closeCustModal() {
-    document.getElementById('billCustomModal').style.display = 'none';
-}
+function openCustModal(index) {
+    const m = globalData.find(item => item.index == index);
+    if (!m) return;
 
-// Initializing listeners
-document.addEventListener('DOMContentLoaded', () => {
-    ['custLab', 'custDay', 'custMat', 'custDisc'].forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.addEventListener('input', calculateLiveTotal);
-    });
-});
+    document.getElementById('custIndex').value = index;
+    document.getElementById('custWork').value = m.workType || "";
+    document.getElementById('custLab').value = m.bill || m.quote || 0;
+    document.getElementById('custDay').value = 1; // Reset days to 1
+    document.getElementById('custMat').value = 0;
+    document.getElementById('custDisc').value = 0;
+    
+    document.getElementById('billCustomModal').style.display = 'flex';
+    calculateLiveTotal();
+}
 // --- PORTFOLIO & DELETE ---
 const fileInput = document.getElementById('fileInput');
     const imageUrlInput = document.getElementById('imageUrlInput');
