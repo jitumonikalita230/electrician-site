@@ -354,92 +354,167 @@ async function refreshData() {
 
 function updateDashboardStats(data) {
     const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
     let monthRev = 0;
 
     data.forEach(m => {
-        if (m.status === 'COMPLETED' && m.date && Number(m.bill) > 0) {
-            const parts = m.date.split('/');
-            const d = new Date(`${parts[1]}/${parts[0]}/${parts[2]}`);
-            if (d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) {
-                monthRev += Number(m.bill);
+        // Only count COMPLETED tasks with a valid bill
+        if (m.status === 'COMPLETED' && m.bill && Number(m.bill) > 0) {
+            
+            try {
+                // Handle DD/MM/YYYY format
+                const parts = m.date.split('/');
+                if (parts.length === 3) {
+                    const day = parseInt(parts[0]);
+                    const month = parseInt(parts[1]) - 1; // JS months are 0-11
+                    const year = parseInt(parts[2]);
+
+                    if (month === currentMonth && year === currentYear) {
+                        monthRev += Number(m.bill);
+                    }
+                }
+            } catch (e) {
+                console.error("Date error for lead:", m.name, e);
             }
         }
     });
 
+    // Update the UI Elements
     const revEl = document.getElementById('totalRevenue');
     const monthEl = document.getElementById('monthlyRevenue');
     const taskEl = document.getElementById('totalTasks');
 
+    // Total Permanent Revenue (from Vault)
     if (revEl) revEl.innerText = `₹${totalPermanentRevenue.toLocaleString('en-IN')}`;
+    
+    // Monthly Revenue (calculated from current leads)
     if (monthEl) monthEl.innerText = `₹${monthRev.toLocaleString('en-IN')}`;
+    
+    // Total Tasks (from Vault)
     if (taskEl) taskEl.innerText = totalPermanentTasks;
+}
+// ==========================================
+// 1. CORE DATA & SYNC
+// ==========================================
+
+// ==========================================
+// 1. CORE DATA SYNC & DASHBOARD ACTIVATION
+// ==========================================
+
+// ==========================================
+// 1. CORE DATA SYNC & DASHBOARD ACTIVATION
+// ==========================================
+// ==========================================
+// 1. CORE DATA SYNC & DELETE LOGIC
+// ==========================================
+
+async function cloudSync(payload) {
+    try {
+        await fetch(URL, {
+            method: 'POST',
+            mode: 'no-cors', 
+            body: new URLSearchParams(payload)
+        });
+        return true;
+    } catch (e) {
+        console.error("Cloud Sync failed:", e);
+        return false;
+    }
+}
+
+async function markDone(index, btn) {
+    const lead = globalData.find(item => item.index == index);
+    if (!lead || !lead.bill) return alert("Please generate a bill first!");
+
+    btn.innerHTML = `<i class='bx bx-loader-alt bx-spin'></i> Syncing...`;
+    btn.disabled = true;
+
+    // Update Dashboard Stats & Status
+    lead.status = 'COMPLETED';
+    totalPermanentRevenue += Number(lead.bill);
+    totalPermanentTasks += 1;
+    
+    if (typeof saveToVault === "function") saveToVault();
+
+    const success = await cloudSync({ 
+        'type': 'markDone', 
+        'index': index, 
+        'bill': lead.bill 
+    });
+
+    if (!success) alert("Dashboard updated locally, but Cloud sync failed.");
+    refreshData();
+}
+
+async function deleteLead(index) {
+    if (!confirm("Are you sure you want to remove this lead?")) return;
+    
+    // Remove lead from local state
+    globalData = globalData.filter(item => item.index !== index);
+    
+    // Update UI and Dashboard counters
+    renderLeads(globalData, document.getElementById('leadsList'));
+    if (typeof updateDashboardStats === "function") updateDashboardStats(globalData);
+    
+    // Notify Cloud
+    await cloudSync({ 'type': 'deleteLead', 'index': index });
 }
 
 // ==========================================
-// 5. RENDER & ACTIONS (PAID/DELETE)
+// 2. RENDERING LOGIC (Fixed Persistence)
 // ==========================================
-// ==========================================
-// RENDER LEADS (Updated with Call & WhatsApp)
-// ==========================================
+
 function renderLeads(data, container) {
     if (!container) return;
     
     container.innerHTML = data.map(m => {
-        // Clean phone number for WhatsApp (removes spaces, dashes, etc.)
         const cleanPhone = m.phone ? m.phone.toString().replace(/\D/g, '') : "";
-        const waLink = `https://wa.me/91${cleanPhone}`;
-        const telLink = `tel:${cleanPhone}`;
+        const isDone = m.status === 'COMPLETED';
+        const hasBill = m.bill && Number(m.bill) > 0;
 
         return `
-        <div class="card" style="border-left: 5px solid ${m.status === 'COMPLETED' ? '#22c55e' : '#f59e0b'}; margin-bottom: 15px; padding: 15px; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <div class="card" style="border-left: 5px solid ${isDone ? '#22c55e' : '#f59e0b'}; margin-bottom: 15px; padding: 15px; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
             <div style="display:flex; justify-content:space-between; align-items:start;">
                 <div>
-                    <span style="background:${m.status === 'COMPLETED' ? '#dcfce7' : '#fef3c7'}; color:${m.status === 'COMPLETED' ? '#166534' : '#92400e'}; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:bold;">${m.status}</span>
+                    <span style="background:${isDone ? '#dcfce7' : '#fef3c7'}; color:${isDone ? '#166534' : '#92400e'}; padding:2px 8px; border-radius:10px; font-size:10px; font-weight:bold;">${m.status}</span>
                     <h3 style="margin:5px 0; color: #1e293b;">${m.name}</h3>
-                    <small style="color: #64748b;"><i class='bx bx-calendar'></i> ${m.date}</small>
                 </div>
                 <i class='bx bx-trash' onclick="deleteLead(${m.index})" style="color:#ef4444; cursor:pointer; font-size: 1.2rem;"></i>
             </div>
 
-            <div style="margin:10px 0; font-weight:bold; color:#6366f1; display:flex; align-items:center; gap:5px;">
+            <div style="margin:10px 0; font-weight:bold; color:#6366f1;">
                 <i class='bx bxs-wrench'></i> ${m.workType || 'Electrical Service'}
             </div>
-            
-            <p style="margin:5px 0; font-size:0.9rem; color:#475569;">📍 ${m.location}</p>
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px; padding-top:10px; border-top: 1px solid #f1f5f9;">
-                <div style="display:flex; flex-direction:column;">
-                    <small style="color:#94a3b8;">Quote</small>
-                    <b style="color:#64748b;">₹${m.quote}</b>
-                </div>
-                ${m.bill ? `
-                <div style="text-align:right;">
-                    <small style="color:#22c55e; font-weight:bold;">Final Bill</small><br>
-                    <b style="color:#1e293b; font-size:1.2rem;">₹${Number(m.bill).toLocaleString('en-IN')}</b>
-                </div>` : ''}
+                <div><small style="color:#94a3b8;">Quote: ₹${m.quote}</small></div>
+                ${hasBill ? `<div style="text-align:right;"><b style="color:#1e293b;">Bill: ₹${Number(m.bill).toLocaleString('en-IN')}</b></div>` : ''}
             </div>
 
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:15px;">
-                <a href="${telLink}" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:#f1f5f9; color:#1e293b; padding:12px; border-radius:8px; font-weight:600; font-size:0.9rem;">
-                    <i class='bx bxs-phone' style="color:#6366f1;"></i> Call
+                <a href="tel:${cleanPhone}" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:#f1f5f9; color:#1e293b; padding:12px; border-radius:8px; font-weight:600;">
+                    <i class='bx bxs-phone'></i> Call
                 </a>
-                <a href="${waLink}" target="_blank" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:#dcfce7; color:#166534; padding:12px; border-radius:8px; font-weight:600; font-size:0.9rem;">
-                    <i class='bx bxl-whatsapp' style="font-size:1.2rem;"></i> WhatsApp
+                <a href="https://wa.me/91${cleanPhone}" target="_blank" style="text-decoration:none; display:flex; align-items:center; justify-content:center; gap:8px; background:#dcfce7; color:#166534; padding:12px; border-radius:8px; font-weight:600;">
+                    <i class='bx bxl-whatsapp'></i> WhatsApp
                 </a>
             </div>
 
             <div style="display:flex; flex-direction:column; gap:8px; margin-top:10px;">
-                <button onclick="openCustModal(${m.index})" style="background:#1e293b; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">
-                    <i class='bx bx-receipt'></i> ${m.bill ? 'Edit Invoice' : 'Create Bill'}
-                </button>
-                
-                ${m.status !== 'COMPLETED' ? `
-                    <button onclick="markDone(${m.index}, this)" style="background:#22c55e; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">
-                        <i class='bx bx-check-double'></i> Mark Paid
+                ${!isDone ? `
+                    <button onclick="openCustModal(${m.index})" style="background:#1e293b; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">
+                        <i class='bx bx-receipt'></i> ${hasBill ? 'Edit Bill / View Preview' : 'Generate Bill'}
                     </button>
+                    
+                    ${hasBill ? `
+                        <button onclick="markDone(${m.index}, this)" style="background:#22c55e; color:white; border:none; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">
+                            <i class='bx bx-check-double'></i> Mark Paid
+                        </button>
+                    ` : ''}
                 ` : `
-                    <button onclick="downloadPDF(${m.index})" style="background:white; color:#1e293b; border:1px solid #e2e8f0; padding:10px; border-radius:8px; cursor:pointer;">
-                        <i class='bx bxs-file-pdf' style="color:#ef4444;"></i> Download Receipt
+                    <button onclick="viewInvoiceOnly(${m.index})" style="background:#f8fafc; color:#1e293b; border:1px solid #cbd5e1; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">
+                        <i class='bx bxs-file-pdf' style="color:#ef4444;"></i> View Paid Receipt
                     </button>
                 `}
             </div>
@@ -448,125 +523,58 @@ function renderLeads(data, container) {
     }).join('');
 }
 
-// Helper for cleaner network requests
-async function cloudSync(payload) {
-    try {
-        const response = await fetch(URL, {
-            method: 'POST',
-            // Note: If using Google Apps Script, 'no-cors' is common, 
-            // but ensure your backend handles URLSearchParams correctly.
-            mode: 'no-cors', 
-            body: new URLSearchParams(payload)
-        });
-        return true;
-    } catch (e) {
-        console.error("Sync failed:", e);
-        return false;
-    }
-}
-
-async function markDone(index, btn) {
-    const lead = globalData.find(item => item.index == index);
-    if (!lead) return;
-    if (!lead.bill) return alert("Please generate a bill amount first!");
-
-    // UI Feedback
-    const originalText = btn.innerHTML;
-    btn.innerHTML = `<span class="spinner"></span> Saving...`;
-    btn.disabled = true;
-
-    // Update Local State
-    lead.status = 'COMPLETED';
-    totalPermanentRevenue += Number(lead.bill);
-    totalPermanentTasks += 1;
-    saveToVault(); // Save to localStorage/Vault immediately
-
-    const success = await cloudSync({ 
-        'type': 'markDone', 
-        'index': index, 
-        'bill': lead.bill 
-    });
-
-    if (!success) {
-        alert("Saved locally, but cloud sync failed. It will retry later.");
-    }
-
-    refreshData(); // Re-render UI
-}
-
-async function deleteLead(index) {
-    if (!confirm("Remove lead? Revenue stats will remain saved in the vault.")) return;
-    
-    // Optimistic UI update
-    globalData = globalData.filter(item => item.index !== index);
-    renderLeads(globalData, document.getElementById('leadsList'));
-    updateDashboardStats(globalData);
-    
-    await cloudSync({ 'type': 'deleteLead', 'index': index });
-}
-
-// --- Billing Logic ---
+// ==========================================
+// 3. BILLING LOGIC & MODAL ACTION
+// ==========================================
 
 function calculateLiveTotal() {
     const getValue = (id) => parseFloat(document.getElementById(id)?.value) || 0;
-    
     const lab  = getValue('custLab');
-    const day  = Math.max(1, getValue('custDay')); // Ensure at least 1 day
+    const day  = Math.max(1, getValue('custDay'));
     const mat  = getValue('custMat');
     const disc = getValue('custDisc');
-    
     const total = (lab * day) + mat - disc;
     
     const display = document.getElementById('liveTotalDisplay');
-    if (display) {
-        display.innerHTML = `Final Bill: <b style="color:#22c55e;">₹${total.toLocaleString('en-IN')}</b>`;
-    }
+    if (display) display.innerHTML = `Final Bill: <b style="color:#22c55e;">₹${total.toLocaleString('en-IN')}</b>`;
     return total;
 }
 
-/** * Syncs modal inputs to the globalData object 
- */
-function syncLeadData() {
+// Saves data permanently and refreshes UI to show 'Mark Paid'
+async function finalizeBill() {
     const index = document.getElementById('custIndex').value;
     const lead = globalData.find(item => item.index == index);
     
     if (lead) {
         lead.bill = calculateLiveTotal();
         lead.workType = document.getElementById('custWork').value;
-        return lead;
+        
+        if (typeof saveToVault === "function") saveToVault();
+        
+        alert("Bill Saved! You can now mark this lead as Paid.");
+        closeCustModal();
+        renderLeads(globalData, document.getElementById('leadsList'));
     }
-    return null;
+}
+
+// Opens PDF in new tab, does NOT download
+async function viewInvoiceOnly(index) {
+    const leadIndex = index || document.getElementById('custIndex').value;
+    if (typeof downloadPDF === "function") {
+        downloadPDF(leadIndex, true); 
+    }
 }
 
 async function shareToWhatsApp() {
-    const lead = syncLeadData();
+    const index = document.getElementById('custIndex').value;
+    const lead = globalData.find(item => item.index == index);
     if (!lead) return;
 
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky%20Electricals&am=${lead.bill}&cu=INR`;
-    const message = encodeURIComponent(
-        `✨ *SPARKY ELECTRICALS*\n` +
-        `--------------------------\n` +
-        `Invoice: #INV-${lead.index}\n` +
-        `Service: ${lead.workType}\n` +
-        `Total Amount: ₹${lead.bill}\n\n` +
-        `Click to pay via UPI: ${upiLink}`
-    );
+    const total = calculateLiveTotal();
+    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky%20Electricals&am=${total}&cu=INR`;
+    const message = encodeURIComponent(`✨ *SPARKY ELECTRICALS*\nTotal: ₹${total}\nPay via UPI: ${upiLink}`);
 
-    window.open(`https://wa.me/91${lead.phone.replace(/\D/g, '')}?text=${message}`, '_blank');
-    
-    closeCustModal();
-    renderLeads(globalData, document.getElementById('leadsList'));
-}
-
-async function generateFinalPDF() {
-    const lead = syncLeadData();
-    if (!lead) return;
-    
-    closeCustModal();
-    // Use the existing download function
-    if (typeof downloadPDF === "function") {
-        downloadPDF(lead.index);
-    }
+    window.open(`https://wa.me/91${lead.phone.toString().replace(/\D/g, '')}?text=${message}`, '_blank');
 }
 
 function openCustModal(index) {
@@ -576,26 +584,38 @@ function openCustModal(index) {
     document.getElementById('custIndex').value = index;
     document.getElementById('custWork').value = m.workType || "";
     document.getElementById('custLab').value = m.bill || m.quote || 0;
-    document.getElementById('custDay').value = 1; // Reset days to 1
+    document.getElementById('custDay').value = 1;
     document.getElementById('custMat').value = 0;
     document.getElementById('custDisc').value = 0;
     
     document.getElementById('billCustomModal').style.display = 'flex';
     calculateLiveTotal();
 }
-// --- PORTFOLIO & DELETE ---
-const fileInput = document.getElementById('fileInput');
-    const imageUrlInput = document.getElementById('imageUrlInput');
-    const previewBox = document.getElementById('previewBox');
-    const imgPreview = document.getElementById('imgPreview');
+function downloadPDF(index, viewOnly = false) {
+    const doc = new jsPDF();
+    // ... (Your PDF Design Code) ...
+    
+    if(viewOnly) {
+        // This opens the PDF in a browser tab instead of saving it
+        window.open(doc.output('bloburl'), '_blank');
+    } else {
+        doc.save(`Invoice_${index}.pdf`);
+    }
+}
 
+function closeCustModal() {
+    document.getElementById('billCustomModal').style.display = 'none';
+}
+// ==========================================
+// 4. PORTFOLIO / IMAGE HANDLING
+// ==========================================
+
+if (fileInput) {
     fileInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (!file) return;
-
         previewBox.style.display = 'block';
         imgPreview.style.opacity = '0.5';
-
         const reader = new FileReader();
         reader.onload = function(event) {
             const img = new Image();
@@ -603,16 +623,12 @@ const fileInput = document.getElementById('fileInput');
             img.onload = function() {
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                
-                // Max size 800px width for Google Sheets limit
                 const maxWidth = 800;
                 const scale = maxWidth / img.width;
                 canvas.width = maxWidth;
                 canvas.height = img.height * scale;
-
                 ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
                 const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                
                 imageUrlInput.value = compressedBase64;
                 imgPreview.src = compressedBase64;
                 imgPreview.style.opacity = '1';
@@ -620,6 +636,7 @@ const fileInput = document.getElementById('fileInput');
         };
         reader.readAsDataURL(file);
     });
+}
 
     // --- LOAD PORTFOLIO ---
     async function loadPortfolio() {
@@ -889,15 +906,20 @@ document.getElementById('serviceForm').onsubmit = async (e) => {
             Total: ₹0.00
         </div>
 
-        <div style="margin-top:20px; display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
-         <div style="margin-top:20px; display:grid; grid-template-columns: 1fr; gap:10px;">
-    <button id="pdfBtn" onclick="generateFinalPDF()" style="background:#1e293b; color:white; padding:14px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-        <i class='bx bxs-file-pdf'></i> Download 
+<div style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+    <button onclick="finalizeBill()" style="background:#1e293b; color:white; padding:15px; border-radius:8px; font-weight:bold;">
+        ✅ Save Bill (Activates Mark Paid)
     </button>
+    
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+        <button onclick="viewInvoiceOnly()" style="background:#f1f5f9; color:#1e293b; padding:12px; border-radius:8px;">
+            <i class='bx bx-show'></i> Preview
+        </button>
+        <button onclick="shareToWhatsApp()" style="background:#dcfce7; color:#166534; padding:12px; border-radius:8px;">
+            <i class='bx bxl-whatsapp'></i> Send to WhatsApp
+        </button>
+    </div>
 </div>
-            <button id="waBtn" onclick="shareToWhatsApp()" style="background:#22c55e; color:white; padding:14px; border:none; border-radius:10px; font-weight:bold; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-                <i class='bx bxl-whatsapp'></i> WhatsApp
-            </button>
         </div>
     </div>
 </div>
