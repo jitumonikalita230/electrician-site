@@ -264,7 +264,7 @@
 // 1. CONFIGURATION & PERMANENT VAULT
 // ==========================================
 let globalData = [];
-const URL = 'https://script.google.com/macros/s/AKfycbx6a9l4RTQXwjuZJ42GXchwRKL3C2pVMYlErkdk0w2xPHWtYfXb-fZxe2o34ZKCM-c9/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbyd9_g74ElsmKvcJw9MgWmEspTqnWhPGjUDwCxgEmNwkcQ3jo8us13oZG1cqVcbGA-_/exec'; 
 const UPI_ID = "jitumoni2005-1@okhdfcbank"; 
 
 // Permanent Storage: Survives lead deletions
@@ -859,7 +859,7 @@ function openCustModal(index) {
     document.getElementById('custWork').value = m.workType || "Electrical Service";
     // This removes any non-numeric characters before putting it in the box
 const defaultAmount = m.bill || m.quote || 0;
-document.getElementById('custLab').value = String(defaultAmount).replace(/[^\d.]/g, '');;
+document.getElementById('custLab').value = String(defaultAmount).replace(/[^\d.]/g, '');
     document.getElementById('custDay').value = 1;
     document.getElementById('custMat').value = 0;
     document.getElementById('custDisc').value = 0;

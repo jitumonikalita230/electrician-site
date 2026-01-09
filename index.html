@@ -229,7 +229,7 @@
 </footer>
 
 <script>
-const URL = 'https://script.google.com/macros/s/AKfycbx6a9l4RTQXwjuZJ42GXchwRKL3C2pVMYlErkdk0w2xPHWtYfXb-fZxe2o34ZKCM-c9/exec';
+const URL = 'https://script.google.com/macros/s/AKfycbyd9_g74ElsmKvcJw9MgWmEspTqnWhPGjUDwCxgEmNwkcQ3jo8us13oZG1cqVcbGA-_/exec';
 const SHOP_LAT = 26.137430911373357; 
 const SHOP_LON = 91.70393019579977;
 
@@ -238,14 +238,15 @@ let allProjects = []; // Global variable to store fetched data
 async function loadGallery() {
     const gal = document.getElementById('gallery');
     try {
-        const res = await fetch(URL);
+        // ADDED ?mode=portfolio HERE
+        const res = await fetch(URL + '?mode=portfolio'); 
         allProjects = await res.json();
         renderGallery(allProjects);
     } catch(e) { 
-        gal.innerHTML = "<p>Error loading gallery.</p>"; 
+        gal.innerHTML = "<p>Error loading gallery. Please try again later.</p>"; 
+        console.error("Gallery Error:", e);
     }
 }
-
 function renderGallery(projects) {
     const gal = document.getElementById('gallery');
     if(!projects || projects.length === 0) { 
