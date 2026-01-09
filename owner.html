@@ -148,89 +148,79 @@
         <h2 id="vaultTasks" style="margin: 5px 0; font-size: 1.4rem;">0</h2>
         <div style="font-size: 0.7rem; color: #94a3b8;">Total Verified Jobs</div>
     </div>
-</div>
-</div>
-    <h3 style="margin-bottom:20px;">Customer Inquiries</h3>
+      <h3 style="margin-bottom:20px;">Customer Inquiries</h3>
     <div id="leadsList">Loading...</div>
 </div>
-        <div id="leadsSection">
+</div>
 
-        </div>
 
-      <div id="uploadSection" class="hidden">
-    <div class="card" style="border: 2px dashed #ffcc00; background: #fffcf0;">
-        <h3 style="margin-top: 0; display: flex; align-items: center; gap: 10px;">
+
+   <div id="uploadSection" class="hidden">
+    <div class="card" style="border: 2px dashed #ffcc00; background: #fffcf0; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+        <h3 style="margin-top: 0; display: flex; align-items: center; gap: 10px; color: #856404;">
             <i class='bx bxs-cloud-upload' style="font-size: 1.5rem; color: #ffcc00;"></i> 
             Add New Project
         </h3>
         
         <form id="portfolioForm">
-            <input type="hidden" name="type" value="addProject">
+            <input type="hidden" id="imageUrlInput" name="imageUrl">
             
-            <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">PROJECT TITLE</label>
-            <input type="text" name="title" placeholder="e.g. Luxury False Ceiling in Paltan Bazaar" required>
+            <label style="font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase;">Project Title</label>
+            <input type="text" name="title" placeholder="e.g. Luxury False Ceiling in Guwahati" required 
+                   style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #e2e8f0; box-sizing: border-box;">
             
-            <label style="font-size:1rem; font-weight: bolder; color: #64748b; margin-top: 2px;margin-bottom: 2px;">WORK CATEGORY</label>
-            <select name="category" required style="  width: 100%;
-    padding: 10px;
-    border: 1px solid #e2e8f0;
-    border-radius: 6px;
-    margin-top: 4px;">
-                <option value="electrical">⚡ Electrical </option>
-                <option value="painting">🎨 Professional Painting & False Ceiling</option>
+            <label style="font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase;">Work Category</label>
+            <select name="category" required style="width: 100%; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 15px; background: white;">
+                <option value="Electrical">⚡ Electrical Work</option>
+                <option value="Painting">🎨 Professional Painting</option>
+                <option value="Ceiling">🏠 False Ceiling</option>
+                <option value="Plumbing">🚿 Plumbing Services</option>
             </select>
             
-       <label style="font-size: 0.8rem; font-weight: bold; color: #64748b;">UPLOAD WORK PHOTO</label>
-<div style="margin-bottom: 12px;">
-    <input type="file" id="fileInput" accept="image/*" style="display: none;">
-    <button type="button" onclick="document.getElementById('fileInput').click()" 
-            style="background: #e2e8f0; color: #475569; border: 1px solid #cbd5e1; padding: 10px; width: 100%; border-radius: 10px; cursor: pointer; font-weight: 600;">
-        <i class='bx bx-image-add'></i> Select from Gallery
-    </button>
-    <input type="hidden" name="imageUrl" id="imageUrlInput">
-</div>
+            <label style="font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase;">Upload Work Photo</label>
+            <div style="margin-bottom: 15px;">
+                <input type="file" id="fileInput" accept="image/*" style="display: none;">
+                
+                <button type="button" onclick="document.getElementById('fileInput').click()" 
+                        style="background: #ffffff; color: #475569; border: 2px solid #e2e8f0; padding: 15px; width: 100%; border-radius: 10px; cursor: pointer; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.2s;">
+                    <i class='bx bx-image-add' style="font-size: 1.5rem; color: #6366f1;"></i> 
+                    Select Photo from Phone
+                </button>
+            </div>
 
-<div id="previewBox" style="display: none; margin-bottom: 15px; border-radius: 12px; overflow: hidden; border: 1px solid #ddd; position: relative;">
-    <p style="font-size: 0.7rem; background: rgba(0,0,0,0.5); color: white; margin: 0; padding: 5px; text-align: center; position: absolute; width: 100%;">Image Selected</p>
-    <img id="imgPreview" src="" style="width: 100%; height: 200px; object-fit: cover;">
-    <button type="button" onclick="clearSelection()" style="position: absolute; right: 5px; bottom: 5px; background: var(--red); color: white; border: none; border-radius: 5px; padding: 5px; cursor: pointer;">Remove</button>
-</div>
-
-            <div id="previewBox" style="display: none; margin-bottom: 15px; border-radius: 12px; overflow: hidden; border: 1px solid #ddd;">
-                <p style="font-size: 0.7rem; background: #eee; margin: 0; padding: 5px; text-align: center;">Live Preview</p>
-                <img id="imgPreview" src="" style="width: 100%; height: 150px; object-fit: cover;">
+            <div id="previewBox" style="display: none; margin-bottom: 20px; border-radius: 12px; overflow: hidden; border: 1px solid #ddd; position: relative; background: #000;">
+                <p style="font-size: 0.7rem; background: rgba(0,0,0,0.6); color: white; margin: 0; padding: 5px; text-align: center; position: absolute; width: 100%; z-index: 1;">Preview</p>
+                <img id="imgPreview" src="" style="width: 100%; height: 250px; object-fit: contain; display: block;">
+                <button type="button" onclick="window.clearSelection()" 
+                        style="position: absolute; right: 10px; bottom: 10px; background: #ef4444; color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 0.8rem; font-weight: bold; z-index: 2; display: flex; align-items: center; gap: 5px;">
+                    <i class='bx bx-trash'></i> Remove
+                </button>
             </div>
             
-            <button type="submit" class="btn-submit" id="portBtn" style="box-shadow: 0 4px 10px rgba(255, 204, 0, 0.3);background: var(--green);color: var(--card);      padding: 14px; border-radius: 12px; border: none; 
-            font-weight: 700; cursor: pointer; display: flex; 
-            align-items: center; justify-content: center; gap: 8px; 
-            width: 100%; text-decoration: none; font-size: 0.95rem;
-            transition: 0.2s;">
-                Publish to Gallery
+            <button type="submit" id="portBtn" style="background: #22c55e; color: white; padding: 16px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4); transition: 0.3s;">
+                Publish to Live Gallery
             </button>
         </form>
-         </div>
-            <h4>Live Portfolio</h4>
-            <div id="portfolioManageList" class="card" style="padding:5px;">Loading...</div>
-        </div>
     </div>
+
+    <h4 style="margin: 30px 0 15px 0; color: #1e293b; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
+        <i class='bx bx-list-ul' style="color: #6366f1;"></i> 
+        Manage Live Portfolio
+    </h4>
     
+    <div id="portfolioManageList" style="min-height: 100px;">
+        <p style="text-align:center; color:#94a3b8; padding: 20px;">Fetching projects...</p>
+    </div>
 </div>
            
 
         <div id="serviceSection" class="hidden">
             <h3>Services & Prices</h3>
             <div class="card">
-                <form id="serviceForm">
-    <label>SERVICE NAME</label>
-    <input type="text" name="serviceName" placeholder="e.g. Copper Wiring" required>
-    
-    <label>PRICE (₹)</label>
-    <input type="number" name="servicePrice" placeholder="500" required>
-    
-    <button type="submit" id="servBtn" class="btn" style="background:var(--green); color:white;">
-        Add Pricing Service
-    </button>
+                <form id="serviceForm" onsubmit="addService(event)">
+    <input type="text" name="serviceName" placeholder="Service Name" required>
+    <input type="number" name="servicePrice" placeholder="Price" required>
+    <button type="submit" id="servBtn">Add Service</button>
 </form>
             </div>
             <div id="currentServices">Loading...</div>
@@ -256,7 +246,7 @@
 // 1. CONFIGURATION & PERMANENT VAULT
 // ==========================================
 let globalData = [];
-const URL = 'https://script.google.com/macros/s/AKfycbzdGGYHbTKyBk4kkRp7pzjDmQ0zRYShxKhF-cKwm-y-ZeBc6uiRcTpURr9DmlnIwT1q/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbxq1euXjNtWdPBIV8bXckNGZqVbFOxS2NAQ53DEMdpqWz2aTndsY_WejZvSpIzdso17/exec'; 
 const UPI_ID = "jitumoni2005-1@okhdfcbank"; 
 
 // Permanent Storage: Survives lead deletions
@@ -316,21 +306,118 @@ function switchTab(tab) {
     });
 
     const activeSection = document.getElementById(tab + 'Section');
+    // Finds nav element like navLeads, navUpload, or navService
     const activeNav = document.getElementById('nav' + tab.charAt(0).toUpperCase() + tab.slice(1));
     
     if(activeSection) activeSection.classList.remove('hidden');
     if(activeNav) activeNav.classList.add('active');
     
+    // Auto-refresh data when clicking tabs
     if(tab === 'leads') refreshData();
-    // if(tab === 'upload') loadPortfolio(); // Ensure these functions exist
-    // if(tab === 'service') loadServices();
+    if(tab === 'upload') syncData('admin', 'portfolioManageList');
+    if(tab === 'service') syncData('getServices', 'currentServices');
 }
-// ==========================================
-// 2. DATA FETCHING & DASHBOARD
-// ==========================================
-// ==========================================
-// 1. CONFIGURATION & PERMANENT VAULT
-// ==========================================
+
+// --- 2. UNIVERSAL SYNC (Portfolio & Services) ---
+async function syncData(mode, containerId) {
+    const container = document.getElementById(containerId);
+    if (!container) return;
+
+    container.innerHTML = `<div style="text-align:center; padding:20px;"><i class='bx bx-loader-alt bx-spin'></i> Syncing...</div>`;
+
+    try {
+        const fetchURL = `${URL}?mode=${mode}&t=${Date.now()}`;
+        const response = await fetch(fetchURL);
+        if (!response.ok) throw new Error('Network error');
+        
+        const data = await response.json();
+
+        if (!data || data.length === 0) {
+            container.innerHTML = `<p style="text-align:center; color:#64748b; padding:20px;">No records found.</p>`;
+            return;
+        }
+
+        renderData(mode, data, container);
+    } catch (error) {
+        container.innerHTML = `<div style="color:red; text-align:center; padding:20px;">Connection Failed.</div>`;
+    }
+}
+
+// --- 3. RENDER LOGIC ---
+function renderData(mode, data, container) {
+    if (mode === 'getServices') {
+        container.innerHTML = data.map(s => `
+            <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #eee; background:white; margin-bottom:5px; border-radius:8px;">
+                <div><b>${s.name}</b><br><span style="color:#10b981; font-weight:bold;">₹${s.price}</span></div>
+                <button onclick="deleteItem('deleteService', ${s.index}, '${s.name.replace(/'/g, "\\'")}')" style="color:#ef4444; border:none; background:#fee2e2; padding:8px; border-radius:6px; cursor:pointer;"><i class='bx bx-trash'></i></button>
+            </div>
+        `).join('');
+    } else if (mode === 'admin') {
+        container.innerHTML = data.map(p => `
+            <div class="card" style="display:flex; align-items:center; gap:10px; padding:10px; border-bottom:1px solid #eee; background:white; margin-bottom:5px; border-radius:8px;">
+                <img src="${p.imageUrl}" style="width:50px; height:50px; object-fit:cover; border-radius:4px; background:#f1f5f9;">
+                <div style="flex-grow:1;"><b>${p.title}</b><br><small style="color:#6366f1; font-weight:bold; text-transform:uppercase;">${p.category}</small></div>
+                <button onclick="deleteItem('deletePortfolio', ${p.index}, '${p.title.replace(/'/g, "\\'")}')" style="color:#ef4444; border:none; background:#fee2e2; padding:8px; border-radius:6px; cursor:pointer;"><i class='bx bx-trash'></i></button>
+            </div>
+        `).join('');
+    }
+}
+
+// --- 4. UNIVERSAL DELETE ITEM ---
+async function deleteItem(type, index, name) {
+    if(!confirm(`Permanently delete "${name}"?`)) return;
+
+    // Create parameters to match your Backend v10.0 doPost checks
+    const params = new URLSearchParams();
+    params.append('type', type);
+    params.append('index', index);
+
+    try {
+        await fetch(URL, { method: 'POST', mode: 'no-cors', body: params });
+        alert("✅ Deleted successfully!");
+        
+        // Refresh appropriate view
+        if (type === 'deleteService') syncData('getServices', 'currentServices');
+        if (type === 'deletePortfolio') syncData('admin', 'portfolioManageList');
+    } catch (e) {
+        alert("Delete failed. Check connection.");
+    }
+}
+
+// --- 5. LEADS MANAGEMENT ---
+async function refreshData() {
+    const list = document.getElementById('leadsList');
+    if(!list) return;
+
+    list.innerHTML = `<div style="text-align:center; padding:40px;"><i class='bx bx-loader-alt bx-spin' style="font-size:2rem; color:#6366f1;"></i><p>Fetching Leads...</p></div>`;
+    
+    try {
+        const res = await fetch(`${URL}?mode=messages&t=${Date.now()}`);
+        const data = await res.json();
+        globalData = data; 
+        localStorage.setItem('cachedLeads', JSON.stringify(data));
+        
+        // renderLeads is your function to display the leads list
+        if(typeof renderLeads === 'function') renderLeads(data, list);
+        // updateDashboardStats is your function to update total counts
+        if(typeof updateDashboardStats === 'function') updateDashboardStats(data);
+        
+    } catch(e) { 
+        const cached = localStorage.getItem('cachedLeads');
+        if(cached) {
+            globalData = JSON.parse(cached);
+            renderLeads(globalData, list);
+        }
+    }
+}
+
+// --- 6. INITIAL LOAD ---
+window.onload = () => {
+    // Default load
+    refreshData();
+    syncData('getServices', 'currentServices');
+    syncData('admin', 'portfolioManageList');
+};
 async function refreshData() {
     const list = document.getElementById('leadsList');
     if(!list) return;
@@ -356,7 +443,106 @@ async function refreshData() {
         }
     }
 }
+// 1. IMAGE HANDLING (Consolidated & Compressed)
+document.addEventListener('DOMContentLoaded', () => {
+    const fileInput = document.getElementById('fileInput'); // Matches your HTML
+    
+    if (fileInput) {
+        fileInput.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
 
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // --- CRITICAL FIX FOR HTTP 431 ---
+                    // Keeping width at 500px and quality at 0.3
+                    // ensures the string fits in the Request Header.
+                    const maxW = 500; 
+                    const scale = img.width > maxW ? maxW / img.width : 1;
+                    canvas.width = img.width * scale;
+                    canvas.height = img.height * scale;
+
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    const compressedBase64 = canvas.toDataURL('image/jpeg', 0.3);
+                    
+                    // Update your specific HTML Elements
+                    document.getElementById('imageUrlInput').value = compressedBase64;
+                    document.getElementById('imgPreview').src = compressedBase64;
+                    document.getElementById('previewBox').style.display = 'block';
+                    
+                    console.log("✅ Compressed Size:", Math.round(compressedBase64.length / 1024), "KB");
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        });
+    }
+});
+
+// 2. FORM SUBMISSION (Uses the compressed data)
+document.getElementById('portfolioForm').onsubmit = async (e) => {
+    e.preventDefault();
+    const btn = document.getElementById('portBtn');
+    const imgData = document.getElementById('imageUrlInput').value;
+
+    if (!imgData) {
+        alert("Please select a photo first!");
+        return;
+    }
+
+    // UI Loading State
+    btn.disabled = true;
+    const originalBtnText = btn.innerHTML;
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Uploading...";
+
+    const params = new URLSearchParams();
+    params.append('type', 'addProject');
+    params.append('title', e.target.title.value);
+    params.append('category', e.target.category.value);
+    params.append('imageUrl', imgData);
+
+    try {
+        // We use await, but because of 'no-cors', we don't check 'response.ok'
+        await fetch(URL, { 
+            method: 'POST', 
+            mode: 'no-cors', 
+            body: params 
+        });
+
+        // --- SUCCESS ACTIONS ---
+        alert("✨ Published Successfully!");
+        
+        // 1. Reset the text inputs
+        e.target.reset(); 
+        
+        // 2. Manually clear the image-related fields
+        document.getElementById('fileInput').value = "";
+        document.getElementById('imageUrlInput').value = "";
+        
+        // 3. Hide and clear the preview
+        const previewBox = document.getElementById('previewBox');
+        const imgPreview = document.getElementById('imgPreview');
+        if (previewBox) previewBox.style.display = 'none';
+        if (imgPreview) imgPreview.src = "";
+
+        // 4. Refresh the list
+        if (typeof syncData === 'function') {
+            syncData('admin', 'portfolioManageList');
+        }
+
+    } catch (err) {
+        console.error("Upload Error:", err);
+        alert("❌ Network Error. Please check your internet.");
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalBtnText;
+    }
+};
 async function updateDashboardStats(data) {
     try {
         // 1. Fetch Permanent Vault Data from Sheet
@@ -676,250 +862,199 @@ function closeCustModal() {
 // ==========================================
 // 4. PORTFOLIO / IMAGE HANDLING
 // ==========================================
+// --- SELECT ELEMENTS ---
+// --- 1. IMAGE PREVIEW & CONVERSION ---
+// --- 1. GLOBAL ELEMENTS ---
+// It is safer to select these inside the functions or ensure they are global
+// --- 1. CONFIGURATION ---
 
-if (fileInput) {
-    fileInput.addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        previewBox.style.display = 'block';
-        imgPreview.style.opacity = '0.5';
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            const img = new Image();
-            img.src = event.target.result;
-            img.onload = function() {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                const maxWidth = 800;
-                const scale = maxWidth / img.width;
-                canvas.width = maxWidth;
-                canvas.height = img.height * scale;
-                ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
-                imageUrlInput.value = compressedBase64;
-                imgPreview.src = compressedBase64;
-                imgPreview.style.opacity = '1';
-            };
-        };
-        reader.readAsDataURL(file);
-    });
-}
+// --- 3. CLEAR SELECTION ---
+window.clearSelection = function() {
+    document.getElementById('fileInput').value = "";
+    document.getElementById('imageUrlInput').value = "";
+    document.getElementById('previewBox').style.display = 'none';
+    document.getElementById('imgPreview').src = "";
+};
 
-    // --- LOAD PORTFOLIO ---
-    async function loadPortfolio() {
-        const container = document.getElementById('portfolioManageList');
-        container.innerHTML = "<div style='padding:20px; text-align:center;'><i class='bx bx-loader-alt bx-spin'></i> Loading...</div>";
-        
-        try {
-            const res = await fetch(`${URL}?mode=admin&t=${Date.now()}`);
-            const data = await res.json();
-            
-            if (!data || data.length === 0) {
-                container.innerHTML = "<div style='padding:20px; text-align:center;'>No projects yet.</div>";
-                return;
-            }
+// --- 4. PUBLISH PROJECT (UPLOAD) ---
 
-            container.innerHTML = data.map(p => {
-                const isPainting = p.category?.toLowerCase() === 'painting';
-                const themeColor = isPainting ? '#3b82f6' : '#f59e0b';
-                return `
-                    <div class="port-item">
-                        <img src="${p.imageUrl}">
-                        <div style="flex-grow:1;">
-                            <div style="font-weight:700; font-size:0.9rem;">${p.title}</div>
-                            <span style="font-size:0.6rem; background:${themeColor}20; color:${themeColor}; padding:2px 8px; border-radius:10px; font-weight:bold;">
-                                ${p.category.toUpperCase()}
-                            </span>
-                        </div>
-                        <button onclick="deleteProject(event, ${p.index}, '${p.title.replace(/'/g, "\\'")}')" 
-                                style="background:#fee2e2; border:none; color:var(--red); width:35px; height:35px; border-radius:8px;">
-                            <i class='bx bxs-trash'></i>
-                        </button>
-                    </div>
-                `;
-            }).join('');
-        } catch(e) { 
-            container.innerHTML = "Error loading list."; 
-        }
-    }
+// --- 5. LOAD PORTFOLIO LIST ---
+async function loadPortfolio() {
+    const container = document.getElementById('portfolioManageList');
+    if (!container) return;
 
-    // --- DELETE LOGIC ---
-    async function deleteProject(event, index, title) {
-        if(!confirm(`Delete "${title}"?`)) return;
-        const btn = event.currentTarget;
-        btn.disabled = true;
-        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
-
-        try {
-            await fetch(URL, { 
-                method: 'POST', 
-                mode: 'no-cors', 
-                body: new URLSearchParams({ type: 'deletePortfolio', index: index }) 
-            });
-            alert("Deleted!");
-            loadPortfolio();
-        } catch (e) { alert("Failed to delete."); }
-    }
-
-    // --- FORM SUBMIT ---
-    document.getElementById('portfolioForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('portBtn');
-        btn.disabled = true;
-        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Publishing...";
-
-        try {
-            await fetch(URL, { 
-                method: 'POST', 
-                mode: 'no-cors', 
-                body: new URLSearchParams(new FormData(e.target)) 
-            });
-            alert("Success!");
-            e.target.reset();
-            previewBox.style.display = 'none';
-            loadPortfolio();
-        } catch (e) { alert("Error!"); }
-        btn.disabled = false;
-        btn.innerHTML = "Publish to Website";
-    };
-// --- SERVICES ---
-document.getElementById('serviceForm').addEventListener('submit', async function(e) {
-    e.preventDefault(); 
-    
-    const btn = document.getElementById('servBtn');
-    const originalContent = btn.innerHTML;
-    
-    // 1. Show Loading State
-    btn.disabled = true;
-    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Saving...";
-
-    // 2. Extract values from form fields
-    const sName = e.target.serviceName.value;
-    const sPrice = e.target.servicePrice.value;
-
-    // 3. Prepare URL-encoded data for the Backend
-    const params = new URLSearchParams();
-    params.append('type', 'addService');
-    params.append('serviceName', sName);
-    params.append('servicePrice', sPrice);
+    container.innerHTML = `<div style="text-align:center; padding:20px;"><i class='bx bx-loader-alt bx-spin' style="color:#6366f1;"></i> Syncing...</div>`;
 
     try {
-        // 4. Send to Google Apps Script
-        await fetch(URL, {
-            method: 'POST',
-            mode: 'no-cors', // Required for Google Apps Script
-            body: params
-        });
+        const res = await fetch(`${URL}?mode=admin&t=${Date.now()}`);
+        const data = await res.json();
 
-        // 5. Reset UI & Feedback
-        alert(`✅ "${sName}" added successfully!`);
-        e.target.reset(); // Clears the input fields
-        loadServices(); // Refresh the list below
-        
-    } catch (err) {
-        console.error("Save Error:", err);
-        alert("❌ Failed to save service. Check internet.");
-    } finally {
-        // 6. Restore Button
-        btn.disabled = false;
-        btn.innerHTML = originalContent;
+        if (!data || data.length === 0) {
+            container.innerHTML = `<p style="text-align:center; color:#94a3b8; padding:20px;">No projects found.</p>`;
+            return;
+        }
+
+        container.innerHTML = data.map(p => {
+            const safeTitle = p.title.replace(/'/g, "\\'");
+            return `
+                <div class="port-item" id="item-${p.index}">
+                    <img src="${p.imageUrl}" style="width:60px; height:60px; object-fit:cover; border-radius:8px; background:#f0f0f0;">
+                    <div style="flex-grow:1;">
+                        <b style="display:block; font-size:0.9rem;">${p.title}</b>
+                        <span style="font-size:0.7rem; color:#6366f1; font-weight:bold; text-transform:uppercase;">${p.category}</span>
+                    </div>
+                    <button onclick="deleteProject(event, ${p.index}, '${safeTitle}')" 
+                            style="background:#fee2e2; color:#ef4444; border:none; width:35px; height:35px; border-radius:8px; cursor:pointer;">
+                        <i class='bx bx-trash'></i>
+                    </button>
+                </div>
+            `;
+        }).join('');
+    } catch (e) {
+        container.innerHTML = `<p style="color:#ef4444; text-align:center;">⚠️ Error loading gallery.</p>`;
     }
-});
+}
+
+// --- 6. DELETE PROJECT ---
+async function deleteProject(event, index, title) {
+    if (!confirm(`Permanently delete "${title}"?`)) return;
+
+    const btn = event.currentTarget;
+    btn.disabled = true;
+    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
+
+    const params = new URLSearchParams();
+    params.append('type', 'deletePortfolio');
+    params.append('index', index);
+
+    try {
+        await fetch(URL, { method: 'POST', mode: 'no-cors', body: params });
+        
+        // Optimistic UI removal
+        const row = btn.closest('.port-item');
+        if (row) {
+            row.style.opacity = '0.3';
+            row.style.pointerEvents = 'none';
+        }
+        
+        setTimeout(loadPortfolio, 800);
+    } catch (e) {
+        alert("Delete failed.");
+        btn.disabled = false;
+        btn.innerHTML = "<i class='bx bx-trash'></i>";
+    }
+}
+
+// --- LOAD SERVICES ---
 async function loadServices() {
     const container = document.getElementById('currentServices');
-    container.innerHTML = "<div style='padding:20px; text-align:center;'><i class='bx bx-loader-alt bx-spin'></i> Syncing...</div>";
+    if (!container) return;
+
+    container.innerHTML = `<div style="text-align:center; padding:20px;"><i class='bx bx-loader-alt bx-spin'></i> Loading Services...</div>`;
+
     try {
         const res = await fetch(`${URL}?mode=getServices&t=${Date.now()}`);
         const services = await res.json();
-        
+
         if (!services || services.length === 0) {
-            container.innerHTML = "<div style='padding:20px; text-align:center;'>No services found.</div>";
+            container.innerHTML = `<p style="text-align:center; color:#64748b;">No services found.</p>`;
             return;
         }
 
         container.innerHTML = services.map(s => `
-            <div class="card" style="display:flex; justify-content:space-between; align-items:center; padding:15px; margin-bottom:10px; border-left: 5px solid var(--green);">
+            <div class="service-card" style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #eee;">
                 <div>
-                    <b style="color: #1e293b; display:block;">${s.name || 'Untitled'}</b>
-                    <span style="color: var(--green); font-weight: 800;">₹${Number(s.price || 0).toLocaleString('en-IN')}</span>
+                    <div style="font-weight:700;">${s.name}</div>
+                    <div style="color:#10b981; font-weight:bold;">₹${Number(s.price).toLocaleString('en-IN')}</div>
                 </div>
-               
-<button onclick="deleteService(event, ${s.index}, '${s.name.replace(/'/g, "\\'")}')" 
-        style="background:#fee2e2; border:none; color:#ef4444; width:40px; height:40px; border-radius:10px; cursor:pointer;">
-    <i class='bx bxs-trash-alt'></i>
-</button>
+                <button onclick="deleteService(event, ${s.index}, '${s.name.replace(/'/g, "\\'")}')" 
+                        style="background:#fee2e2; color:#ef4444; border:none; padding:8px; border-radius:6px; cursor:pointer;">
+                    <i class='bx bx-trash'></i>
+                </button>
             </div>
         `).join('');
-    } catch(e) { 
-        container.innerHTML = "<div style='color:red; padding:20px; text-align:center;'>⚠️ Failed to load pricing.</div>"; 
-    }
+    } catch (e) { container.innerHTML = "Error loading services."; }
 }
-// Add 'event' to the function arguments
-async function deleteService(event, index, name) {
-    if(!confirm(`Permanently remove "${name}"?`)) return;
 
-    // Use the passed event to find the button
-    const btn = event.currentTarget;
-    const originalContent = btn.innerHTML;
-    const rowElement = btn.closest('.card'); 
+// --- ADD SERVICE ---
+async function addService(e) {
+    e.preventDefault();
+    const btn = document.getElementById('servBtn');
+    const sName = e.target.serviceName.value;
+    const sPrice = e.target.servicePrice.value;
 
     btn.disabled = true;
-    btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i>";
+    btn.innerHTML = "Saving...";
+
+    const params = new URLSearchParams({
+        type: 'addService',
+        serviceName: sName,  // Matches e.parameter.serviceName in your backend
+        servicePrice: sPrice // Matches e.parameter.servicePrice in your backend
+    });
 
     try {
-        const params = new URLSearchParams();
-        params.append('type', 'deleteService');
-        params.append('index', index);
+        await fetch(URL, { method: 'POST', mode: 'no-cors', body: params });
+        alert("Service Added!");
+        e.target.reset();
+        setTimeout(loadServices, 1500); // Wait for Sheet to sync
+    } catch (err) { alert("Error adding service."); }
+    btn.disabled = false;
+    btn.innerHTML = "Add Service";
+}
 
+// --- DELETE SERVICE ---
+async function deleteService(event, index, name) {
+    if(!confirm(`Delete "${name}"?`)) return;
+    const btn = event.currentTarget;
+    btn.disabled = true;
+
+    try {
         await fetch(URL, { 
             method: 'POST', 
             mode: 'no-cors', 
-            body: params 
+            body: new URLSearchParams({ type: 'deleteService', index: index }) 
         });
-
-        // UI Animation
-        rowElement.style.transition = "0.4s ease";
-        rowElement.style.transform = "translateX(50px)";
-        rowElement.style.opacity = "0";
-
-        setTimeout(() => {
-            loadServices(); // Refresh the list
-        }, 400);
-
-    } catch (e) {
-        alert("❌ Error deleting. Check connection.");
-        btn.disabled = false;
-        btn.innerHTML = originalContent;
-    }
+        setTimeout(loadServices, 1000);
+    } catch (e) { alert("Delete failed."); }
 }
 // --- UPLOAD HANDLER ---
+// Optimized Image Handler
 document.getElementById('imgInp').onchange = e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
     const reader = new FileReader();
     reader.onload = ev => {
         const img = new Image();
         img.onload = () => {
             const canvas = document.createElement('canvas');
             const maxW = 600;
-            const scale = maxW / img.width;
-            canvas.width = maxW; canvas.height = img.height * scale;
-            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-            document.getElementById('b64').value = canvas.toDataURL('image/jpeg', 0.7);
+            // Only scale down if the image is actually wider than 600px
+            const scale = img.width > maxW ? maxW / img.width : 1;
+            
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // 0.5 Quality is the "Sweet Spot" for Google Sheets to prevent 414 errors
+            const compressedData = canvas.toDataURL('image/jpeg', 0.5);
+            document.getElementById('b64').value = compressedData;
+            
+            // Optional: Show preview if you have an <img> tag with id="preview"
+            const preview = document.getElementById('preview');
+            if (preview) preview.src = compressedData;
         };
         img.src = ev.target.result;
     };
-    reader.readAsDataURL(e.target.files[0]);
+    reader.readAsDataURL(file);
 };
 
-document.getElementById('adminForm').onsubmit = async (e) => {
-    e.preventDefault();
-    const btn = document.getElementById('pubBtn');
-    btn.innerText = "Uploading..."; btn.disabled = true;
-    await fetch(URL, { method: 'POST', mode: 'no-cors', body: new URLSearchParams(new FormData(e.target)) });
-    alert("Uploaded!");
-    e.target.reset();
-    btn.innerText = "Upload Project"; btn.disabled = false;
-    loadPortfolio();
-};
+// Universal Submit Handler to reduce code repetition
+
+
+
 
 document.getElementById('serviceForm').onsubmit = async (e) => {
     e.preventDefault();
