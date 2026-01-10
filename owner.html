@@ -269,7 +269,7 @@
 // 1. CONFIGURATION & PERMANENT VAULT
 // ==========================================
 let globalData = [];
-const URL = 'https://script.google.com/macros/s/AKfycbxoRA8rCBIg5B9F-MNR_a2w1xprfA0_Ewn40i20d5oq4GKM9ieIMDQnFJUy_jvL67ta/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbzKuF8gSqexPtqGUCk-F8vLxzTfCpFXVtFoX2-f08OfR6jH7AEl2uB5Di2KeKyRxYUw/exec'; 
 const UPI_ID = "jitumoni2005-1@okhdfcbank"; 
 
 // Permanent Storage: Survives lead deletions
@@ -662,9 +662,12 @@ function renderLeads(data, container) {
 
         <h3 style="margin:0; font-size:1.3rem; color:#0f172a; font-weight:800;">${m.name}</h3>
         <div style="color:#6366f1; font-weight:600; margin: 8px 0; display:flex; align-items:center; gap:6px;">
-            <i class='bx bxs-wrench'></i> ${m.workType || 'Electrical Service'}
+            <i class='bx bxs-wrench'></i> ${m.workType||'General'}-(${m.message||m.work || 'Electrical Service'})
+           
         </div>
-
+        <div style="color:var(--green); font-weight:600; margin: 8px 0; display:flex; align-items:center; gap:6px;">
+        <i class= 'bx bxs-home' ></i> ${m.location || 'No address provided'}
+        </div>
         <div style="background:#f8fafc; padding:15px; border-radius:12px; margin:15px 0; display:flex; justify-content:space-between; align-items:center;">
             <div>
                 <div style="font-size:10px; color:#94a3b8; font-weight:700; text-transform:uppercase;">Quote</div>
