@@ -145,18 +145,19 @@
 
     <div class="main-content">
         <div id="leadsSection">
-    <h3 style="margin-bottom:15px;">Business Overview</h3>
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; padding: 10px;">
+<h3 style="margin-bottom:15px;">Business Overview</h3>
+<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 10px;">
+    
     <div style="background: #1e293b; color: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
-        <small style="text-transform: uppercase; font-size: 10px; opacity: 0.7; font-weight: 700;">Lifetime Revenue</small>
-        <h2 id="vaultRevenue" style="margin: 5px 0; font-size: 1.8rem;">₹0</h2>
-        <small style="font-size: 10px; opacity: 0.6;">Total Permanent Earnings</small>
+        <small id="monthName" style="text-transform: uppercase; font-size: 10px; opacity: 0.7; font-weight: 700;">Current Month</small>
+        <h2 id="monthlyRevenue" style="margin: 5px 0; font-size: 1.8rem;">₹0</h2>
+        <small style="font-size: 10px; opacity: 0.7;">Monthly Earnings</small>
     </div>
 
-    <div style="background: white; color: #1e293b; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
-        <small id="monthName" style="text-transform: uppercase; font-size: 10px; color: #64748b; font-weight: 700;">This Month</small>
-        <h2 id="monthlyRevenue" style="margin: 5px 0; font-size: 1.8rem; color: #6366f1;">₹0</h2>
-        <small style="font-size: 10px; color: #94a3b8;">Total in Current Month</small>
+    <div style="background: #0f172a; color: #fbbf24; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+        <small style="text-transform: uppercase; font-size: 10px; opacity: 0.8; font-weight: 700; color: white;">Lifetime Vault</small>
+        <h2 id="permanentRevenue" style="margin: 5px 0; font-size: 1.8rem;">₹0</h2>
+        <small style="font-size: 10px; color: white; opacity: 0.7;">Total Accumulated</small>
     </div>
 
     <div style="background: white; color: #1e293b; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid #f1f5f9;">
@@ -233,12 +234,16 @@
            
 
         <div id="serviceSection" class="hidden">
-            <h3>Services & Prices</h3>
+             <h3 style="margin-top: 0; display: flex; align-items: center; gap: 10px; color: #856404;">
+            <i class='bx bxs-cloud-upload' style="font-size: 1.5rem; color: #ffcc00;"></i> 
+          Add Services and Prices
+        </h3>
+        
             <div class="card">
                 <form id="serviceForm" onsubmit="addService(event)">
     <input type="text" name="serviceName" placeholder="Service Name" required  style="font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase;">
-    <input type="number" name="servicePrice" placeholder="Price" required  style="font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase;">
-    <button type="submit" id="servBtn" >Add Service</button>
+    <input type="number" name="servicePrice" placeholder="Price / day" required  style="font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase;">
+    <button type="submit" id="servBtn" style="background: #22c55e; color: white; padding: 16px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4); transition: 0.3s;" >Add Service</button>
 </form>
             </div>
             <div id="currentServices">Loading...</div>
@@ -264,7 +269,7 @@
 // 1. CONFIGURATION & PERMANENT VAULT
 // ==========================================
 let globalData = [];
-const URL = 'https://script.google.com/macros/s/AKfycbyd9_g74ElsmKvcJw9MgWmEspTqnWhPGjUDwCxgEmNwkcQ3jo8us13oZG1cqVcbGA-_/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbxoRA8rCBIg5B9F-MNR_a2w1xprfA0_Ewn40i20d5oq4GKM9ieIMDQnFJUy_jvL67ta/exec'; 
 const UPI_ID = "jitumoni2005-1@okhdfcbank"; 
 
 // Permanent Storage: Survives lead deletions
@@ -563,40 +568,29 @@ document.getElementById('portfolioForm').onsubmit = async (e) => {
 };
 async function updateDashboardStats(data) {
     try {
-        // 1. Fetch Permanent Vault Data from Sheet
+        // 1. Fetch Permanent Data from the Database
         const vaultRes = await fetch(`${URL}?mode=vault`);
         const vaultData = await vaultRes.json();
 
-        // Update Permanent UI Elements
-        document.getElementById('vaultRevenue').innerText = `₹${Number(vaultData.totalRevenue || 0).toLocaleString('en-IN')}`;
-        document.getElementById('vaultTasks').innerText = vaultData.totalTasks || 0;
-
-        // 2. Calculate Monthly Revenue from the active globalData
-        const now = new Date();
-        const currentMonth = now.getMonth();
-        const currentYear = now.getFullYear();
+        // 2. Display Database Values
+        // These will NOT change even if you delete leads because they are stored in 'PermanentStats'
+        if(document.getElementById('permanentRevenue')) {
+            document.getElementById('permanentRevenue').innerText = `₹${Number(vaultData.totalRevenue || 0).toLocaleString('en-IN')}`;
+        }
         
-        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        if(document.getElementById('monthName')) {
-            document.getElementById('monthName').innerText = `Total in ${monthNames[currentMonth]}`;
+        if(document.getElementById('monthlyRevenue')) {
+            document.getElementById('monthlyRevenue').innerText = `₹${Number(vaultData.monthlyRevenue || 0).toLocaleString('en-IN')}`;
         }
 
-        let monthlyTotal = 0;
-        data.forEach(lead => {
-            if (lead.status === 'COMPLETED' && lead.bill) {
-                // Parse date (dd/mm/yyyy)
-                const parts = lead.date.split('/');
-                if(parts.length === 3) {
-                    const leadDate = new Date(parts[2], parts[1] - 1, parts[0]);
-                    if (leadDate.getMonth() === currentMonth && leadDate.getFullYear() === currentYear) {
-                        monthlyTotal += Number(lead.bill);
-                    }
-                }
-            }
-        });
+        if(document.getElementById('vaultTasks')) {
+            document.getElementById('vaultTasks').innerText = vaultData.totalTasks || 0;
+        }
 
-        if(document.getElementById('monthlyRevenue')) {
-            document.getElementById('monthlyRevenue').innerText = `₹${monthlyTotal.toLocaleString('en-IN')}`;
+        // 3. Display Current Month Name
+        const monthNames = ["January", "February", "March", "April", "May", "June", 
+                            "July", "August", "September", "October", "November", "December"];
+        if(document.getElementById('monthName')) {
+            document.getElementById('monthName').innerText = monthNames[new Date().getMonth()];
         }
 
     } catch (err) {
