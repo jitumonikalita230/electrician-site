@@ -285,27 +285,22 @@ function saveToVault() {
 // 2. AUTHENTICATION (LOGIN/LOGOUT)
 // ==========================================
 
-async function getHash(text) {
-    const msgUint8 = new TextEncoder().encode(text);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-async function login() {
+function login() {
     const passInput = document.getElementById('pass').value;
     
- 
-    const correctHash = "4497e7436030999818816999757656686d0877995f5904d9c020556f8903c623";
-    
+  
+    const secret = "Sk1LMDA="; 
 
-    const inputHash = await getHash(passInput);
-
-    if(inputHash === correctHash) {
+    if(btoa(passInput) === secret) {
         localStorage.setItem('sparkyAuth', 'true');
+        
+
         document.getElementById('loginBox').classList.add('hidden');
         document.getElementById('dashboard').classList.remove('hidden');
-        if (typeof refreshData === "function") refreshData();
+        
+        if (typeof refreshData === "function") {
+            refreshData();
+        }
     } else { 
         alert("Wrong PIN"); 
     }
