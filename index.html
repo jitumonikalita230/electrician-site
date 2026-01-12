@@ -307,7 +307,7 @@ async function loadServices() {
         const data = await res.json();
         sel.innerHTML = '<option value="0">Select Service</option>';
         data.forEach(s => { 
-            sel.innerHTML += `<option value="${s.price}">${s.name} <i class='bx  bx-wallet-note'></i>  (₹${s.price}₹ /day) </option>`; 
+            sel.innerHTML += `<option value="${s.price}">${s.name} <i class='bx  bx-wallet-note'></i>  (₹${s.price}/day) </option>`; 
         });
     } catch(e) { 
         sel.innerHTML = '<option value="150">General Inspection</option>'; 
