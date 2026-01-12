@@ -85,7 +85,7 @@
             color:white;
         }
         .nav-item { text-align: center; color: #f5f7f9; font-size:0.7rem; cursor: pointer;font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; }
-        .nav-item.active { color:aqua; font-weight: bold; }
+        .nav-item.active { color:var(--accent); font-weight: bold; }
         .nav-item i { font-size:2rem; display: block; }
 
         input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #cbd5e1; margin-bottom: 12px; font-size: 1rem; }
@@ -210,10 +210,7 @@
             <div id="previewBox" style="display: none; margin-bottom: 20px; border-radius: 12px; overflow: hidden; border: 1px solid #ddd; position: relative; background: #000;">
                 <p style="font-size: 0.7rem; background: rgba(0,0,0,0.6); color: white; margin: 0; padding: 5px; text-align: center; position: absolute; width: 100%; z-index: 1;">Preview</p>
                 <img id="imgPreview" src="" style="width: 100%; height: 250px; object-fit: contain; display: block;">
-                <button type="button" onclick="window.clearSelection()" 
-                        style="position: absolute; right: 10px; bottom: 10px; background: #ef4444; color: white; border: none; border-radius: 6px; padding: 8px 12px; cursor: pointer; font-size: 0.8rem; font-weight: bold; z-index: 2; display: flex; align-items: center; gap: 5px;">
-                    <i class='bx bx-trash'></i> Remove
-                </button>
+                
             </div>
             
             <button type="submit" id="portBtn" style="background: #22c55e; color: white; padding: 16px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4); transition: 0.3s;">
@@ -269,7 +266,7 @@
 // 1. CONFIGURATION & PERMANENT VAULT
 // ==========================================
 let globalData = [];
-const URL = 'https://script.google.com/macros/s/AKfycbzZ7Hg6EYzHYsRv-bvemKcuaLbEJZ0gbNP_cL14b0MuPcXq9E9R43GRf4O76AzMl2bf/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbwhZSfv3FOyKoHnN7n2_KurEIT4DMGJeXg6sgUuyS1kIWeYzoW4cZpXHZpGdFnNTXJH/exec'; 
 const UPI_ID = "jitumoni2005-1@okhdfcbank"; 
 
 // Permanent Storage: Survives lead deletions
@@ -779,219 +776,487 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
 
-    // --- 1. DATA SANITIZATION (The Fix for &W&o&r&k) ---
-    // This removes any non-standard characters (like ₹) that break the PDF encoding
+    // --- 1. DATA SANITIZATION ---
     const sanitize = (val) => String(val || '').replace(/[^\x00-\x7F]/g, "").trim();
-    
     const cleanName = sanitize(m.name);
-    const cleanWork = sanitize(work);
-    const nDay = Number(day) || 0;
-    const nMat = Number(mat) || 0;
+    const nDay = Number(day) || 1;
     const nLab = Number(lab) || 0;
+    const nMatTotal = Number(mat) || 0;
     const nDisc = Number(disc) || 0;
-    const finalTotal = (nLab * nDay) + nMat - nDisc;
+    const finalTotal = (nLab * nDay) + nMatTotal - nDisc;
 
-    // Human-readable date
-    const dateObj = m.date ? new Date(m.date) : new Date();
-    const displayDate = dateObj.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    // Split base work from items for the header
+    let baseWork = sanitize(work);
+    let itemsString = "";
+    if (baseWork.includes("[Items: ")) {
+        const parts = baseWork.split(" [Items: ");
+        baseWork = parts[0];
+        itemsString = parts[1].replace("]", "");
+    }
 
-    // --- 2. HEADER & BRANDING ---
-    doc.setFillColor(15, 23, 42); // Deep Navy/Slate 900
+    // --- 2. HEADER & BRANDING (Navy/Slate Style) ---
+    doc.setFillColor(15, 23, 42); 
     doc.rect(0, 0, 210, 45, 'F');
-    
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(28);
     doc.text("SPARKY", 20, 25);
-    
-    doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.setTextColor(148, 163, 184); // Muted slate
+    doc.setTextColor(148, 163, 184);
     doc.text("ELECTRICAL SOLUTIONS & MAINTENANCE", 20, 32);
-    
-    // Indigo Accent Line
-    doc.setFillColor(99, 102, 241); 
-    doc.rect(20, 36, 40, 1.5, 'F');
 
-    // Invoice Label (Right side of header)
-    doc.setTextColor(255, 255, 255);
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.text("INVOICE", 160, 22);
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.text(`#${index}${dateObj.getFullYear()}`, 160, 28);
-
-    // --- 3. ADDRESS & CLIENT INFO ---
+    // --- 3. CLIENT INFO ---
     doc.setTextColor(30, 41, 59);
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "bold");
-    doc.text("BILL TO:", 20, 60);
-    
-    doc.setFontSize(14);
-    doc.text(cleanName.toUpperCase(), 20, 68);
-    
-    doc.setFontSize(10);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(71, 85, 105);
-    doc.text(`Project: ${cleanWork}`, 20, 75);
-    doc.text(`Date: ${displayDate}`, 150, 68);
+    doc.setFontSize(9); doc.text("BILL TO:", 20, 60);
+    doc.setFontSize(14); doc.text(cleanName.toUpperCase(), 20, 68);
+    doc.setFontSize(10); doc.setFont("helvetica", "normal");
+    doc.text(`Project: ${baseWork}`, 20, 75);
 
-    // --- 4. BILLING TABLE ---
+    // --- 4. DYNAMIC BILLING TABLE ---
     let yPos = 90;
-    
-    // Header Row
     doc.setFillColor(241, 245, 249);
     doc.rect(20, yPos, 170, 10, 'F');
     doc.setTextColor(51, 65, 85);
     doc.setFont("helvetica", "bold");
     doc.text("DESCRIPTION", 25, yPos + 6.5);
-    doc.text("AMOUNT", 160, yPos + 6.5);
+    doc.text("AMOUNT", 160, yPos + 6.5, { align: 'right' });
 
-    yPos += 20;
+    yPos += 18;
     doc.setFont("helvetica", "normal");
     doc.setTextColor(30, 41, 59);
 
-    // Item 1: Labor
+    // Row: Labor
     doc.text("Labor & Technical Services", 25, yPos);
-    doc.setFontSize(8);
-    doc.setTextColor(100, 116, 139);
-    doc.text(`${nDay} Days of Service @ Rs. ${nLab.toLocaleString()}/day`, 25, yPos + 5);
-    doc.setFontSize(10);
-    doc.setTextColor(30, 41, 59);
-    doc.text(`Rs. ${(nLab * nDay).toLocaleString()}`, 160, yPos);
+    doc.setFontSize(8); doc.setTextColor(100, 116, 139);
+    doc.text(`${nDay} Day(s) @ Rs. ${nLab.toLocaleString()}/day`, 25, yPos + 5);
+    doc.setFontSize(10); doc.setTextColor(30, 41, 59);
+    doc.text(`${(nLab * nDay).toLocaleString()}`, 185, yPos, { align: 'right' });
 
-    // Item 2: Materials
-    yPos += 18;
-    doc.text("Materials & Hardware Supplied", 25, yPos);
-    doc.text(`Rs. ${nMat.toLocaleString()}`, 160, yPos);
+    // Row(s): Itemized Materials
+    if (itemsString) {
+        const items = itemsString.split(", ");
+        items.forEach(item => {
+            yPos += 12;
+            const [iName, iPrice] = item.split(": ");
+            doc.text(sanitize(iName), 25, yPos);
+            doc.text(`${Number(iPrice).toLocaleString()}`, 185, yPos, { align: 'right' });
+            
+            // Auto-page break if list is too long
+            if (yPos > 250) { doc.addPage(); yPos = 20; }
+        });
+    } else if (nMatTotal > 0) {
+        yPos += 12;
+        doc.text("Materials & Hardware", 25, yPos);
+        doc.text(`${nMatTotal.toLocaleString()}`, 185, yPos, { align: 'right' });
+    }
 
-    // Divider
-    yPos += 10;
+    // --- 5. SUMMARY SECTION ---
+    yPos += 15;
     doc.setDrawColor(226, 232, 240);
-    doc.line(20, yPos, 190, yPos);
-
-    // --- 5. SUMMARY ---
-    yPos += 12;
+    doc.line(120, yPos, 190, yPos);
+    
+    yPos += 10;
     if (nDisc > 0) {
-        doc.setFontSize(10);
-        doc.text("Discount Applied:", 110, yPos);
+        doc.text("Discount Applied:", 120, yPos);
         doc.setTextColor(220, 38, 38);
-        doc.text(`- Rs. ${nDisc.toLocaleString()}`, 160, yPos);
+        doc.text(`- Rs. ${nDisc.toLocaleString()}`, 185, yPos, { align: 'right' });
         yPos += 10;
         doc.setTextColor(30, 41, 59);
     }
 
-    // Grand Total Box
     doc.setFillColor(15, 23, 42);
-    doc.rect(105, yPos - 6, 85, 14, 'F');
+    doc.rect(110, yPos - 6, 80, 12, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
-    doc.text("TOTAL DUE", 112, yPos + 3);
-    doc.text(`Rs. ${finalTotal.toLocaleString('en-IN')}`, 155, yPos + 3);
+    doc.text("TOTAL DUE", 115, yPos + 2);
+    doc.text(`Rs. ${finalTotal.toLocaleString('en-IN')}`, 185, yPos + 2, { align: 'right' });
 
-    // --- 6. FOOTER ---
-    doc.setTextColor(148, 163, 184);
-    doc.setFontSize(8);
-    doc.setFont("helvetica", "italic");
-    doc.text("Thank you for your business. Terms: Payment due upon receipt.", 105, 280, { align: "center" });
-
-    // --- OUTPUT ---
-    if (viewOnly) {
-        window.open(doc.output('bloburl'), '_blank');
-    } else {
-        doc.save(`Invoice_${cleanName.replace(/\s+/g, '_')}.pdf`);
-    }
+    if (viewOnly) { window.open(doc.output('bloburl'), '_blank'); } 
+    else { doc.save(`Invoice_${cleanName}.pdf`); }
 }
 // --- 3. PREVIEW & WHATSAPP (Doesn't close modal) ---
 async function viewInvoiceOnly() {
-    const lead = syncDraft(); 
+    const index = document.getElementById('custIndex').value;
+    const lead = globalData.find(m => m.index == index);
+    
     if (lead) {
-        // Pass live inputs directly to PDF for instant preview
+        // 1. Collect live data from modal inputs
         const day = parseFloat(document.getElementById('custDay').value) || 1;
-        const mat = parseFloat(document.getElementById('custMat').value) || 0;
         const lab = parseFloat(document.getElementById('custLab').value) || 0;
+        const matTotal = parseFloat(document.getElementById('custMat').value) || 0;
         const disc = parseFloat(document.getElementById('custDisc').value) || 0;
+        const baseWork = document.getElementById('custWork').value;
+
+        // 2. Build live material list string
+        const materialArray = [];
+        document.querySelectorAll('.material-row').forEach(row => {
+            const n = row.querySelector('.item-name').value.trim();
+            const p = row.querySelector('.item-price').value || 0;
+            if (n) materialArray.push(`${n}: ${p}`);
+        });
+        const matDetails = materialArray.join(", ");
         
-        renderActualPDF(lead.index, lead.workType, day, mat, lab, disc, true);
+        // 3. Format the work string correctly for the PDF parser
+        const fullWorkForPDF = matDetails ? `${baseWork} [Items: ${matDetails}]` : baseWork;
+
+        // 4. CALL THE CORRECT FUNCTION
+        // We call renderActualPDF directly with the live values
+        renderActualPDF(index, fullWorkForPDF, day, matTotal, lab, disc, true);
     }
 }
-
 async function shareToWhatsApp() {
-    const lead = syncDraft();
+    const index = document.getElementById('custIndex').value;
+    const lead = globalData.find(m => m.index == index);
     if (!lead) return;
 
-    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky%20Electricals&am=${lead.bill}&cu=INR`;
-    const message = encodeURIComponent(
-        `✨ *SPARKY ELECTRICALS*\n` +
-        `--------------------------\n` +
-        `*Invoice:* #INV-${lead.index}\n` +
-        `*Work:* ${lead.workType}\n` +
-        `*Amount:* ₹${lead.bill}\n\n` +
-        `✅ *Pay via UPI:*\n${upiLink}\n\n` +
-        `Thank you for choosing Sparky!`
-    );
+    // --- EXTRACT LIVE MATERIAL ITEMS FOR MESSAGE ---
+    let itemsList = "";
+    document.querySelectorAll('.material-row').forEach(row => {
+        const n = row.querySelector('.item-name').value.trim();
+        const p = row.querySelector('.item-price').value || 0;
+        if (n) itemsList += `  • ${n}: ₹${parseFloat(p).toFixed(2)}\n`;
+    });
 
-    window.open(`https://wa.me/91${lead.phone.toString().replace(/\D/g, '')}?text=${message}`, '_blank');
+    const labor = parseFloat(document.getElementById('custLab').value) || 0;
+    const days = parseFloat(document.getElementById('custDay').value) || 1;
+    const discount = parseFloat(document.getElementById('custDisc').value) || 0;
+    const grandTotal = (labor * days) + (parseFloat(document.getElementById('custMat').value) || 0) - discount;
+
+    // --- CONSTRUCT THE MESSAGE ---
+    let messageBody = `⚡ *SPARKY ELECTRICALS* ⚡\n`;
+    messageBody += `----------------------------\n`;
+    messageBody += `*Invoice:* #INV-${lead.index}\n`;
+    messageBody += `*Service:* ${document.getElementById('custWork').value}\n\n`;
+    
+    messageBody += `*Billing Details:*\n`;
+    messageBody += `🔧 Labor: ₹${labor} x ${days} day(s)\n`;
+    
+    if (itemsList) {
+        messageBody += `📦 Materials:\n${itemsList}`;
+    }
+    
+    if (discount > 0) {
+        messageBody += `🎁 Discount: -₹${discount}\n`;
+    }
+    
+    messageBody += `----------------------------\n`;
+    messageBody += `💰 *TOTAL AMOUNT: ₹${grandTotal.toLocaleString('en-IN')}*\n\n`;
+    
+    // --- UPI PAYMENT LINK ---
+    const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky%20Electricals&am=${grandTotal}&cu=INR`;
+    messageBody += `✅ *Quick Pay via UPI:*\n${upiLink}\n\n`;
+    messageBody += `*Thank you for choosing Sparky!*`;
+
+    const finalUrl = `https://wa.me/91${lead.phone.toString().replace(/\D/g, '')}?text=${encodeURIComponent(messageBody)}`;
+    window.open(finalUrl, '_blank');
 }
 
 // --- 4. FINALIZE (Closes modal and shows 'Mark Paid' on card) ---
-async function finalizeBill() {
-    syncDraft();
-    closeCustModal();
-    // Refresh UI to show the "Mark Paid" button on the lead card
-    renderLeads(globalData, document.getElementById('leadsList'));
+// --- 1. DYNAMIC MATERIAL ROWS LOGIC ---
+
+/**
+ * Adds a new material input row to the modal
+ */
+// --- 1. DYNAMIC MATERIALS MANAGEMENT ---
+
+/**
+ * Adds a new material input row with unique IDs
+ */
+function addNewMaterialRow(name = "", price = "") {
+    const container = document.getElementById('materialList');
+    const rowId = 'row_' + Date.now() + Math.random().toString(36).substr(2, 5);
+
+    const html = `
+        <div id="${rowId}" class="material-row" style="display: flex; gap: 8px; align-items: center; background: #fff; padding: 6px; border-radius: 10px; border: 1px solid #e2e8f0; margin-bottom: 8px; transition: all 0.2s;">
+            <input type="text" placeholder="Item Name" class="item-name" value="${name}" 
+                style="flex: 2; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; outline: none;">
+            <input type="number" placeholder="₹" class="item-price" value="${price}" 
+                oninput="updateMaterialTotal()" 
+                style="flex: 1; padding: 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 0.9rem; font-weight: 600; text-align: right;">
+            <button type="button" onclick="removeMaterialRow('${rowId}')" 
+                style="background: #fee2e2; color: #ef4444; border: none; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                <i class='bx bx-trash' style="font-size: 1.2rem;"></i>
+            </button>
+        </div>
+    `;
+    container.insertAdjacentHTML('beforeend', html);
 }
 
-// FIX: downloadPDF must handle the viewOnly flag correctly
-function downloadPDF(index, viewOnly = false) {
-    const lead = globalData.find(m => m.index == index);
-    const doc = new jspdf.jsPDF(); // Ensure you use the correct constructor
-    
-    // Simple PDF content
-    doc.setFontSize(20);
-    doc.text("SPARKY ELECTRICALS", 20, 20);
-    doc.setFontSize(12);
-    doc.text(`Customer: ${lead.name}`, 20, 40);
-    doc.text(`Work: ${lead.workType}`, 20, 50);
-    doc.text(`Total Bill: Rs. ${lead.bill}`, 20, 60);
-    doc.text("Status: " + (lead.status === 'COMPLETED' ? "PAID" : "UNPAID"), 20, 70);
-    
-    if(viewOnly) {
-        // This is the most reliable way to open a preview
-        const blob = doc.output('bloburl');
-        window.open(blob, '_blank');
-    } else {
-        doc.save(`Invoice_${lead.name}.pdf`);
-    }
+function removeMaterialRow(id) {
+    const row = document.getElementById(id);
+    if (row) row.remove();
+    updateMaterialTotal();
 }
+
+/**
+ * Updates material subtotal and triggers grand total calculation
+ */
+function updateMaterialTotal() {
+    let total = 0;
+    const rows = document.querySelectorAll('.material-row');
+    
+    rows.forEach(row => {
+        const p = parseFloat(row.querySelector('.item-price').value) || 0;
+        total += p;
+    });
+
+    document.getElementById('custMat').value = total;
+    const display = document.getElementById('matTotalDisplay');
+    if (display) display.innerText = "₹" + total.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    
+    calculateLiveTotal();
+}
+
+/**
+ * Calculates Grand Total: (Labor * Days) + Materials - Discount
+ */
+function calculateLiveTotal() {
+    const lab = parseFloat(document.getElementById('custLab').value) || 0;
+    const day = parseFloat(document.getElementById('custDay').value) || 1;
+    const mat = parseFloat(document.getElementById('custMat').value) || 0;
+    const disc = parseFloat(document.getElementById('custDisc').value) || 0;
+
+    const grandTotal = (lab * day) + mat - disc;
+    const display = document.getElementById('liveTotalDisplay');
+    if (display) display.innerText = "Total: ₹" + grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    
+    return grandTotal;
+}
+
+// --- 2. MODAL & SAVE ACTIONS ---
 
 function openCustModal(index) {
     const m = globalData.find(item => item.index == index);
     if (!m) return;
 
     document.getElementById('custIndex').value = index;
-    document.getElementById('custWork').value = m.workType || "Electrical Service";
-    // This removes any non-numeric characters before putting it in the box
-const defaultAmount = m.bill || m.quote || 0;
-document.getElementById('custLab').value = String(defaultAmount).replace(/[^\d.]/g, '');
-    document.getElementById('custDay').value = 1;
-    document.getElementById('custMat').value = 0;
-    document.getElementById('custDisc').value = 0;
     
+    // 1. Separate the Base Work from the Material String
+    // If work is "Wiring [Items: Wire: 500, Tape: 20]", baseWork becomes "Wiring"
+    let baseWork = m.work || m.workType || "Electrical Service";
+    let materialPart = "";
+
+    if (baseWork.includes("[Items: ")) {
+        const parts = baseWork.split(" [Items: ");
+        baseWork = parts[0];
+        materialPart = parts[1].replace("]", ""); // Get "Wire: 500, Tape: 20"
+    }
+
+    document.getElementById('custWork').value = baseWork;
+    
+    // 2. Setup Labor/Days/Discount
+    const defaultAmount = m.labor || m.quote || 0;
+    document.getElementById('custLab').value = String(defaultAmount).replace(/[^\d.]/g, '');
+    document.getElementById('custDay').value = m.days || 1; 
+    document.getElementById('custDisc').value = m.discount || 0;
+    
+    // 3. RECONSTRUCT MATERIAL ROWS
+    const container = document.getElementById('materialList');
+    container.innerHTML = ""; // Clear existing rows
+
+    if (materialPart) {
+        // Split string back into items
+        const items = materialPart.split(", ");
+        items.forEach(item => {
+            const [name, price] = item.split(": ");
+            addNewMaterialRow(name, price); // Add row with saved data
+        });
+    } else {
+        // If no saved materials, just add one empty row
+        addNewMaterialRow(); 
+    }
+
     document.getElementById('billCustomModal').style.display = 'flex';
-    calculateLiveTotal();
-}j
-function downloadPDF(index, viewOnly = false) {
-    const doc = new jsPDF();
-    // ... (Your PDF Design Code) ...
+    updateMaterialTotal(); // Recalculate totals based on loaded data
+}
+
+async function finalizeBill() {
+    const btn = event.target;
+    const index = document.getElementById('custIndex').value;
     
+    const labor = parseFloat(document.getElementById('custLab').value) || 0;
+    const days = parseFloat(document.getElementById('custDay').value) || 1;
+    const materialsTotal = parseFloat(document.getElementById('custMat').value) || 0;
+    const discount = parseFloat(document.getElementById('custDisc').value) || 0;
+    const baseWork = document.getElementById('custWork').value;
+
+    // --- 1. BUILD MATERIAL STRING ---
+    const materialArray = [];
+    document.querySelectorAll('.material-row').forEach(row => {
+        const n = row.querySelector('.item-name').value.trim();
+        const p = row.querySelector('.item-price').value || 0;
+        if (n) materialArray.push(`${n}: ${p}`);
+    });
+    
+    const matDetails = materialArray.join(", ");
+    const totalBill = (labor * days) + materialsTotal - discount;
+    
+    // Format: "Base Work [Items: Name: Price, Name: Price]"
+    const fullWorkDesc = matDetails ? `${baseWork} [Items: ${matDetails}]` : baseWork;
+
+    const formData = new URLSearchParams();
+    formData.append('type', 'finalizeBill');
+    formData.append('index', index);
+    formData.append('labor', labor); // Sending base labor
+    formData.append('days', days);   // Sending days separately if your backend supports it
+    formData.append('materials', materialsTotal);
+    formData.append('discount', discount);
+    formData.append('bill', totalBill);
+    formData.append('work', fullWorkDesc);
+
+    try {
+        btn.disabled = true;
+        btn.innerHTML = "<i class='bx bx-loader-alt bx-spin'></i> Saving...";
+
+        const response = await fetch(URL, { method: 'POST', body: formData });
+        const result = await response.text();
+
+        if (result.includes("Success")) {
+            // Update the local data immediately so UI looks correct without refresh
+            const lead = globalData.find(m => m.index == index);
+            if(lead) {
+                lead.work = fullWorkDesc;
+                lead.labor = labor;
+                lead.bill = totalBill;
+                lead.materials = materialsTotal;
+                lead.discount = discount;
+            }
+            alert("✅ Bill & Materials Saved!");
+            closeCustModal();
+            renderLeads(globalData, document.getElementById('leadsList'));
+        }
+    } catch (e) {
+        alert("Error: " + e.message);
+    } finally {
+        btn.disabled = false;
+        btn.innerText = "✅ Save & Finalize Bill";
+    }
+}
+// --- 3. PDF GENERATION ---
+
+// --- 3. PROFESSIONAL PDF GENERATION ---
+
+function downloadPDF(index, viewOnly = false) {
+    const lead = globalData.find(m => m.index == index);
+    if (!lead) return;
+
+    const doc = new jspdf.jsPDF();
+    let currentY = 20;
+
+    // --- Header & Branding ---
+    doc.setFontSize(24);
+    doc.setTextColor(30, 41, 59);
+    doc.text("SPARKY ELECTRICALS", 105, currentY, { align: "center" });
+    
+    currentY += 10;
+    doc.setDrawColor(200);
+    doc.line(20, currentY, 190, currentY);
+
+    // --- Customer & Date Info ---
+    currentY += 15;
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text("INVOICE TO:", 20, currentY);
+    doc.text("DATE:", 150, currentY);
+    
+    currentY += 7;
+    doc.setFontSize(12);
+    doc.setTextColor(0);
+    doc.setFont(undefined, 'bold');
+    doc.text(`${lead.name}`, 20, currentY);
+    doc.text(`${new Date().toLocaleDateString()}`, 150, currentY);
+
+    // --- Work Description ---
+    currentY += 15;
+    doc.setFontSize(10);
+    doc.setTextColor(100);
+    doc.text("PROJECT DESCRIPTION:", 20, currentY);
+    
+    currentY += 7;
+    doc.setTextColor(30);
+    doc.setFont(undefined, 'normal');
+    
+    // Clean the description for the header (remove the hidden items list)
+    let displayWork = lead.work || lead.workType || "Electrical Service";
+    if (displayWork.includes(" [Items:")) {
+        displayWork = displayWork.split(" [Items:")[0];
+    }
+    doc.text(displayWork, 20, currentY, { maxWidth: 170 });
+
+    // --- Table Header ---
+    currentY += 20;
+    doc.setFillColor(245, 247, 250);
+    doc.rect(20, currentY, 170, 10, 'F');
+    doc.setFont(undefined, 'bold');
+    doc.text("Description", 25, currentY + 7);
+    doc.text("Amount (INR)", 185, currentY + 7, { align: "right" });
+
+    // --- 1. Service/Labor Row ---
+    currentY += 18;
+    doc.setFont(undefined, 'normal');
+    doc.text("Service & Labor Charges", 25, currentY);
+    doc.text(`${parseFloat(lead.labor || 0).toFixed(2)}`, 185, currentY, { align: "right" });
+
+    // --- 2. Itemized Materials Logic ---
+    const fullWorkText = lead.work || "";
+    if (fullWorkText.includes("[Items: ")) {
+        // Extract the list: "Wire: 500, Switch: 200"
+        const materialString = fullWorkText.split("[Items: ")[1].replace("]", "");
+        const items = materialString.split(", ");
+
+        items.forEach(item => {
+            currentY += 10;
+            // Prevent text from overflowing the page
+            if (currentY > 270) { doc.addPage(); currentY = 20; }
+            
+            const [itemName, itemPrice] = item.split(": ");
+            doc.setTextColor(100);
+            doc.setFontSize(10);
+            doc.text(`• ${itemName}`, 30, currentY); // Indented with a bullet
+            doc.text(`${parseFloat(itemPrice || 0).toFixed(2)}`, 185, currentY, { align: "right" });
+        });
+    } else if (parseFloat(lead.materials) > 0) {
+        // Fallback if no specific names exist but a total cost does
+        currentY += 10;
+        doc.text("General Materials & Parts", 25, currentY);
+        doc.text(`${parseFloat(lead.materials).toFixed(2)}`, 185, currentY, { align: "right" });
+    }
+
+    // --- Final Calculations Section ---
+    currentY += 15;
+    doc.setDrawColor(240);
+    doc.line(120, currentY, 190, currentY);
+    
+    if (lead.discount > 0) {
+        currentY += 10;
+        doc.setTextColor(200, 0, 0);
+        doc.setFontSize(12);
+        doc.text("Discount:", 120, currentY);
+        doc.text(`- ${parseFloat(lead.discount).toFixed(2)}`, 185, currentY, { align: "right" });
+    }
+
+    currentY += 12;
+    doc.setFontSize(14);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(30, 41, 59);
+    doc.text("GRAND TOTAL:", 120, currentY);
+    doc.text(`Rs. ${parseFloat(lead.bill || 0).toLocaleString('en-IN')}`, 185, currentY, { align: "right" });
+
+    // --- Paid/Unpaid Stamp ---
+    currentY += 25;
+    const isPaid = lead.status === 'COMPLETED';
+    doc.setLineWidth(1);
+    doc.setDrawColor(isPaid ? [0, 150, 0] : [200, 0, 0]);
+    doc.rect(80, currentY, 50, 15);
+    doc.setFontSize(16);
+    doc.setTextColor(isPaid ? [0, 150, 0] : [200, 0, 0]);
+    doc.text(isPaid ? "PAID" : "UNPAID", 105, currentY + 10, { align: "center" });
+
+    // Output
     if(viewOnly) {
-        // This opens the PDF in a browser tab instead of saving it
         window.open(doc.output('bloburl'), '_blank');
     } else {
-        doc.save(`Invoice_${index}.pdf`);
+        doc.save(`Invoice_${lead.name}.pdf`);
     }
 }
 
@@ -1205,68 +1470,75 @@ document.getElementById('serviceForm').onsubmit = async (e) => {
     setTimeout(loadServices, 1500);
 };
 </script>
-<div id="billCustomModal" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(4px);">
-    <div style="background:white; padding:25px; border-radius:16px; width:95%; max-width:450px; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.2);">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-            <h2 style="margin:0; color:#1e293b; font-size:1.5rem;"><i class='bx bx-receipt'></i> Professional Bill</h2>
-            <button onclick="closeCustModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#94a3b8;">&times;</button>
+<div id="billCustomModal" style="display:none; position:fixed; inset:0; background:rgba(15, 23, 42, 0.8); z-index:9999; align-items:center; justify-content:center; backdrop-filter: blur(8px); padding: 15px;">
+    <div style="background:white; padding:25px; border-radius:24px; width:100%; max-width:450px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5); max-height: 90vh; overflow-y: auto; position: relative;">
+        
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; position: sticky; top: 0; background: white; z-index: 10; padding-bottom: 10px;">
+            <h2 style="margin:0; color:#1e293b; font-size:1.4rem; display: flex; align-items: center; gap: 10px;">
+                <i class='bx bx-receipt' style="color:#6366f1;"></i> Custom Bill
+            </h2>
+            <button onclick="closeCustModal()" style="background:#f1f5f9; border:none; width: 32px; height: 32px; border-radius: 50%; cursor:pointer; color:#64748b; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">&times;</button>
         </div>
 
         <input type="hidden" id="custIndex">
         
-        <div style="display:grid; gap:15px;">
+        <div style="display:grid; gap:18px;">
             <div>
-                <label style="display:block; font-size:0.85rem; font-weight:600; color:#64748b; margin-bottom:5px;">WORK DESCRIPTION</label>
-                <input type="text" id="custWork" placeholder="e.g. Full House Wiring" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px;">
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#64748b; margin-bottom:6px; text-transform: uppercase; letter-spacing: 0.5px;">Work Description</label>
+                <input type="text" id="custWork" placeholder="e.g. Full House Wiring" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:10px; font-size: 0.95rem; outline: none; transition: border 0.2s;" onfocus="this.style.borderColor='#6366f1'">
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
                 <div>
-                    <label style="display:block; font-size:0.85rem; font-weight:600; color:#64748b; margin-bottom:5px;">LABOR / DAY (₹)</label>
-                    <input type="number" id="custLab" oninput="calculateLiveTotal()" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px;">
+                    <label style="display:block; font-size:0.75rem; font-weight:700; color:#64748b; margin-bottom:6px; text-transform: uppercase;">Labor / Day (₹)</label>
+                    <input type="number" id="custLab" oninput="calculateLiveTotal()" placeholder="0" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:10px; outline: none;">
                 </div>
                 <div>
-                    <label style="display:block; font-size:0.85rem; font-weight:600; color:#64748b; margin-bottom:5px;">NO. OF DAYS</label>
-                    <input type="number" id="custDay" value="1" oninput="calculateLiveTotal()" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px;">
+                    <label style="display:block; font-size:0.75rem; font-weight:700; color:#64748b; margin-bottom:6px; text-transform: uppercase;">Days</label>
+                    <input type="number" id="custDay" value="1" oninput="calculateLiveTotal()" style="width:100%; padding:12px; border:1px solid #e2e8f0; border-radius:10px; outline: none;">
                 </div>
             </div>
 
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
+            <div style="background: #f8fafc; padding: 16px; border-radius: 16px; border: 1px solid #e2e8f0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                    <label style="font-size:0.75rem; font-weight:700; color:#475569; text-transform: uppercase;"><i class='bx bx-package'></i> Materials</label>
+                    <span id="matTotalDisplay" style="font-size: 0.9rem; font-weight: 800; color: #6366f1;">₹0.00</span>
+                </div>
                 
-                <div>
-                    <label style="display:block; font-size:0.85rem; font-weight:600; color:#64748b; margin-bottom:5px;">MATERIALS (₹)</label>
-                    <input type="number" id="custMat" value="0" oninput="calculateLiveTotal()" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px;">
-                </div>
-                <div>
-                    <label style="display:block; font-size:0.85rem; font-weight:600; color:#64748b; margin-bottom:5px;">DISCOUNT (₹)</label>
-                    <input type="number" id="custDisc" value="0" oninput="calculateLiveTotal()" style="width:100%; padding:10px; border:1px solid #e2e8f0; border-radius:8px; color:#ef4444;">
-                </div>
+                <div id="materialList" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px;">
+                    </div>
+
+                <button type="button" onclick="addNewMaterialRow()" style="width: 100%; background: white; color: #6366f1; border: 1px dashed #6366f1; padding: 10px; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                    <i class='bx bx-plus-circle'></i> Add Item
+                </button>
+                <input type="hidden" id="custMat" value="0">
+            </div>
+
+            <div>
+                <label style="display:block; font-size:0.75rem; font-weight:700; color:#64748b; margin-bottom:6px; text-transform: uppercase;">Discount (₹)</label>
+                <input type="number" id="custDisc" value="0" oninput="calculateLiveTotal()" style="width:100%; padding:12px; border:1px solid #fee2e2; border-radius:10px; color:#ef4444; font-weight: bold; outline: none;">
             </div>
         </div>
 
-        <div id="liveTotalDisplay" style="margin-top:20px; text-align:right; font-size:1.2rem; font-weight:bold; color:#1e293b; padding:10px; background:#f8fafc; border-radius:8px; border-right:4px solid #6366f1;">
-            Total: ₹0.00
+        <div id="liveTotalDisplay" style="margin-top:24px; text-align:center; font-size:1.5rem; font-weight:900; color:#1e293b; padding:15px; background:linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-radius:16px; border: 1px solid #dbeafe;">
+            ₹0.00
         </div>
 
-<div style="display: flex; flex-direction: column; gap: 12px; width: 100%; margin-top: 20px;">
-    <button onclick="finalizeBill()" style="background:#1e293b; color:white; padding:15px; border-radius:10px; font-weight:bold; border:none; cursor:pointer; font-size:1rem;">
-        ✅ Save & Update Card
-    </button>
-    
-    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <button onclick="viewInvoiceOnly()" style="background:#f1f5f9; color:#1e293b; padding:12px; border-radius:10px; border:none; font-weight:600; cursor:pointer;">
-            <i class='bx bx-show'></i> Preview
-        </button>
-        <button onclick="shareToWhatsApp()" style="background:#dcfce7; color:#166534; padding:12px; border-radius:10px; border:none; font-weight:600; cursor:pointer;">
-            <i class='bx bxl-whatsapp'></i> WhatsApp
-        </button>
-    </div>
-</div>
-</div>
+        <div style="display: grid; gap: 10px; margin-top: 20px;">
+            <button onclick="finalizeBill()" style="background:#1e293b; color:white; padding:16px; border-radius:12px; font-weight:bold; border:none; cursor:pointer; font-size:1rem; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);">
+                ✅ Save & Finalize Bill
+            </button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                <button onclick="viewInvoiceOnly()" style="background:#f1f5f9; color:#475569; padding:12px; border-radius:10px; border:none; font-weight:600; cursor:pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                    <i class='bx bx-show'></i> Preview
+                </button>
+                <button onclick="shareToWhatsApp()" style="background:#25d36620; color:#128c7e; padding:12px; border-radius:10px; border:none; font-weight:700; cursor:pointer; display: flex; align-items: center; justify-content: center; gap: 5px;">
+                    <i class='bx bxl-whatsapp'></i> WhatsApp
+                </button>
+            </div>
         </div>
     </div>
 </div>
-
 </div>
 </body>
 </html>
