@@ -73,9 +73,20 @@
         }
         .hero h1 { font-size: clamp(2rem, 10vw, 3.5rem); margin: 0; color: var(--main); }
         .hero h2 { font-size:20px; color: var(--main); font-style: italic; margin: 10px 0; }
+   .trust-bar {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px; margin: -50px auto 40px; position: relative; z-index: 10;
+        }
+        .stat-card {
+            background: white; padding: 20px; border-radius: var(--radius);
+            text-align: center; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05);border: #0f172a 1px solid;box-shadow: #0f172a 0px 4px 15px rgba(0,0,0,0.1);
+        }
+        .stat-card i { color: #f59e0b; font-size: 1.8rem; margin-bottom: 8px; }
+        .stat-card div { font-weight: 800; font-size: 1.3rem; }
+        .stat-card span { font-size: 0.8rem; color: #64748b; font-weight: 600; }
 
         /* --- PROFILE --- */
-        #Editorial-board { margin: -50px auto 40px; }
+        #Editorial-board { margin: 50px auto 40px; }
         .profile-card-1 {
             background: white; border-radius: var(--radius); padding: 30px 20px;
             text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -150,7 +161,15 @@
     </div>
 </section>
 
+ 
+
 <div class="container">
+    <div class="trust-bar">
+        <div class="stat-card"><i class='bx bxs-star'></i><div>4.9/5</div><span>Google Rating</span></div>
+        <div class="stat-card"><i class='bx bxs-badge-check'></i><div>500+</div><span>Jobs Done</span></div>
+        <div class="stat-card"><i class='bx bxs-zap'></i><div>60m</div><span>Response Time</span></div>
+        <div class="stat-card"><i class='bx bxs-wrench'></i><div>15 Days</div><span>Warranty</span></div>
+    </div>
     <section id="Editorial-board">
         <div class="profile-card-1">
             <div class="image1"><img src="Lichika anochichan.jpeg" alt="Electrician"></div>
@@ -217,6 +236,30 @@
 </div>
     </div>
 </div>
+<section class="container" id="review-section">
+    <h2 style="text-align:center; margin-top: 60px;">Customer Feedback</h2>
+    
+    <div id="review-container" class="gallery">
+        <p style="text-align:center;">Loading reviews...</p>
+    </div>
+
+    <div class="form-box" style="margin-top: 40px; background: var(--slate); color: white;">
+        <h3 style="text-align:center; color:var(--main);">Post a Review</h3>
+        <form id="directReviewForm">
+            <input type="hidden" name="type" value="addReview">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
+                <input type="text" name="name" placeholder="Full Name" required>
+                <select name="rating" required>
+                    <option value="5">5 Stars ⭐⭐⭐⭐⭐</option>
+                    <option value="4">4 Stars ⭐⭐⭐⭐</option>
+                    <option value="3">3 Stars ⭐⭐⭐</option>
+                </select>
+            </div>
+            <textarea name="message" rows="3" placeholder="How was your experience with Sparky Electrical?" required></textarea>
+            <button type="submit" class="btn-submit" id="reviewBtn">Post Review</button>
+        </form>
+    </div>
+</section>
 
 <footer>
     <p><a href="owner.html"><i class="bx bxs-briefcase"></i> Staff Login</a></p>
@@ -229,7 +272,7 @@
 </footer>
 
 <script>
-const URL = 'https://script.google.com/macros/s/AKfycbwhZSfv3FOyKoHnN7n2_KurEIT4DMGJeXg6sgUuyS1kIWeYzoW4cZpXHZpGdFnNTXJH/exec';
+const URL = 'https://script.google.com/macros/s/AKfycbxwI-N_G9HPdWXY0NpGCSvqIbeaNOvgUX5NkTBy1nr1OGXH24EgMEv0lEB6DMZmi4XN/exec';
 const SHOP_LAT = 26.137430911373357; 
 const SHOP_LON = 91.70393019579977;
 
@@ -361,7 +404,120 @@ document.getElementById('customerForm').onsubmit = async (e) => {
 window.onload = () => { 
     loadGallery(); 
     loadServices(); 
+    loadReviews();
 };
+// 1. Function to Fetch and Display Reviews
+// 1. Fetch and Display Reviews from Google Sheets
+async function loadReviews() {
+    const container = document.getElementById('review-container');
+    if (!container) return;
+
+    // 1. Skeleton Loading State
+    container.innerHTML = `
+        <div class="card skeleton" style="height:150px; opacity:0.5; background:#eee; border-radius:12px;"></div>
+        <div class="card skeleton" style="height:150px; opacity:0.5; background:#eee; border-radius:12px;"></div>
+    `;
+
+    try {
+        const res = await fetch(`${URL}?mode=getReviews&t=${Date.now()}`);
+        if (!res.ok) throw new Error("Backend unreachable");
+        const reviews = await res.json();
+        
+        if (!reviews || reviews.length === 0) {
+            container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px;">
+                <i class='bx bx-message-rounded-dots' style="font-size:3rem; color:var(--main);"></i>
+                <p style="margin-top:10px; opacity:0.7;">No reviews yet. Be the first to share your experience!</p>
+            </div>`;
+            return;
+        }
+
+        // 2. Summary Stats
+        const totalRating = reviews.reduce((acc, curr) => acc + (parseInt(curr.rating) || 0), 0);
+        const avg = (totalRating / reviews.length).toFixed(1);
+        const summary = document.getElementById('review-summary');
+        if(summary) summary.innerHTML = `⭐ ${avg} / 5 (${reviews.length} reviews)`;
+
+        // 3. Render Reviews
+        container.innerHTML = reviews.map(r => {
+            const rating = Math.min(Math.max(parseInt(r.rating) || 5, 1), 5);
+            
+            return `
+                <div class="card" style="padding: 25px; border-top: 5px solid var(--main); position:relative; display:flex; flex-direction:column; justify-content:space-between;">
+                    
+                    <div style="position:absolute; top:10px; right:15px; opacity:0.05; font-size:3rem;">
+                        <i class='bx bxs-quote-right'></i>
+                    </div>
+
+                    <div>
+                        <div style="color: #f59e0b; margin-bottom: 12px; font-size: 1.1rem;">
+                            ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}
+                        </div>
+                        <p style="font-style: italic; color: #334155; font-size: 0.95rem; line-height:1.6; margin-bottom:15px;">
+                            "${r.message}"
+                        </p>
+                    </div>
+
+                    ${r.comment ? `
+                    <div style="margin-top:10px; margin-bottom:20px; padding:12px; background: #f0f7ff; border-left: 3px solid var(--main); border-radius: 4px;">
+                        <small style="display:block; font-weight:bold; color:var(--main); text-transform:uppercase; font-size:0.7rem; margin-bottom:4px;">
+                            <i class='bx bxs-check-shield'></i> Response from Owner:
+                        </small>
+                        <p style="margin:0; color:#1e293b; font-size:0.9rem;">${r.comment}</p>
+                    </div>
+                    ` : ''}
+
+                    <div>
+                        <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <h4 style="margin: 0; font-size: 1rem; color: var(--dark); font-weight:700;">${r.name}</h4>
+                            <small style="color: #94a3b8; font-size: 0.75rem;">
+                                <i class='bx bx-calendar-alt'></i> ${r.date || 'Recently'}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+    } catch(e) {
+        console.error("Review Error:", e);
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; color: #ef4444; padding:20px;">
+            <p>⚠️ Unable to load reviews. Please refresh the page.</p>
+        </div>`;
+    }
+}
+// 2. Handle Review Submission
+// Note: Ensure your HTML form ID is 'reviewForm' or 'directReviewForm'
+const rForm = document.getElementById('reviewForm') || document.getElementById('directReviewForm');
+
+if(rForm) {
+    rForm.onsubmit = async (e) => {
+        e.preventDefault();
+        const btn = e.target.querySelector('button');
+        const originalText = btn.innerText;
+        
+        btn.innerText = "Posting..."; 
+        btn.disabled = true;
+
+        try {
+            const formData = new URLSearchParams(new FormData(e.target));
+            // Backend v11 expects 'type=addReview' to trigger the right logic
+            if(!formData.has('type')) formData.append('type', 'addReview'); 
+
+            await fetch(URL, { method: 'POST', mode: 'no-cors', body: formData });
+            
+            alert("Thank you! Your feedback helps us grow.");
+            e.target.reset();
+            loadReviews(); // Refresh the list without reloading the page
+        } catch(e) {
+            alert("Connection error. Please try again.");
+            console.error(e);
+        } finally {
+            btn.innerText = originalText; 
+            btn.disabled = false;
+        }
+    };
+}
 </script>
 </body>
 </html>
