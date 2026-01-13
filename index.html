@@ -10,10 +10,36 @@
 
         :root { 
             --main: #ffcc00; --dark: #0f172a; --slate: #1e293b; 
-            --light: #f8fafc; --radius: 16px; 
+            --light: #f8fafc; --radius: 16px; --main: #FFD700; 
+            --main-dark: #ccac00;
+            --dark: #0f172a; 
+            --slate: #1e293b; 
+            --slate-light: #334155;
+            --light: #f8fafc; 
+            --white: #ffffff;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --main: #FFD700;           /* Radiant Gold */
+    --main-dark: #ccac00;      /* Deep Gold for hover */
+    --accent: #f59e0b;         /* Alert/Warning Amber */
+    
+    /* Neutral Palette */
+    --dark: #0f172a;           /* Deep Navy (Backgrounds) */
+    --slate: #1e293b;          /* Light Navy (Cards/Inputs) */
+    --slate-light: #475569;    /* Muted text */
+    --light: #f8fafc;          /* Page background */
+    --white: #ffffff;
+    
+    /* UI Spacing & Effects */
+    --radius-lg: 30px;         /* Hero & Major Containers */
+    --radius-md: 16px;         /* Cards & Buttons */
+    --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+       * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
             font-family: 'Plus Jakarta Sans', sans-serif; 
@@ -39,23 +65,24 @@
             font-weight: 800;
         }
 
-        /* --- HERO --- */
+     .filter-container { text-align: center; margin: 40px 0; }
         .filter-btn {
-    padding: 8px 18px;
-    margin: 5px;
-    border: 2px solid var(--main);
-    background: transparent;
-    color: var(--dark);
-    border-radius: 20px;
-    cursor: pointer;
-    font-weight: 600;
-    transition: 0.3s;
-}
+            padding: 10px 24px;
+            margin: 5px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: var(--slate);
+            border-radius: 100px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+        }
 
-.filter-btn.active, .filter-btn:hover {
-    background: var(--main);
-    color: var(--dark);
-}
+        .filter-btn.active {
+            background: var(--dark);
+            color: var(--main);
+            border-color: var(--dark);
+        }
 
 /* Animation for images when filtering */
 .card {
@@ -67,30 +94,61 @@
     to { opacity: 1; transform: translateY(0); }
 }
         .hero { 
-            background: var(--dark); color: white; 
-            padding: 80px 20px; text-align: center;
-            border-bottom-left-radius: 40px; border-bottom-right-radius: 40px;
+            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
+            color: white; 
+            padding: 100px 20px 140px; 
+            text-align: center;
+            border-bottom-left-radius: 60px; 
+            border-bottom-right-radius: 60px;
+            position: relative;
         }
-        .hero h1 { font-size: clamp(2rem, 10vw, 3.5rem); margin: 0; color: var(--main); }
-        .hero h2 { font-size:20px; color: var(--main); font-style: italic; margin: 10px 0; }
+        
+        .hero h1 { 
+            font-size: clamp(2.5rem, 8vw, 4rem); 
+            margin: 0; 
+            font-weight: 800;
+            letter-spacing: -1px;
+            background: linear-gradient(to bottom, #fff, var(--main));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .hero p { opacity: 0.9; font-size: 1.1rem; max-width: 600px; margin: 20px auto; }
+        
+        .hero h2 { opacity: 0.9; font-size: 1.1rem; max-width: 600px; margin: 20px auto; }
    .trust-bar {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 15px; margin: -50px auto 40px; position: relative; z-index: 10;
+            display: grid; 
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px; 
+            margin: -60px auto 40px; 
+            position: relative; 
+            z-index: 10;
         }
+
+        @media (min-width: 768px) { .trust-bar { grid-template-columns: repeat(4, 1fr); } }
+
         .stat-card {
-            background: white; padding: 20px; border-radius: var(--radius);
-            text-align: center; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05);border: #0f172a 1px solid;box-shadow: #0f172a 0px 4px 15px rgba(0,0,0,0.1);
+            background: var(--white); 
+            padding: 25px 15px; 
+            border-radius: var(--radius-md);
+            text-align: center; 
+            box-shadow: var(--shadow);
+            border: 1px solid rgba(255,255,255,1);
+            transition: var(--transition);
         }
-        .stat-card i { color: #f59e0b; font-size: 1.8rem; margin-bottom: 8px; }
-        .stat-card div { font-weight: 800; font-size: 1.3rem; }
-        .stat-card span { font-size: 0.8rem; color: #64748b; font-weight: 600; }
+
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card i { color: var(--main-dark); font-size: 2rem; margin-bottom: 10px; }
+        .stat-card div { font-weight: 800; font-size: 1.4rem; color: var(--dark); }
+        .stat-card span { font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
         /* --- PROFILE --- */
-        #Editorial-board { margin: 50px auto 40px; }
+        #Editorial-board {  margin-bottom:100px;margin-top: 10px; margin-left: 10px; margin-right: 10px; }
         .profile-card-1 {
-            background: white; border-radius: var(--radius); padding: 30px 20px;
+            background: rgb(239, 232, 232); border-radius: var(--radius); padding: 30px 20px;
             text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
             max-width: 400px; margin: auto; border: 1px solid #eee;
+            border: #979a9e 2px solid;
         }
         .image1 { width: 110px; height: 110px; border-radius: 50%; border: 4px solid var(--main); margin: 0 auto 15px; overflow: hidden; }
         .image1 img { width: 100%; height: 100%; object-fit: cover; }
@@ -119,7 +177,7 @@
             .form-box { flex: 1.2; }
         }
         .form-box { background: var(--slate); padding: 25px; border-radius: 20px; }
-        .note { background:var(--main); border-radius: 10px; padding: 10px; margin: 15px 0; color: black; font-size: 0.85rem; font-weight: 700; }
+        .note {  border-radius: 10px; padding: 10px; margin: 15px 0; color: rgb(139, 134, 134); font-size:0.91rem; font-weight: 700; }
 
         input, select, textarea { 
             width: 100%; padding: 14px; margin-bottom: 12px;
@@ -130,7 +188,7 @@
 
         .btn-submit { 
             background: var(--main); color: var(--dark); border: none; 
-            padding: 16px; width: 100%; font-size: 1.1rem; font-weight: 800; 
+            padding: 16px; width: 100%; font-size: 1.1rem; font-weight: 700; 
             border-radius: 12px; cursor: pointer; transition: 0.2s;
         }
 
@@ -142,13 +200,13 @@
             color: var(--dark);
         }
 
-        footer { padding: 40px 20px; text-align: center; background: black; color: white; }
-        footer a { color: var(--main); text-decoration: none; margin: 0 10px; font-size: 1.2rem; }
+        footer { padding: 40px 20px; text-align: center; background: black; color: white; margin-top: 60px; }
+        footer a { color:rgb(118, 114, 114); text-decoration: none; margin: 0 10px; font-size: 1.2rem; }
     </style>
 </head>
 <body>
 
-<a href="tel:+919957374788" class="floating-call"><i class='bx bxs-phone-call'></i></a>
+<a href="tel:+918822763566" class="floating-call"><i class='bx bxs-phone-call'></i></a>
 
 <section class="hero">
     <div class="container">
@@ -156,21 +214,23 @@
         <h2>Guwahati</h2>
         <p>Licensed Professionals for Wiring, Repairs & Maintenance.</p>
         <div class="bok">
-            <a href="#form-box">Book Appointment</a>
+            <a href="#form-box"><i class='bx bxs-phone-call'></i> Book Appointment</a>
         </div>
+          <button onclick="contactWhatsApps()" 
+        style="background:#abe7c0; color:#166534; padding:12px 50px; border-radius:10px; border:none; font-weight:700; cursor:pointer;margin-top: 10px; font-size: large;">
+    <i class='bx bxl-whatsapp'></i> WhatsApp
+</button>
     </div>
 </section>
-
- 
-
 <div class="container">
     <div class="trust-bar">
-        <div class="stat-card"><i class='bx bxs-star'></i><div>4.9/5</div><span>Google Rating</span></div>
+        <div class="stat-card"><i class='bx bxs-star'></i><div>5 year +</div><span>Experience</span></div>
         <div class="stat-card"><i class='bx bxs-badge-check'></i><div>500+</div><span>Jobs Done</span></div>
         <div class="stat-card"><i class='bx bxs-zap'></i><div>60m</div><span>Response Time</span></div>
         <div class="stat-card"><i class='bx bxs-wrench'></i><div>15 Days</div><span>Warranty</span></div>
     </div>
-    <section id="Editorial-board">
+
+ <section id="Editorial-board">
         <div class="profile-card-1">
             <div class="image1"><img src="Lichika anochichan.jpeg" alt="Electrician"></div>
             <h3 style="margin:0;">Dildar Haque</h3>
@@ -184,7 +244,9 @@
     </section>
 
     
-    <h2 style="text-align:center; margin-top: 40px;">Our Specialized Work</h2>
+
+
+    <h2 style="text-align:center; margin-top: 40px;"> <i class='bx bxs-wrench'></i> Our Specialized Work</h2>
 
 <div style="text-align:center; margin-bottom: 20px;">
     <button class="filter-btn active" onclick="filterGallery('all')">All</button>
@@ -197,13 +259,14 @@
 
     <div class="contact-wrapper" id="contact-sec">
         <div class="contact-text">
-            <h2 style="color:var(--main); font-size:2rem;">Book a Visit</h2>
+            <h2 style="color:var(--main); font-size:2rem;"><i class='bx bxs-phone-call'></i>  Book a Visit</h2>
             <p>Get a price estimate instantly. We serve all areas in Guwahati.</p>
             <div style="margin-top:20px;">
-                <p><i class='bx bxs-phone'></i> +91 9957374788</p>
+                <p><i class='bx bxs-phone'></i> +91 8822763566</p>
                 <p><i class='bx bxs-map'></i> Guwahati, Assam</p>
                 <div class="note">
-                    📌 WhatsApp Number is Preferable for faster communication.
+                   📌 TIPS:
+                        WhatsApp Number is Preferable for faster communication.
                 </div>
             </div>
         </div>
@@ -237,14 +300,14 @@
     </div>
 </div>
 <section class="container" id="review-section">
-    <h2 style="text-align:center; margin-top: 60px;">Customer Feedback</h2>
+    <h2 style="text-align:center; margin-top: 60px;"><i class='bx bxs-star'></i> Customer Feedback</h2>
     
     <div id="review-container" class="gallery">
         <p style="text-align:center;">Loading reviews...</p>
     </div>
 
     <div class="form-box" style="margin-top: 40px; background: var(--slate); color: white;">
-        <h3 style="text-align:center; color:var(--main);">Post a Review</h3>
+        <h3 style="text-align:center; color:var(--main);"><i class='bx bxs-star'></i> Post a Review</h3>
         <form id="directReviewForm">
             <input type="hidden" name="type" value="addReview">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
@@ -253,6 +316,8 @@
                     <option value="5">5 Stars ⭐⭐⭐⭐⭐</option>
                     <option value="4">4 Stars ⭐⭐⭐⭐</option>
                     <option value="3">3 Stars ⭐⭐⭐</option>
+                    <option value="2">2 Stars ⭐⭐  </option>
+                    <option value="1">1 Star ⭐ </option>
                 </select>
             </div>
             <textarea name="message" rows="3" placeholder="How was your experience with Sparky Electrical?" required></textarea>
@@ -438,46 +503,94 @@ async function loadReviews() {
         if(summary) summary.innerHTML = `⭐ ${avg} / 5 (${reviews.length} reviews)`;
 
         // 3. Render Reviews
-        container.innerHTML = reviews.map(r => {
-            const rating = Math.min(Math.max(parseInt(r.rating) || 5, 1), 5);
+container.innerHTML = reviews.map(r => {
+    const rating = Math.min(Math.max(parseInt(r.rating) || 5, 1), 5);
+    
+    // Create a clean display date
+    const displayDate = r.date ? new Date(r.date).toLocaleDateString('en-IN', {
+        day: 'numeric', month: 'short', year: 'numeric'
+    }) : 'Recently';
+
+    return `
+        <div class="card" style="
+            padding: 30px; 
+            border: 1px solid rgba(0,0,0,0.05); 
+            position:relative; 
+            display:flex; 
+            flex-direction:column; 
+            background: #fff; 
+            transition: var(--transition);
+            min-height: 380px;
+            justify-content: space-between;
+        ">
             
-            return `
-                <div class="card" style="padding: 25px; border-top: 5px solid var(--main); position:relative; display:flex; flex-direction:column; justify-content:space-between;">
-                    
-                    <div style="position:absolute; top:10px; right:15px; opacity:0.05; font-size:3rem;">
-                        <i class='bx bxs-quote-right'></i>
-                    </div>
+            <div style="position:absolute; top:20px; right:25px; opacity:0.08; font-size:4.5rem; color: var(--dark); pointer-events:none;">
+                <i class='bx bxs-quote-right'></i>
+            </div>
 
-                    <div>
-                        <div style="color: #f59e0b; margin-bottom: 12px; font-size: 1.1rem;">
-                            ${'★'.repeat(rating)}${'☆'.repeat(5 - rating)}
-                        </div>
-                        <p style="font-style: italic; color: #334155; font-size: 0.95rem; line-height:1.6; margin-bottom:15px;">
-                            "${r.message}"
-                        </p>
-                    </div>
+            <div>
+                <div style="color: var(--main-dark); margin-bottom: 18px; font-size: 1.1rem; filter: drop-shadow(0 2px 4px rgba(204, 172, 0, 0.2));">
+                    ${'★'.repeat(rating)}<span style="color: #e2e8f0;">${'★'.repeat(5 - rating)}</span>
+                </div>
 
-                    ${r.comment ? `
-                    <div style="margin-top:10px; margin-bottom:20px; padding:12px; background: #f0f7ff; border-left: 3px solid var(--main); border-radius: 4px;">
-                        <small style="display:block; font-weight:bold; color:var(--main); text-transform:uppercase; font-size:0.7rem; margin-bottom:4px;">
-                            <i class='bx bxs-check-shield'></i> Response from Owner:
+                <div style="margin-bottom:20px;">
+                    <p style="
+                        color: var(--slate-light); 
+                        font-size: 1rem; 
+                        line-height:1.6; 
+                        font-weight: 500;
+                        display: -webkit-box;
+                        -webkit-line-clamp: 4;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                        font-style: italic;
+                    ">
+                        "${r.message}"
+                    </p>
+                </div>
+            </div>
+
+            <div>
+                ${r.comment ? `
+                <div style="
+                    margin-bottom:20px; 
+                    padding:12px 16px; 
+                    background: var(--light); 
+                    border-radius: 12px; 
+                    border-left: 4px solid var(--dark);
+                    position: relative;
+                ">
+                    <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                        <i class='bx bxs-check-circle' style="color: #10b981; font-size: 0.9rem;"></i>
+                        <span style="font-weight:800; color:var(--dark); text-transform:uppercase; font-size:0.65rem; letter-spacing:1px;">Official Reply</span>
+                    </div>
+                    <p style="margin:0; color: var(--slate-light); font-size:0.85rem; line-height:1.4;">${r.comment}</p>
+                </div>
+                ` : ''}
+
+                <div style="display: flex; align-items: center; gap: 12px; border-top: 1px solid #f1f5f9; padding-top: 20px;">
+                    <div style="
+                        width:45px; height:45px; 
+                        background: linear-gradient(135deg, var(--dark) 0%, var(--slate) 100%); 
+                        color: var(--main); 
+                        border-radius: 12px; 
+                        display: flex; align-items: center; justify-content: center; 
+                        font-weight: 800; font-size: 1.1rem;
+                        box-shadow: 0 4px 10px rgba(15, 23, 42, 0.15);
+                    ">
+                        ${r.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div style="line-height: 1.2;">
+                        <h4 style="margin: 0; font-size: 0.95rem; color: var(--dark); font-weight:700;">${r.name}</h4>
+                        <small style="color: #94a3b8; font-size: 0.75rem; font-weight: 600;">
+                            ${displayDate}
                         </small>
-                        <p style="margin:0; color:#1e293b; font-size:0.9rem;">${r.comment}</p>
-                    </div>
-                    ` : ''}
-
-                    <div>
-                        <hr style="margin: 15px 0; border:0; border-top:1px solid #eee;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <h4 style="margin: 0; font-size: 1rem; color: var(--dark); font-weight:700;">${r.name}</h4>
-                            <small style="color: #94a3b8; font-size: 0.75rem;">
-                                <i class='bx bx-calendar-alt'></i> ${r.date || 'Recently'}
-                            </small>
-                        </div>
                     </div>
                 </div>
-            `;
-        }).join('');
+            </div>
+        </div>
+    `;
+}).join('');
 
     } catch(e) {
         console.error("Review Error:", e);
@@ -517,6 +630,11 @@ if(rForm) {
             btn.disabled = false;
         }
     };
+}
+function contactWhatsApps() {
+    
+    // 3. Open WhatsApp
+    window.open(`https://wa.me/${+918822763566}?text=""`, '_blank');
 }
 </script>
 </body>
