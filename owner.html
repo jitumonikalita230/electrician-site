@@ -82,11 +82,45 @@
         .action-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
 
         /* --- BOTTOM NAV --- */
-        .bottom-nav {
-            position: fixed; bottom: 0; width: 100%; background: rgb(14, 13, 13);
-            display: grid; grid-template-columns: 1fr 1fr 1fr; padding: 10px;
-            border-top: 1px solid #e2e8f0; z-index: 1000;
-            color:white;
+       .bottom-nav {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 400px;
+            background: #0f172a;
+            display: flex;
+            justify-content: space-around;
+            padding: 12px;
+            border-radius: 25px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            z-index: 2000;
+        }
+
+        .nav-item {
+            color: #94a3b8;
+            text-align: center;
+            font-size: 0.65rem;
+            text-decoration: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .nav-item i { font-size: 1.5rem; }
+        .nav-item.active { color: var(--accent); }
+
+        /* --- RESPONSIVE GRID --- */
+        #leadsList, #admin-reviews-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 15px;
+        }
+
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
         }
         .nav-item { text-align: center; color: #f5f7f9; font-size:0.7rem; cursor: pointer;font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif; }
         .nav-item.active { color:var(--accent); font-weight: bold; }
@@ -203,7 +237,7 @@ input[type="text"]:focus {
 
     <div class="main-content">
         <div id="leadsSection">
-<h3 style="margin-bottom:15px;">Business Overview</h3>
+<h3 style="margin-bottom:15px; font-size: 1.5rem; color: var(--dark);"><i class='bx bxs-zap'></i> Business Overview</h3>
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; padding: 10px;">
     
     <div style="background: #1e293b; color: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
@@ -225,10 +259,23 @@ input[type="text"]:focus {
     </div>
 </div>
 
-    <h3 style="margin: 30px 0 15px 0;">Customer Leads</h3>
+    <h3 style="margin: 30px 0 15px 0; font-size: 1.5rem; color: var(--dark);"><i class="bx bxs-envelope"></i> Customer Leads</h3>
     <div id="leadsList" style="min-height: 200px;">
         <p style="text-align:center; color:#94a3b8; padding: 20px;">Fetching leads...</p>
     </div>
+    <section class="container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+        <h2 style="margin: 0; font-size: 1.5rem; color: var(--dark);"> <i class='bx bxs-star'></i> Customer Feedback</h2>
+  
+    </div>
+    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
+    
+    <div id="admin-reviews-list">
+        <p style="grid-column: 1/-1; text-align: center; color: #64748b; padding: 40px;">
+            <i class='bx bx-loader-alt bx-spin' style="font-size: 2rem;"></i><br>Syncing Reviews...
+        </p>
+    </div>
+</section>
 </div>
 
 
@@ -278,7 +325,7 @@ input[type="text"]:focus {
     </div>
 
     <h4 style="margin: 30px 0 15px 0; color: #1e293b; display: flex; align-items: center; gap: 10px; border-bottom: 2px solid #f1f5f9; padding-bottom: 10px;">
-        <i class='bx bx-list-ul' style="color: #6366f1;"></i> 
+        <i class='bx bx-list-ul' style="font-size: 1.5rem; color: var(--dark);"></i> 
         Manage Live Portfolio
     </h4>
     
@@ -300,7 +347,9 @@ input[type="text"]:focus {
     <input type="number" name="servicePrice" placeholder="Price / day" required  style="font-size: 0.8rem; font-weight: bold; color: #64748b; text-transform: uppercase;">
     <button type="submit" id="servBtn" style="background: #22c55e; color: white; padding: 16px; border-radius: 12px; border: none; font-weight: 700; cursor: pointer; width: 100%; font-size: 1rem; box-shadow: 0 4px 12px rgba(34, 197, 94, 0.4); transition: 0.3s;" >Add Service</button>
 </form>
+
             </div>
+            <h2 style="margin: 0; font-size: 1.5rem; color: var(--dark);"> <i class='bx bxs-wrench'></i> Services</h2>
             <div id="currentServices">Loading...</div>
         </div>
     </div>
@@ -317,19 +366,7 @@ input[type="text"]:focus {
         </div>
     </div>
 </div>
-<section class="container" style="max-width: 1200px; margin: 0 auto; padding: 20px;">
-    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
-        <h2 style="margin: 0; font-size: 1.5rem; color: var(--dark);">Customer Feedback</h2>
-        <span id="review-count" style="background: var(--main); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold;">Loading...</span>
-    </div>
-    <hr style="margin: 20px 0; border: 0; border-top: 1px solid #e2e8f0;">
-    
-    <div id="admin-reviews-list">
-        <p style="grid-column: 1/-1; text-align: center; color: #64748b; padding: 40px;">
-            <i class='bx bx-loader-alt bx-spin' style="font-size: 2rem;"></i><br>Syncing Reviews...
-        </p>
-    </div>
-</section>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
     // Initialize permanent revenue from browser memory or start at 0
