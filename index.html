@@ -190,6 +190,7 @@
             background: var(--main); color: var(--dark); border: none; 
             padding: 16px; width: 100%; font-size: 1.1rem; font-weight: 700; 
             border-radius: 12px; cursor: pointer; transition: 0.2s;
+            
         }
 
         .floating-call {
@@ -214,19 +215,19 @@
         <h2>Guwahati</h2>
         <p>Licensed Professionals for Wiring, Repairs & Maintenance.</p>
         <div class="bok">
-            <a href="#form-box"><i class='bx bxs-phone-call'></i> Book Appointment</a>
+            <a href="#form-box"><i class='bx bxs-calendar-check'></i> Book Appointment</a>
         </div>
           <button onclick="contactWhatsApps()" 
-        style="background:#abe7c0; color:#023b18; padding:12px 50px; border-radius:10px; border:none; font-weight:700; cursor:pointer;margin-top: 10px; font-size: large;">
+        style="background:#119540; color:#fcfffd; padding:12px 50px; border-radius:10px; border:none; font-weight:700; cursor:pointer;margin-top: 20px; font-size: large; box-shadow: 0 4px 15px rgba(0,0,0,0.2);display: table-column;">
     <i class='bx bxl-whatsapp'></i> WhatsApp
 </button>
     </div>
 </section>
 <div class="container">
     <div class="trust-bar">
-        <div class="stat-card"><i class='bx bxs-star'></i><div>5 year +</div><span>Experience</span></div>
-        <div class="stat-card"><i class='bx bxs-badge-check'></i><div>500+</div><span>Jobs Done</span></div>
-        <div class="stat-card"><i class='bx bxs-zap'></i><div>60m</div><span>Response Time</span></div>
+        <div class="stat-card"><i class='bx bxs-award'></i><div>5 year +</div><span>Experience</span></div>
+        <div class="stat-card"><i class='bx bxs-bolt-circle'></i><div>500+</div><span>Jobs Done</span></div>
+        <div class="stat-card"><i class='bx bxs-timer'></i><div>60m</div><span>Response Time</span></div>
         <div class="stat-card"><i class='bx bxs-wrench'></i><div>15 Days</div><span>Warranty</span></div>
     </div>
 
@@ -294,7 +295,7 @@
         </div>
 
         <textarea name="message" rows="3" placeholder="Describe the problem..." required></textarea>
-        <button type="submit" class="btn-submit" id="sendBtn">Submit Request</button>
+        <button type="submit" class="btn-submit" id="sendBtn"><i class='bx bxs-send'></i> Submit Request</button>
     </form>
 </div>
     </div>
@@ -313,15 +314,15 @@
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:15px;">
                 <input type="text" name="name" placeholder="Full Name" required>
                 <select name="rating" required>
-                    <option value="5">5 Stars ⭐⭐⭐⭐⭐</option>
-                    <option value="4">4 Stars ⭐⭐⭐⭐</option>
-                    <option value="3">3 Stars ⭐⭐⭐</option>
-                    <option value="2">2 Stars ⭐⭐  </option>
-                    <option value="1">1 Star ⭐ </option>
+                    <option value="5">(Exelent) ⭐⭐⭐⭐⭐</option>
+                    <option value="4">(Best) ⭐⭐⭐⭐</option>
+                    <option value="3">(Good) ⭐⭐⭐</option>
+                    <option value="2">(Bad) ⭐⭐  </option>
+                    <option value="1">(Worst) ⭐ </option>
                 </select>
             </div>
             <textarea name="message" rows="3" placeholder="How was your experience with Sparky Electrical?" required></textarea>
-            <button type="submit" class="btn-submit" id="reviewBtn">Post Review</button>
+            <button type="submit" class="btn-submit" id="reviewBtn"><i class='bx bxs-award'></i>  Post Review</button>
         </form>
     </div>
 </section>
