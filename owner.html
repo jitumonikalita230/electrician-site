@@ -219,7 +219,7 @@ input[type="text"]:focus {
 
 <div id="loginBox" style="position:fixed; inset:0; background:var(--primary); z-index:9999; display:flex; align-items:center; justify-content:center; color:white; flex-direction:column; padding:20px;">
     <i class='bx bxs-bolt-circle' style="font-size:5rem; color:var(--accent)"></i>
-    <h2 style="margin:20px 0;">Sparky Admin</h2>
+    <h2 style="margin:20px 0;">Ambiance Flux</h2>
     <p>Welcome Staff 😊, </p><p>before coming please enter your pin .</p>
     <input type="password" id="pass" placeholder="Enter PIN" style="width:100%; max-width:280px; text-align:center;">
     <button onclick="login()" class="btn" style="width:100%; max-width:280px; background:var(--accent);">Unlock Dashboard</button>
@@ -227,7 +227,7 @@ input[type="text"]:focus {
 
 <div id="dashboard" class="hidden">
     <div class="sidebar">
-        <b><i class='bx bxs-zap' style="color:var(--accent)"></i> SPARKY STAFF PANAL</b>
+        <b><i class='bx bxs-zap' style="color:var(--accent)"></i> Ambiance Flux</b>
         <div style="display:flex; gap:10px;">
             <button onclick="refreshData()" style="background:rgb(27, 27, 185); color:white; border:none; font-size:1.9rem; border-radius: 10px;"><i class='bx bx-refresh'></i></button>
             <button onclick="logout()" class="logout-btn" style="background:red; border: #cbd5e1 ;" ><i class='bx bx-log-out'></i></button>
@@ -971,9 +971,7 @@ function renderLeads(data, container) {
                 </button>
             ` : ''}
         ` : `
-            <button onclick="viewInvoiceOnly(${m.index})" style="width:100%; background:white; color:#1e293b; border:2px solid #e2e8f0; height:50px; border-radius:12px; font-weight:700; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;">
-                <i class='bx bxs-file-pdf' style="color:#ef4444;"></i> View Receipt
-            </button>
+           
         `}
     </div>
     `;
@@ -1059,22 +1057,34 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
     }
 
     // --- 2. HEADER & BRANDING (Navy/Slate Style) ---
-    doc.setFillColor(15, 23, 42); 
-    doc.rect(0, 0, 210, 45, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(28);
-    doc.text("SPARKY", 20, 25);
-    doc.setFontSize(10);
-    doc.setTextColor(148, 163, 184);
-    doc.text("ELECTRICAL SOLUTIONS & MAINTENANCE", 20, 32);
+   // --- 1. LOGO & BRANDING ---
+const logoData = "Sleek Logo with House and Lightning Design.PNG"; // Paste your Base64 string here
+
+// Dark Header Background
+// 1. Draw the dark background first
+doc.setFillColor(15, 23, 42); 
+doc.rect(0, 0, 210, 45, 'F');
+
+// Place a large logo on the right side, partially cropped for a modern look
+
+doc.addImage(logoData, 'PNG', 155.5, -5, 55, 50); 
+
+doc.setTextColor(255, 255, 255);
+doc.setFont("helvetica", "bold");
+doc.setFontSize(28);
+doc.text("Ambiance Flux", 20, 25);
+
+doc.setFontSize(10);
+doc.setTextColor(148, 163, 184);
+doc.text("ELECTRICAL SOLUTIONS • MAINTENANCE • RENOVATION", 20, 33);
+doc.text("Website:  https://jitumonikalita230.github.io/electrician-site/ | +91 88227 63566"   , 20, 40);
 
     // --- 3. CLIENT INFO ---
     doc.setTextColor(30, 41, 59);
     doc.setFontSize(9); doc.text("BILL TO:", 20, 60);
     doc.setFontSize(14); doc.text(cleanName.toUpperCase(), 20, 68);
     doc.setFontSize(10); doc.setFont("helvetica", "normal");
-    doc.text(`Project: ${baseWork}`, 20, 75);
+    doc.text(`Project with estimate price: ${baseWork}`, 20, 75);
 
     // --- 4. DYNAMIC BILLING TABLE ---
     let yPos = 90;
@@ -1141,7 +1151,19 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
 // --- 3. PREVIEW & WHATSAPP (Doesn't close modal) ---
 async function viewInvoiceOnly() {
     const index = document.getElementById('custIndex').value;
+    
+    // 1. Check if globalData exists
+    if (!globalData || globalData.length === 0) {
+        alert("Error: Customer list is empty. Please add or import customers again.");
+        return;
+    }
+
     const lead = globalData.find(m => m.index == index);
+    
+    if (!lead) {
+        alert("Error: Could not find this specific customer in the list.");
+        return;
+    }
     
     if (lead) {
         // 1. Collect live data from modal inputs
@@ -1402,128 +1424,151 @@ async function finalizeBill() {
 
 function downloadPDF(index, viewOnly = false) {
     const lead = globalData.find(m => m.index == index);
-    if (!lead) return;
+    if (!lead) {
+        alert("Customer data not found. Please try again.");
+        return;
+    }
 
     const doc = new jspdf.jsPDF();
-    let currentY = 20;
+    const pageWidth = doc.internal.pageSize.getWidth();
+    
+    // --- 1. MODERN HEADER & LOGO ---
+    // Dark Background Rectangle
+    doc.setFillColor(15, 23, 42); 
+    doc.rect(0, 0, pageWidth, 45, 'F');
 
-    // --- Header & Branding ---
-    doc.setFontSize(24);
+    // Logo (Uses the logoData variable we defined previously)
+    try {
+        if (typeof logoData !== 'undefined' && logoData.startsWith('data:image')) {
+            doc.addImage(logoData, 'PNG', 155, 5, 45, 35); 
+        }
+    } catch (e) { console.error("Logo failed to render"); }
+
+    // Company Name & Info
+    doc.setTextColor(255, 255, 255);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("SPARKY ELECTRICALS", 15, 20);
+    
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(148, 163, 184); // Slate grey
+    doc.text("Professional Solutions • Maintenance • Installation", 15, 27);
+    doc.text("Web: jitumonikalita230.github.io/electrician-site/", 15, 34);
+    doc.text("Phone: +91 88227 63566", 15, 39);
+
+    // --- 2. INVOICE METADATA ---
+    let currentY = 60;
     doc.setTextColor(30, 41, 59);
-    doc.text("SPARKY ELECTRICALS", 105, currentY, { align: "center" });
-    
-    currentY += 10;
-    doc.setDrawColor(200);
-    doc.line(20, currentY, 190, currentY);
-
-    // --- Customer & Date Info ---
-    currentY += 15;
     doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text("INVOICE TO:", 20, currentY);
-    doc.text("DATE:", 150, currentY);
-    
-    currentY += 7;
-    doc.setFontSize(12);
-    doc.setTextColor(0);
     doc.setFont(undefined, 'bold');
-    doc.text(`${lead.name}`, 20, currentY);
-    doc.text(`${new Date().toLocaleDateString()}`, 150, currentY);
+    doc.text("BILL TO:", 15, currentY);
+    doc.text("INVOICE DETAILS:", 140, currentY);
 
-    // --- Work Description ---
-    currentY += 15;
-    doc.setFontSize(10);
-    doc.setTextColor(100);
-    doc.text("PROJECT DESCRIPTION:", 20, currentY);
-    
     currentY += 7;
-    doc.setTextColor(30);
     doc.setFont(undefined, 'normal');
+    doc.setFontSize(12);
+    doc.text(`${lead.name.toUpperCase()}`, 15, currentY);
     
-    // Clean the description for the header (remove the hidden items list)
-    let displayWork = lead.work || lead.workType || "Electrical Service";
+    doc.setFontSize(10);
+    doc.text(`Invoice Date: ${new Date().toLocaleDateString()}`, 140, currentY);
+    currentY += 5;
+    doc.text(`Project ID: #SPK-${lead.index}`, 140, currentY);
+
+    // --- 3. PROJECT DESCRIPTION ---
+    currentY += 15;
+    doc.setFillColor(241, 245, 249);
+    doc.rect(15, currentY, 180, 20, 'F'); // Background box for description
+    
+    doc.setFont(undefined, 'bold');
+    doc.text("PROJECT SCOPE:", 20, currentY + 7);
+    
+    doc.setFont(undefined, 'normal');
+    let displayWork = lead.work || lead.workType || "General Electrical Service";
     if (displayWork.includes(" [Items:")) {
         displayWork = displayWork.split(" [Items:")[0];
     }
-    doc.text(displayWork, 20, currentY, { maxWidth: 170 });
+    doc.text(displayWork, 20, currentY + 13, { maxWidth: 170 });
 
-    // --- Table Header ---
-    currentY += 20;
-    doc.setFillColor(245, 247, 250);
-    doc.rect(20, currentY, 170, 10, 'F');
+    // --- 4. DYNAMIC BILLING TABLE ---
+    currentY += 30;
+    // Table Header
+    doc.setFillColor(15, 23, 42);
+    doc.rect(15, currentY, 180, 10, 'F');
+    doc.setTextColor(255, 255, 255);
     doc.setFont(undefined, 'bold');
-    doc.text("Description", 25, currentY + 7);
-    doc.text("Amount (INR)", 185, currentY + 7, { align: "right" });
+    doc.text("DESCRIPTION", 20, currentY + 6.5);
+    doc.text("AMOUNT (INR)", 190, currentY + 6.5, { align: "right" });
 
-    // --- 1. Service/Labor Row ---
+    // Row: Service/Labor
     currentY += 18;
+    doc.setTextColor(30, 41, 59);
     doc.setFont(undefined, 'normal');
-    doc.text("Service & Labor Charges", 25, currentY);
-    doc.text(`${parseFloat(lead.labor || 0).toFixed(2)}`, 185, currentY, { align: "right" });
+    doc.text("Service & Technical Labor Charges", 20, currentY);
+    doc.text(`₹ ${parseFloat(lead.labor || 0).toLocaleString('en-IN')}`, 190, currentY, { align: "right" });
 
-    // --- 2. Itemized Materials Logic ---
+    // Rows: Itemized Materials
     const fullWorkText = lead.work || "";
     if (fullWorkText.includes("[Items: ")) {
-        // Extract the list: "Wire: 500, Switch: 200"
         const materialString = fullWorkText.split("[Items: ")[1].replace("]", "");
         const items = materialString.split(", ");
 
         items.forEach(item => {
             currentY += 10;
-            // Prevent text from overflowing the page
             if (currentY > 270) { doc.addPage(); currentY = 20; }
             
             const [itemName, itemPrice] = item.split(": ");
-            doc.setTextColor(100);
-            doc.setFontSize(10);
-            doc.text(`• ${itemName}`, 30, currentY); // Indented with a bullet
-            doc.text(`${parseFloat(itemPrice || 0).toFixed(2)}`, 185, currentY, { align: "right" });
+            doc.setTextColor(100, 116, 139);
+            doc.setFontSize(9);
+            doc.text(`• ${itemName.trim()}`, 25, currentY); 
+            doc.text(`${parseFloat(itemPrice || 0).toLocaleString('en-IN')}`, 190, currentY, { align: "right" });
         });
     } else if (parseFloat(lead.materials) > 0) {
-        // Fallback if no specific names exist but a total cost does
         currentY += 10;
-        doc.text("General Materials & Parts", 25, currentY);
-        doc.text(`${parseFloat(lead.materials).toFixed(2)}`, 185, currentY, { align: "right" });
+        doc.text("General Materials & Parts", 20, currentY);
+        doc.text(`₹ ${parseFloat(lead.materials).toLocaleString('en-IN')}`, 190, currentY, { align: "right" });
     }
 
-    // --- Final Calculations Section ---
+    // --- 5. TOTALS SECTION ---
     currentY += 15;
-    doc.setDrawColor(240);
-    doc.line(120, currentY, 190, currentY);
+    doc.setDrawColor(226, 232, 240);
+    doc.line(110, currentY, 195, currentY);
     
     if (lead.discount > 0) {
         currentY += 10;
-        doc.setTextColor(200, 0, 0);
-        doc.setFontSize(12);
-        doc.text("Discount:", 120, currentY);
-        doc.text(`- ${parseFloat(lead.discount).toFixed(2)}`, 185, currentY, { align: "right" });
+        doc.setTextColor(220, 38, 38); // Error Red
+        doc.text("Discount Applied:", 120, currentY);
+        doc.text(`- ₹ ${parseFloat(lead.discount).toLocaleString('en-IN')}`, 190, currentY, { align: "right" });
     }
 
-    currentY += 12;
-    doc.setFontSize(14);
+    currentY += 10;
+    doc.setFillColor(15, 23, 42);
+    doc.rect(110, currentY - 7, 85, 12, 'F'); // Total Box
+    doc.setFontSize(12);
     doc.setFont(undefined, 'bold');
-    doc.setTextColor(30, 41, 59);
-    doc.text("GRAND TOTAL:", 120, currentY);
-    doc.text(`Rs. ${parseFloat(lead.bill || 0).toLocaleString('en-IN')}`, 185, currentY, { align: "right" });
+    doc.setTextColor(255, 255, 255);
+    doc.text("GRAND TOTAL", 115, currentY + 1);
+    doc.text(`₹ ${parseFloat(lead.bill || 0).toLocaleString('en-IN')}`, 190, currentY + 1, { align: "right" });
 
-    // --- Paid/Unpaid Stamp ---
-    currentY += 25;
-    const isPaid = lead.status === 'COMPLETED';
-    doc.setLineWidth(1);
-    doc.setDrawColor(isPaid ? [0, 150, 0] : [200, 0, 0]);
-    doc.rect(80, currentY, 50, 15);
-    doc.setFontSize(16);
-    doc.setTextColor(isPaid ? [0, 150, 0] : [200, 0, 0]);
-    doc.text(isPaid ? "PAID" : "UNPAID", 105, currentY + 10, { align: "center" });
+    // --- 6. FOOTER & STATUS STAMP ---
+    const isPaid = (lead.status === 'COMPLETED' || lead.status === 'PAID');
+    currentY = 265;
+    
+    doc.setDrawColor(isPaid ? [22, 163, 74] : [220, 38, 38]);
+    doc.setLineWidth(0.5);
+    doc.rect(15, currentY, 180, 15);
+    
+    doc.setFontSize(12);
+    doc.setTextColor(isPaid ? [22, 163, 74] : [220, 38, 38]);
+    doc.text(isPaid ? "PAYMENT RECEIVED - THANK YOU" : "PAYMENT OUTSTANDING - PLEASE PAY SOON", 105, currentY + 9, { align: "center" });
 
     // Output
     if(viewOnly) {
         window.open(doc.output('bloburl'), '_blank');
     } else {
-        doc.save(`Invoice_${lead.name}.pdf`);
+        doc.save(`Invoice_${lead.name.replace(/\s+/g, '_')}.pdf`);
     }
 }
-
 function closeCustModal() {
     document.getElementById('billCustomModal').style.display = 'none';
 }
