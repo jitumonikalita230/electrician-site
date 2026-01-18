@@ -375,7 +375,7 @@ input[type="text"]:focus {
 // 1. CONFIGURATION & PERMANENT VAULT
 // ==========================================
 let globalData = [];
-const URL = 'https://script.google.com/macros/s/AKfycbxwI-N_G9HPdWXY0NpGCSvqIbeaNOvgUX5NkTBy1nr1OGXH24EgMEv0lEB6DMZmi4XN/exec'; 
+const URL = 'https://script.google.com/macros/s/AKfycbwMD4UkixfS5NsEm7qyp_OHqX2PPdIJV3FPnCI_b0jCeDyMxVtMm5YxyLatsEWRPoLU/exec'; 
 const UPI_ID = "jitumoni2005-1@okhdfcbank"; 
 const url="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
 // Permanent Storage: Survives lead deletions
@@ -1440,6 +1440,7 @@ async function finalizeBill() {
     formData.append('discount', discount);
     formData.append('bill', totalBill);
     formData.append('work', fullWorkDesc);
+    formData.append('days', days);
 
     try {
         btn.disabled = true;
@@ -1457,6 +1458,7 @@ async function finalizeBill() {
                 lead.bill = totalBill;
                 lead.materials = materialsTotal;
                 lead.discount = discount;
+                lead.days = days;
             }
             alert("✅ Bill & Materials Saved!");
             closeCustModal();
