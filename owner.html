@@ -367,8 +367,8 @@ input[type="text"]:focus {
     </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" ></script>
 <script>
     // Initialize permanent revenue from browser memory or start at 0
 // ==========================================
@@ -377,7 +377,7 @@ input[type="text"]:focus {
 let globalData = [];
 const URL = 'https://script.google.com/macros/s/AKfycbxwI-N_G9HPdWXY0NpGCSvqIbeaNOvgUX5NkTBy1nr1OGXH24EgMEv0lEB6DMZmi4XN/exec'; 
 const UPI_ID = "jitumoni2005-1@okhdfcbank"; 
-
+const url="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js";
 // Permanent Storage: Survives lead deletions
 let totalPermanentRevenue = parseFloat(localStorage.getItem('sparky_total_rev')) || 0;
 let totalPermanentTasks = parseInt(localStorage.getItem('sparky_total_tasks')) || 0;
@@ -1034,38 +1034,39 @@ function syncDraft() {
     }
     return lead;
 }
-/**
- * Renders the PDF and handles the preview/download for both Mobile and Desktop.
- */
-/**
- * Renders and displays the PDF.
- * Optimized for Mobile (Safari/Chrome) and Desktop.
- */
-/**
- * Renders and displays the PDF.
- * Optimized for Mobile (Safari/Chrome) and Desktop.
- */
-/**
- * Renders and displays the PDF without using URL.createObjectURL.
- */
 function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
+    // 1. Safety Check: Ensure library is loaded
+    if (!window.jspdf || !window.jspdf.jsPDF) {
+        return alert("PDF library is still loading. Please wait 2 seconds and try again.");
+    }
+
+    // 2. Data Lookup
     const m = globalData.find(item => item.index == index);
     if (!m) return alert("Customer not found.");
 
+    // 3. Initialize PDF
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-
-    // --- 1. DATA PREP ---
+    
+    // --- 4. DATA PREP & MATH ---
     const sanitize = (val) => String(val || '').replace(/[^\x00-\x7F]/g, "").trim();
+    const parseNum = (val) => {
+        const n = parseFloat(String(val).replace(/[^0-9.-]/g, ''));
+        return isNaN(n) ? 0 : n;
+    };
+
     const cleanName = sanitize(m.name);
-    const nDay = Number(day) || 1;
-    const nLab = Number(lab) || 0;
-    const nMatTotal = Number(mat) || 0;
-    const nDisc = Number(disc) || 0;
-    const laborTotal = nLab * nDay;
-    const finalTotal = laborTotal + nMatTotal - nDisc;
+    const nDay = parseNum(day) || 1;
+    const nLab = parseNum(lab);
+    const nMatTotal = parseNum(mat);
+    const nDisc = parseNum(disc);
+    
+    const laborSubtotal = nLab * nDay;
+    const subtotal = laborSubtotal + nMatTotal;
+    const finalTotal = Math.max(0, subtotal - nDisc); 
     const today = new Date().toLocaleDateString('en-IN');
 
+    // Handle itemized work descriptions
     let baseWork = sanitize(work);
     let itemsString = "";
     if (baseWork.includes("[Items: ")) {
@@ -1074,159 +1075,145 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
         itemsString = parts[1].replace("]", "");
     }
 
-    // --- 2. HEADER & BRANDING (Navy Theme) ---
-    doc.setFillColor(15, 23, 42); 
-    doc.rect(0, 0, 210, 50, 'F');
-
-    // ADD LOGO (Replace the string below with your actual Base64 string)
-    // const logoData = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA...";
-    // try { doc.addImage(logoData, 'PNG', 160, 10, 35, 30); } catch(e){}
-
-    doc.setTextColor(255, 255, 255);
+    // --- 5. HEADER ---
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(26);
-    doc.text("Ambiance Flux", 20, 25);
-    
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(148, 163, 184);
-    doc.text("ELECTRICAL SOLUTIONS • MAINTENANCE • RENOVATION", 20, 32);
-    doc.text("Contact: +91 88227 63566 | Guwahati, Assam", 20, 38);
-    doc.text("https://jitumonikalita230.github.io/electrician-site/", 20, 43);
-
-    // --- 3. INVOICE INFO & CLIENT DETAILS ---
+    doc.setFontSize(22);
     doc.setTextColor(30, 41, 59);
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(10);
-    doc.text("BILL TO:", 20, 65);
-    doc.text("INVOICE DATE:", 140, 65);
-    
-    doc.setFont("helvetica", "normal");
-    doc.text(today, 140, 72);
-    
-    doc.setFontSize(14);
-    doc.setTextColor(15, 23, 42);
-    doc.text(cleanName.toUpperCase(), 20, 72);
+    doc.text("INVOICE", 20, 25);
 
-    // --- 4. PROJECT DESCRIPTION (Multi-line Support) ---
+    doc.setFontSize(10);
+    doc.text("Ambiance Flux", 140, 20);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 100, 100);
+    doc.text("Guwahati, Assam", 140, 25);
+    doc.text("Contact: +91 88227 63566", 140, 30);
+
     doc.setDrawColor(226, 232, 240);
-    doc.line(20, 78, 190, 78); // Thin divider
-    
-    doc.setFontSize(10);
-    doc.setTextColor(71, 85, 105);
-    doc.setFont("helvetica", "bold");
-    doc.text("PROJECT DESCRIPTION:", 20, 85);
-    
-    doc.setFont("helvetica", "normal");
+    doc.line(20, 35, 190, 35);
+
+    // --- 6. CLIENT INFO ---
     doc.setTextColor(30, 41, 59);
-    // This wraps long work descriptions so they don't go off page
+    doc.setFont("helvetica", "bold");
+    doc.text("BILL TO:", 20, 45);
+    doc.text("DATE:", 140, 45);
+    doc.setFont("helvetica", "normal");
+    doc.text(cleanName.toUpperCase(), 20, 52);
+    doc.text(today, 140, 52);
+
+    // --- 7. DESCRIPTION ---
+    doc.setFont("helvetica", "bold");
+    doc.text("WORK DESCRIPTION:", 20, 65);
+    doc.setFont("helvetica", "normal");
     const splitDescription = doc.splitTextToSize(baseWork, 170);
-    doc.text(splitDescription, 20, 92);
+    doc.text(splitDescription, 20, 72);
 
-    // Calculate Y position based on description length
-    let yPos = 95 + (splitDescription.length * 5);
+    let yPos = 78 + (splitDescription.length * 5);
 
-    // --- 5. SERVICE TABLE ---
-    doc.setFillColor(241, 245, 249);
+    // --- 8. TABLE ---
+    doc.setFillColor(248, 250, 252);
     doc.rect(20, yPos, 170, 10, 'F');
     doc.setFont("helvetica", "bold");
-    doc.setTextColor(51, 65, 85);
     doc.text("DESCRIPTION", 25, yPos + 6.5);
     doc.text("QTY/DAYS", 110, yPos + 6.5);
-    doc.text("RATE", 145, yPos + 6.5);
-    doc.text("TOTAL", 185, yPos + 6.5, { align: 'right' });
+    doc.text("TOTAL (Rs.)", 185, yPos + 6.5, { align: 'right' });
 
     yPos += 18;
     doc.setFont("helvetica", "normal");
-    doc.setTextColor(30, 41, 59);
 
-    // Row: Labor
-    doc.text("Technical Labor Services", 25, yPos);
-    doc.text(`${nDay} Day(s)`, 110, yPos);
-    doc.text(`${nLab.toLocaleString()}`, 145, yPos);
-    doc.text(`${laborTotal.toLocaleString()}`, 185, yPos, { align: 'right' });
+    // Service Row
+    doc.text("Technical Labor Charges", 25, yPos);
+    doc.text(`${nDay}`, 110, yPos);
+    doc.text(laborSubtotal.toLocaleString('en-IN'), 185, yPos, { align: 'right' });
 
-    // Rows: Materials
+    // Materials Row(s)
     if (itemsString) {
-        const items = itemsString.split(", ");
-        items.forEach(item => {
-            yPos += 12;
+        itemsString.split(", ").forEach(item => {
+            yPos += 10;
             const parts = item.split(": ");
-            const itemName = parts[0] || "Material";
-            const itemPrice = Number(parts[1] || 0);
-            
-            doc.text(sanitize(itemName), 25, yPos);
-            doc.text("1", 110, yPos); // Assuming qty 1 for itemized
-            doc.text(`${itemPrice.toLocaleString()}`, 145, yPos);
-            doc.text(`${itemPrice.toLocaleString()}`, 185, yPos, { align: 'right' });
-
-            if (yPos > 260) { doc.addPage(); yPos = 20; }
+            const name = parts[0] || "Item";
+            const price = parseNum(parts[1]);
+            doc.text(sanitize(name), 25, yPos);
+            doc.text("1", 110, yPos);
+            doc.text(price.toLocaleString('en-IN'), 185, yPos, { align: 'right' });
+            if (yPos > 270) { doc.addPage(); yPos = 20; }
         });
     } else if (nMatTotal > 0) {
-        yPos += 12;
-        doc.text("Materials & Hardware Total", 25, yPos);
+        yPos += 10;
+        doc.text("Materials & Hardware", 25, yPos);
         doc.text("1", 110, yPos);
-        doc.text(`${nMatTotal.toLocaleString()}`, 145, yPos);
-        doc.text(`${nMatTotal.toLocaleString()}`, 185, yPos, { align: 'right' });
+        doc.text(nMatTotal.toLocaleString('en-IN'), 185, yPos, { align: 'right' });
     }
 
-    // --- 6. SUMMARY SECTION ---
-    yPos += 20;
-    doc.setDrawColor(203, 213, 225);
-    doc.line(110, yPos, 190, yPos);
-
+    // --- 9. SUMMARY ---
+    yPos += 15;
+    doc.setDrawColor(226, 232, 240);
+    doc.line(115, yPos, 190, yPos);
+    
     yPos += 10;
     doc.setFontSize(10);
     doc.text("Subtotal:", 120, yPos);
-    doc.text(`Rs. ${(laborTotal + nMatTotal).toLocaleString()}`, 185, yPos, { align: 'right' });
+    doc.text(`Rs. ${subtotal.toLocaleString('en-IN')}`, 185, yPos, { align: 'right' });
 
     if (nDisc > 0) {
         yPos += 8;
         doc.setTextColor(220, 38, 38);
-        doc.text("Discount Applied:", 120, yPos);
-        doc.text(`- Rs. ${nDisc.toLocaleString()}`, 185, yPos, { align: 'right' });
+        doc.text("Discount:", 120, yPos);
+        doc.text(`- Rs. ${nDisc.toLocaleString('en-IN')}`, 185, yPos, { align: 'right' });
     }
 
-    yPos += 10;
-    doc.setFillColor(15, 23, 42);
-    doc.rect(110, yPos - 7, 85, 12, 'F');
+    yPos += 12;
+    doc.setFillColor(30, 41, 59);
+    doc.rect(115, yPos - 8, 75, 12, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.text("TOTAL AMOUNT", 115, yPos + 1);
-    doc.text(`Rs. ${finalTotal.toLocaleString('en-IN')}`, 190, yPos + 1, { align: 'right' });
+    doc.text("GRAND TOTAL", 120, yPos);
+    doc.text(`Rs. ${finalTotal.toLocaleString('en-IN')}`, 185, yPos, { align: 'right' });
 
-    // --- 7. FOOTER ---
-    doc.setFontSize(8);
+    // --- 10. FOOTER ---
     doc.setTextColor(148, 163, 184);
+    doc.setFontSize(8);
     doc.setFont("helvetica", "italic");
-    doc.text("Thank you for your business! All works are guaranteed for 6 months.", 105, 285, { align: 'center' });
+    doc.text("Thank you for choosing Ambiance Flux!", 105, 285, { align: 'center' });
 
-    // --- 8. OUTPUT ---
+    // --- 11. SMART OUTPUT ---
+  // --- 8. SMART OUTPUT (With Fallback) ---
     const fileName = `Invoice_${cleanName.replace(/\s+/g, '_')}.pdf`;
 
-    if (viewOnly) {
-        const pdfDataUri = doc.output('datauristring');
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-        if (isMobile) {
-            const link = document.createElement('a');
-            link.href = pdfDataUri;
-            link.setAttribute('download', fileName);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+    try {
+        // Method A: Blob URL (Preferred for most devices)
+        const blob = doc.output('blob');
+        
+        // Safety check for URL.createObjectURL
+        if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
+            const url = URL.createObjectURL(blob);
+            if (viewOnly) {
+                const newTab = window.open(url, '_blank');
+                if (!newTab) window.location.href = url; // Fallback for mobile
+            } else {
+                doc.save(fileName);
+            }
+            setTimeout(() => URL.revokeObjectURL(url), 15000);
         } else {
-            const pdfWindow = window.open("");
-            pdfWindow.document.write(`<iframe width='100%' height='100%' src='${pdfDataUri}'></iframe>`);
+            throw new Error("Blob method not supported");
         }
-    } else {
-        doc.save(fileName);
+    } catch (e) {
+        // Method B: Base64 Fallback (Works where Blob fails)
+        console.warn("Falling back to Base64 output.");
+        if (viewOnly) {
+            // Data URIs are supported by almost all mobile browsers
+            const pdfDataUri = doc.output('datauristring');
+            const win = window.open("");
+            if (win) {
+                win.document.write(`<iframe width='100%' height='100%' src='${pdfDataUri}'></iframe>`);
+            } else {
+                window.location.href = pdfDataUri;
+            }
+        } else {
+            doc.save(fileName);
+        }
     }
 }
-/**
- * Trigger function (Sync version to avoid pop-up blockers)
- */
 function viewInvoiceOnly() {
     try {
         const index = document.getElementById('custIndex').value;
@@ -1487,150 +1474,120 @@ async function finalizeBill() {
 // --- 3. PROFESSIONAL PDF GENERATION ---
 
 function downloadPDF(index, viewOnly = false) {
+    // 1. Get Customer Data
     const lead = globalData.find(m => m.index == index);
-    if (!lead) {
-        alert("Customer data not found. Please try again.");
-        return;
-    }
+    if (!lead) return alert("Customer data not found.");
 
-    const doc = new jspdf.jsPDF();
+    // 2. Initialize jsPDF (Standard Fix for 'jspdf is not defined')
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-    
-    // --- 1. MODERN HEADER & LOGO ---
-    // Dark Background Rectangle
-    doc.setFillColor(15, 23, 42); 
-    doc.rect(0, 0, pageWidth, 45, 'F');
 
-    // Logo (Uses the logoData variable we defined previously)
-    try {
-        if (typeof logoData !== 'undefined' && logoData.startsWith('data:image')) {
-            doc.addImage(logoData, 'PNG', 155, 5, 45, 35); 
-        }
-    } catch (e) { console.error("Logo failed to render"); }
-
-    // Company Name & Info
-    doc.setTextColor(255, 255, 255);
+    // --- HEADER ---
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
-    doc.text("SPARKY ELECTRICALS", 15, 20);
-    
-    doc.setFontSize(9);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(148, 163, 184); // Slate grey
-    doc.text("Professional Solutions • Maintenance • Installation", 15, 27);
-    doc.text("Web: jitumonikalita230.github.io/electrician-site/", 15, 34);
-    doc.text("Phone: +91 88227 63566", 15, 39);
-
-    // --- 2. INVOICE METADATA ---
-    let currentY = 60;
     doc.setTextColor(30, 41, 59);
-    doc.setFontSize(10);
-    doc.setFont(undefined, 'bold');
-    doc.text("BILL TO:", 15, currentY);
-    doc.text("INVOICE DETAILS:", 140, currentY);
+    doc.text("INVOICE", 15, 25);
 
-    currentY += 7;
-    doc.setFont(undefined, 'normal');
-    doc.setFontSize(12);
-    doc.text(`${lead.name.toUpperCase()}`, 15, currentY);
-    
     doc.setFontSize(10);
-    doc.text(`Invoice Date: ${new Date().toLocaleDateString()}`, 140, currentY);
-    currentY += 5;
-    doc.text(`Project ID: #SPK-${lead.index}`, 140, currentY);
+    doc.text("SPARKY ELECTRICALS", 140, 20);
+    doc.setFont("helvetica", "normal");
+    doc.setTextColor(100, 100, 100);
+    doc.text("Guwahati, Assam", 140, 25);
+    doc.text("+91 88227 63566", 140, 30);
 
-    // --- 3. PROJECT DESCRIPTION ---
-    currentY += 15;
-    doc.setFillColor(241, 245, 249);
-    doc.rect(15, currentY, 180, 20, 'F'); // Background box for description
+    doc.setDrawColor(200, 200, 200);
+    doc.line(15, 35, 195, 35);
+
+    // --- CLIENT INFO ---
+    doc.setTextColor(30, 41, 59);
+    doc.setFont("helvetica", "bold");
+    doc.text("BILL TO:", 15, 45);
+    doc.text("DATE:", 140, 45);
+
+    doc.setFont("helvetica", "normal");
+    doc.text(lead.name.toUpperCase(), 15, 52);
+    doc.text(new Date().toLocaleDateString('en-IN'), 140, 52);
+
+    // --- WORK DESCRIPTION ---
+    doc.setFont("helvetica", "bold");
+    doc.text("WORK DESCRIPTION:", 15, 65);
+    doc.setFont("helvetica", "normal");
     
-    doc.setFont(undefined, 'bold');
-    doc.text("PROJECT SCOPE:", 20, currentY + 7);
-    
-    doc.setFont(undefined, 'normal');
     let displayWork = lead.work || lead.workType || "General Electrical Service";
     if (displayWork.includes(" [Items:")) {
         displayWork = displayWork.split(" [Items:")[0];
     }
-    doc.text(displayWork, 20, currentY + 13, { maxWidth: 170 });
+    const splitWork = doc.splitTextToSize(displayWork, 170);
+    doc.text(splitWork, 15, 72);
 
-    // --- 4. DYNAMIC BILLING TABLE ---
-    currentY += 30;
-    // Table Header
-    doc.setFillColor(15, 23, 42);
-    doc.rect(15, currentY, 180, 10, 'F');
-    doc.setTextColor(255, 255, 255);
-    doc.setFont(undefined, 'bold');
-    doc.text("DESCRIPTION", 20, currentY + 6.5);
-    doc.text("AMOUNT (INR)", 190, currentY + 6.5, { align: "right" });
+    let yPos = 75 + (splitWork.length * 5);
 
-    // Row: Service/Labor
-    currentY += 18;
-    doc.setTextColor(30, 41, 59);
-    doc.setFont(undefined, 'normal');
-    doc.text("Service & Technical Labor Charges", 20, currentY);
-    doc.text(`₹ ${parseFloat(lead.labor || 0).toLocaleString('en-IN')}`, 190, currentY, { align: "right" });
+    // --- BILLING TABLE ---
+    doc.setFillColor(245, 247, 250);
+    doc.rect(15, yPos, 180, 8, 'F');
+    doc.setFont("helvetica", "bold");
+    doc.text("Description", 20, yPos + 5.5);
+    doc.text("Amount (INR)", 190, yPos + 5.5, { align: "right" });
 
-    // Rows: Itemized Materials
+    yPos += 15;
+    doc.setFont("helvetica", "normal");
+
+    // Service/Labor
+    doc.text("Service & Technical Labor", 20, yPos);
+    doc.text(`${parseFloat(lead.labor || 0).toLocaleString('en-IN')}`, 190, yPos, { align: "right" });
+
+    // Materials Logic
     const fullWorkText = lead.work || "";
     if (fullWorkText.includes("[Items: ")) {
         const materialString = fullWorkText.split("[Items: ")[1].replace("]", "");
         const items = materialString.split(", ");
 
         items.forEach(item => {
-            currentY += 10;
-            if (currentY > 270) { doc.addPage(); currentY = 20; }
-            
+            yPos += 10;
+            if (yPos > 270) { doc.addPage(); yPos = 20; }
             const [itemName, itemPrice] = item.split(": ");
-            doc.setTextColor(100, 116, 139);
-            doc.setFontSize(9);
-            doc.text(`• ${itemName.trim()}`, 25, currentY); 
-            doc.text(`${parseFloat(itemPrice || 0).toLocaleString('en-IN')}`, 190, currentY, { align: "right" });
+            doc.text(`- ${itemName.trim()}`, 20, yPos); 
+            doc.text(`${parseFloat(itemPrice || 0).toLocaleString('en-IN')}`, 190, yPos, { align: "right" });
         });
     } else if (parseFloat(lead.materials) > 0) {
-        currentY += 10;
-        doc.text("General Materials & Parts", 20, currentY);
-        doc.text(`₹ ${parseFloat(lead.materials).toLocaleString('en-IN')}`, 190, currentY, { align: "right" });
+        yPos += 10;
+        doc.text("Materials & Parts", 20, yPos);
+        doc.text(`${parseFloat(lead.materials).toLocaleString('en-IN')}`, 190, yPos, { align: "right" });
     }
 
-    // --- 5. TOTALS SECTION ---
-    currentY += 15;
-    doc.setDrawColor(226, 232, 240);
-    doc.line(110, currentY, 195, currentY);
+    // --- TOTALS ---
+    yPos += 15;
+    doc.line(120, yPos, 195, yPos);
     
-    if (lead.discount > 0) {
-        currentY += 10;
-        doc.setTextColor(220, 38, 38); // Error Red
-        doc.text("Discount Applied:", 120, currentY);
-        doc.text(`- ₹ ${parseFloat(lead.discount).toLocaleString('en-IN')}`, 190, currentY, { align: "right" });
-    }
+    yPos += 10;
+    doc.text("Subtotal:", 120, yPos);
+    doc.text(`${parseFloat(lead.bill || 0).toLocaleString('en-IN')}`, 190, yPos, { align: "right" });
 
-    currentY += 10;
-    doc.setFillColor(15, 23, 42);
-    doc.rect(110, currentY - 7, 85, 12, 'F'); // Total Box
+    yPos += 10;
+    doc.setFont("helvetica", "bold");
     doc.setFontSize(12);
-    doc.setFont(undefined, 'bold');
-    doc.setTextColor(255, 255, 255);
-    doc.text("GRAND TOTAL", 115, currentY + 1);
-    doc.text(`₹ ${parseFloat(lead.bill || 0).toLocaleString('en-IN')}`, 190, currentY + 1, { align: "right" });
+    doc.text("GRAND TOTAL:", 120, yPos);
+    doc.text(`Rs. ${parseFloat(lead.bill || 0).toLocaleString('en-IN')}`, 190, yPos, { align: "right" });
 
-    // --- 6. FOOTER & STATUS STAMP ---
-    const isPaid = (lead.status === 'COMPLETED' || lead.status === 'PAID');
-    currentY = 265;
-    
-    doc.setDrawColor(isPaid ? [22, 163, 74] : [220, 38, 38]);
-    doc.setLineWidth(0.5);
-    doc.rect(15, currentY, 180, 15);
-    
-    doc.setFontSize(12);
-    doc.setTextColor(isPaid ? [22, 163, 74] : [220, 38, 38]);
-    doc.text(isPaid ? "PAYMENT RECEIVED - THANK YOU" : "PAYMENT OUTSTANDING - PLEASE PAY SOON", 105, currentY + 9, { align: "center" });
+    // --- FOOTER ---
+    doc.setFontSize(8);
+    doc.setTextColor(150, 150, 150);
+    doc.text("Thank you for choosing Sparky Electricals!", pageWidth / 2, 285, { align: "center" });
 
-    // Output
-    if(viewOnly) {
-        window.open(doc.output('bloburl'), '_blank');
+    // --- OUTPUT (Fix for Mobile Devices) ---
+    const fileName = `Invoice_${lead.name.replace(/\s+/g, '_')}.pdf`;
+    
+    if (viewOnly) {
+        const blob = doc.output('blob');
+        const url = URL.createObjectURL(blob);
+        // Mobile browsers often block window.open. This is the safest way:
+        const win = window.open(url, '_blank');
+        if (!win) {
+            window.location.href = url; // Fallback: open in same tab
+        }
     } else {
-        doc.save(`Invoice_${lead.name.replace(/\s+/g, '_')}.pdf`);
+        doc.save(fileName);
     }
 }
 function closeCustModal() {
