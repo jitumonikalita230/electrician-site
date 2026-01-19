@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>⚡ Ambiance Flux v4.6 - Admin</title>
+    <title>⚡Divya J.J.S Groups of Electronics & Interior Design v4.6 - Admin</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         :root { 
@@ -219,7 +219,7 @@ input[type="text"]:focus {
 
 <div id="loginBox" style="position:fixed; inset:0; background:var(--primary); z-index:9999; display:flex; align-items:center; justify-content:center; color:white; flex-direction:column; padding:20px;">
     <i class='bx bxs-bolt-circle' style="font-size:5rem; color:var(--accent)"></i>
-    <h2 style="margin:20px 0;">Ambiance Flux</h2>
+    <h2 style="margin:20px 0;">Divya J.J.S Groups of Electronics & Interior Design</h2>
     <p>Welcome Staff 😊, </p><p>before coming please enter your pin .</p>
     <input type="password" id="pass" placeholder="Enter PIN" style="width:100%; max-width:280px; text-align:center;">
     <button onclick="login()" class="btn" style="width:100%; max-width:280px; background:var(--accent);">Unlock Dashboard</button>
@@ -227,7 +227,7 @@ input[type="text"]:focus {
 
 <div id="dashboard" class="hidden">
     <div class="sidebar">
-        <b><i class='bx bxs-zap' style="color:var(--accent)"></i> Ambiance Flux</b>
+        <b><i class='bx bxs-zap' style="color:var(--accent)"></i> Divya J.J.S Groups of Electronics & Interior Design</b>
         <div style="display:flex; gap:10px;">
             <button onclick="refreshData()" style="background:rgb(27, 27, 185); color:white; border:none; font-size:1.9rem; border-radius: 10px;"><i class='bx bx-refresh'></i></button>
             <button onclick="logout()" class="logout-btn" style="background:red; border: #cbd5e1 ;" ><i class='bx bx-log-out'></i></button>
@@ -1035,7 +1035,6 @@ function syncDraft() {
     return lead;
 }
 function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
-    var imageData = "Sleek Logo with House and Lightning Design.png"
     // 1. Safety Check: Ensure library is loaded
     if (!window.jspdf || !window.jspdf.jsPDF) {
         return alert("PDF library is still loading. Please wait 2 seconds and try again.");
@@ -1048,8 +1047,21 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
     // 3. Initialize PDF
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+
+    // --- 4. BACKGROUND LAYER (Watermark Effect) ---
+    // We add this first so it stays behind everything. 
+    // Using a low opacity makes the invoice readable.
+    const imageData = "Sleek Logo with House and Lightning Design.PNG"; 
     
-    // --- 4. DATA PREP & MATH ---
+    doc.saveGraphicsState(); // Save state to apply transparency
+    doc.setGState(new doc.GState({ opacity:0.09999999999 })); // Very faint background
+ 
+    doc.addImage(imageData, 'PNG', pageWidth/4, pageHeight/3, pageWidth/2, pageWidth/2);
+    doc.restoreGraphicsState(); // Reset transparency for text
+
+    // --- 5. DATA PREP ---
     const sanitize = (val) => String(val || '').replace(/[^\x00-\x7F]/g, "").trim();
     const parseNum = (val) => {
         const n = parseFloat(String(val).replace(/[^0-9.-]/g, ''));
@@ -1066,6 +1078,55 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
     const subtotal = laborSubtotal + nMatTotal;
     const finalTotal = Math.max(0, subtotal - nDisc); 
     const today = new Date().toLocaleDateString('en-IN');
+
+    // --- 6. HEADER SECTION ---
+    // Logo in top-left
+    doc.addImage(imageData, 'PNG', 20, 10, 30, 25); 
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.setTextColor(30, 41, 59);
+    doc.text("INVOICE", 60, 25); // Moved right to make room for logo
+
+    // Company Info
+    // --- 5. HEADER SECTION ---
+doc.setFont("helvetica", "bold");
+doc.setFontSize(11); // Slightly larger for the company name
+doc.setTextColor(30, 41, 59);
+
+// Company Name and Subtitle with proper line height (5mm spacing)
+doc.text("Divya J.J.S Groups", 190, 15, { align: 'right' });
+
+doc.setFontSize(9);
+doc.setFont("helvetica", "normal");
+doc.text("Electronics & Interior Design", 190, 20, { align: 'right' });
+
+// Contact Info
+doc.setTextColor(100, 100, 100);
+doc.setFontSize(9);
+doc.text("Guwahati, Assam", 190, 26, { align: 'right' });
+doc.text("Contact: +91 88227 63566", 190, 31, { align: 'right' });
+
+// Separation Line
+doc.setDrawColor(226, 232, 240);
+doc.setLineWidth(0.5);
+doc.line(20, 38, 190, 38);
+
+    // --- 7. CLIENT & DATE ---
+    doc.setTextColor(30, 41, 59);
+    doc.setFont("helvetica", "bold");
+    doc.text("BILL TO:", 20, 48);
+    doc.text("DATE:", 190, 48, { align: 'right' });
+    
+    doc.setFont("helvetica", "normal");
+    doc.text(cleanName.toUpperCase(), 20, 55);
+    doc.text(today, 190, 55, { align: 'right' });
+
+    // --- 8. WORK DESCRIPTION ---
+    doc.setFont("helvetica", "bold");
+    doc.text("WORK DESCRIPTION:", 20, 68);
+    doc.setFont("helvetica", "normal");
+    
     let baseWork = sanitize(work);
     let itemsString = "";
     if (baseWork.includes("[Items: ")) {
@@ -1074,47 +1135,18 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
         itemsString = parts[1].replace("]", "");
     }
 
-    // --- 5. HEADER ---
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(22);
-    doc.setTextColor(30, 41, 59);
-    doc.text("INVOICE", 20, 25);
-
-    doc.setFontSize(10);
-    doc.text("Ambiance Flux", 140, 20);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(100, 100, 100);
-    doc.text("Guwahati, Assam", 140, 25);
-    doc.text("Contact: +91 88227 63566", 140, 30);
-    doc.addImage(imageData, 'PNG', 20, 10, 40, 25);
-    doc.setDrawColor(226, 232, 240);
-    doc.line(20, 35, 190, 35);
-
-    // --- 6. CLIENT INFO ---
-    doc.setTextColor(30, 41, 59);
-    doc.setFont("helvetica", "bold");
-    doc.text("BILL TO:", 20, 45);
-    doc.text("DATE:", 140, 45);
-    doc.setFont("helvetica", "normal");
-    doc.text(cleanName.toUpperCase(), 20, 52);
-    doc.text(today, 140, 52);
-
-    // --- 7. DESCRIPTION ---
-    doc.setFont("helvetica", "bold");
-    doc.text("WORK DESCRIPTION:", 20, 65);
-    doc.setFont("helvetica", "normal");
     const splitDescription = doc.splitTextToSize(baseWork, 170);
-    doc.text(splitDescription, 20, 72);
+    doc.text(splitDescription, 20, 75);
 
-    let yPos = 78 + (splitDescription.length * 5);
+    let yPos = 80 + (splitDescription.length * 5);
 
-    // --- 8. TABLE ---
-    doc.setFillColor(248, 250, 252);
+    // --- 9. TABLE HEADER ---
+    doc.setFillColor(226, 232, 240);
     doc.rect(20, yPos, 170, 10, 'F');
     doc.setFont("helvetica", "bold");
-    doc.text("DESCRIPTION", 25, yPos + 6.5);
-    doc.text("QTY/DAYS", 110, yPos + 6.5);
-    doc.text("TOTAL (Rs.)", 185, yPos + 6.5, { align: 'right' });
+    doc.text("DESCRIPTION", 25, yPos + 7);
+    doc.text("QTY/DAYS", 110, yPos + 7);
+    doc.text("TOTAL (Rs.)", 185, yPos + 7, { align: 'right' });
 
     yPos += 18;
     doc.setFont("helvetica", "normal");
@@ -1125,31 +1157,31 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
     doc.text(laborSubtotal.toLocaleString('en-IN'), 185, yPos, { align: 'right' });
 
     // Materials Row(s)
+    const addItemRow = (name, qty, price) => {
+        yPos += 10;
+        if (yPos > 260) { doc.addPage(); yPos = 25; }
+        doc.text(sanitize(name), 25, yPos);
+        doc.text(String(qty), 110, yPos);
+        doc.text(price.toLocaleString('en-IN'), 185, yPos, { align: 'right' });
+    };
+
     if (itemsString) {
         itemsString.split(", ").forEach(item => {
-            yPos += 10;
             const parts = item.split(": ");
-            const name = parts[0] || "Item";
-            const price = parseNum(parts[1]);
-            doc.text(sanitize(name), 25, yPos);
-            doc.text("1", 110, yPos);
-            doc.text(price.toLocaleString('en-IN'), 185, yPos, { align: 'right' });
-            if (yPos > 270) { doc.addPage(); yPos = 20; }
+            addItemRow(parts[0] || "Item", "1", parseNum(parts[1]));
         });
     } else if (nMatTotal > 0) {
-        yPos += 10;
-        doc.text("Materials & Hardware", 25, yPos);
-        doc.text("1", 110, yPos);
-        doc.text(nMatTotal.toLocaleString('en-IN'), 185, yPos, { align: 'right' });
+        addItemRow("Materials & Hardware", "1", nMatTotal);
     }
 
-    // --- 9. SUMMARY ---
+    // --- 10. SUMMARY ---
     yPos += 15;
+    if (yPos > 240) { doc.addPage(); yPos = 25; }
+    
     doc.setDrawColor(226, 232, 240);
     doc.line(115, yPos, 190, yPos);
     
     yPos += 10;
-    doc.setFontSize(10);
     doc.text("Subtotal:", 120, yPos);
     doc.text(`Rs. ${subtotal.toLocaleString('en-IN')}`, 185, yPos, { align: 'right' });
 
@@ -1165,52 +1197,23 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
     doc.rect(115, yPos - 8, 75, 12, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
-    doc.setFontSize(12);
+    doc.setFontSize(11);
     doc.text("GRAND TOTAL", 120, yPos);
     doc.text(`Rs. ${finalTotal.toLocaleString('en-IN')}`, 185, yPos, { align: 'right' });
 
-    // --- 10. FOOTER ---
+    // --- 11. FOOTER ---
     doc.setTextColor(148, 163, 184);
     doc.setFontSize(8);
     doc.setFont("helvetica", "italic");
-    doc.text("Thank you for choosing Ambiance Flux!", 105, 285, { align: 'center' });
+    doc.text("This is a computer-generated invoice.", 105, 280, { align: 'center' });
+    doc.text("Thank you for choosing Divya Groups of Electronics & Interior Design !", 105, 285, { align: 'center' });
 
-    // --- 11. SMART OUTPUT ---
-  // --- 8. SMART OUTPUT (With Fallback) ---
+    // --- 12. OUTPUT ---
     const fileName = `Invoice_${cleanName.replace(/\s+/g, '_')}.pdf`;
-
-    try {
-        // Method A: Blob URL (Preferred for most devices)
-        const blob = doc.output('blob');
-        
-        // Safety check for URL.createObjectURL
-        if (typeof URL !== 'undefined' && typeof URL.createObjectURL === 'function') {
-            const url = URL.createObjectURL(blob);
-            if (viewOnly) {
-                const newTab = window.open(url, '_blank');
-                if (!newTab) window.location.href = url; // Fallback for mobile
-            } else {
-                doc.save(fileName);
-            }
-            setTimeout(() => URL.revokeObjectURL(url), 15000);
-        } else {
-            throw new Error("Blob method not supported");
-        }
-    } catch (e) {
-        // Method B: Base64 Fallback (Works where Blob fails)
-        console.warn("Falling back to Base64 output.");
-        if (viewOnly) {
-            // Data URIs are supported by almost all mobile browsers
-            const pdfDataUri = doc.output('datauristring');
-            const win = window.open("");
-            if (win) {
-                win.document.write(`<iframe width='100%' height='100%' src='${pdfDataUri}'></iframe>`);
-            } else {
-                window.location.href = pdfDataUri;
-            }
-        } else {
-            doc.save(fileName);
-        }
+    if (viewOnly) {
+        window.open(doc.output('bloburl'), '_blank');
+    } else {
+        doc.save(fileName);
     }
 }
 function viewInvoiceOnly() {
@@ -1287,17 +1290,7 @@ async function shareToWhatsApp() {
     window.open(finalUrl, '_blank');
 }
 
-// --- 4. FINALIZE (Closes modal and shows 'Mark Paid' on card) ---
-// --- 1. DYNAMIC MATERIAL ROWS LOGIC ---
 
-/**
- * Adds a new material input row to the modal
- */
-// --- 1. DYNAMIC MATERIALS MANAGEMENT ---
-
-/**
- * Adds a new material input row with unique IDs
- */
 function addNewMaterialRow(name = "", price = "") {
     const container = document.getElementById('materialList');
     const rowId = 'row_' + Date.now() + Math.random().toString(36).substr(2, 5);

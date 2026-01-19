@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title> ⚡ Ambience flux | Guwahati</title>
+    <title> ⚡Divya J.J.S Groups of Electronics & Interior Design | Guwahati</title>
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
@@ -93,29 +93,86 @@
     from { opacity: 0; transform: translateY(10px); }
     to { opacity: 1; transform: translateY(0); }
 }
-        .hero { 
-            background: radial-gradient(circle at top right, #1e293b, #0f172a); 
-            color: white; 
-            padding: 100px 20px 140px; 
-            text-align: center;
-            border-bottom-left-radius: 60px; 
-            border-bottom-right-radius: 60px;
-            position: relative;
-        }
-        
-        .hero h1 { 
-            font-size: clamp(2.5rem, 8vw, 4rem); 
-            margin: 0; 
-            font-weight: 800;
-            letter-spacing: -1px;
-            background: linear-gradient(to bottom, #fff, var(--main));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .hero p { opacity: 0.9; font-size: 1.1rem; max-width: 600px; margin: 20px auto; }
-        
-        .hero h2 { opacity: 0.9; font-size: 1.1rem; max-width: 600px; margin: 20px auto; }
+        :root {
+    --main: #fbbf24; /* Amber/Gold for an premium feel */
+    --accent: #38bdf8; /* Soft blue for electronics vibe */
+}
+
+.hero { 
+    background: radial-gradient(circle at top right, #1e293b, #0f172a, #020617); 
+    color: white; 
+    padding: 80px 20px 120px; 
+    text-align: center;
+    border-bottom-left-radius: 80px; 
+    border-bottom-right-radius: 80px;
+    position: relative;
+    overflow: hidden; /* Keeps shadow effects inside */
+}
+
+/* 1. Enhanced Logo Styling */
+.hero-logo {
+    max-width: 155px; 
+    height: auto;
+    margin-bottom: 15px;
+    /* Professional glow effect */
+    filter: drop-shadow(0 0 15px rgba(169, 141, 69, 0.3));
+    transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border-radius: 15px;
+}
+
+.hero-logo:hover {
+    transform: scale(1.08) rotate(2deg);
+}
+
+/* 2. Brand Typography */
+.hero h1 { 
+    font-size: clamp(2rem, 6vw, 3.5rem); 
+    line-height: 1.1;
+    margin: 0; 
+    font-weight: 800;
+    letter-spacing: -1.5px;
+    /* Multidimensional Text Gradient */
+    background: linear-gradient(135deg, #fff 30%, var(--main) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    text-wrap: balance; /* Prevents awkward single words on new lines */
+}
+
+/* 3. Location Tag Styling */
+.hero h2 { 
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    padding: 5px 20px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--main);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    margin: 20px 0;
+}
+
+/* 4. Paragraph/Tagline */
+.hero p { 
+    opacity: 0.8; 
+    font-size: 1.15rem; 
+    max-width: 550px; 
+    margin: 10px auto 30px; 
+    line-height: 1.6;
+}
+
+/* 5. Desktop Layout Refinement */
+@media (min-width: 768px) {
+    .hero {
+        padding: 100px 20px 150px;
+    }
+    .hero .container {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+}
    .trust-bar {
             display: grid; 
             grid-template-columns: repeat(2, 1fr);
@@ -203,6 +260,11 @@
 
         footer { padding: 40px 20px; text-align: center; background: black; color: white; margin-top: 60px; }
         footer a { color:rgb(118, 114, 114); text-decoration: none; margin: 0 10px; font-size: 1.2rem; }
+        .logo-box {
+    margin-bottom: 20px;
+}
+
+
     </style>
 </head>
 <body>
@@ -211,16 +273,24 @@
 
 <section class="hero">
     <div class="container">
-        <h1>⚡Ambiance Flux</h1>
+        <div class="logo-box">
+            <img src="Sleek Logo with House and Lightning Design.PNG" alt="Divya J.J.S Groups Logo" class="hero-logo">
+        </div>
+
+        <h1>Divya J.J.S Group's</h1>
+          <h1>of </h1>
+            <h1>Electronics & Interior Design</h1>
         <h2>Guwahati</h2>
         <p>Licensed Professionals for Wiring, Repairs & Maintenance.</p>
+        
         <div class="bok">
             <a href="#form-box"><i class='bx bxs-calendar-check'></i> Book Appointment</a>
         </div>
-          <button onclick="contactWhatsApps()" 
-        style="background:#119540; color:#fcfffd; padding:12px 50px; border-radius:10px; border:none; font-weight:700; cursor:pointer;margin-top: 20px; font-size: large; box-shadow: 0 4px 15px rgba(0,0,0,0.2);display: table-column;">
-    <i class='bx bxl-whatsapp'></i> WhatsApp
-</button>
+
+        <button onclick="contactWhatsApps()" 
+                style="background:#119540; color:#fcfffd; padding:12px 50px; border-radius:10px; border:none; font-weight:700; cursor:pointer; margin-top: 20px; font-size: large; box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: inline-flex; align-items: center; gap: 8px;">
+            <i class='bx bxl-whatsapp'></i> WhatsApp
+        </button>
     </div>
 </section>
 <div class="container">
