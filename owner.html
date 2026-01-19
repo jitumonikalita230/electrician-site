@@ -1053,7 +1053,7 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
     // --- 4. BACKGROUND LAYER (Watermark Effect) ---
     // We add this first so it stays behind everything. 
     // Using a low opacity makes the invoice readable.
-    const imageData = "Sleek Logo with House and Lightning Design.PNG"; 
+    const imageData = "Sleek Logo with House and Lightning Design.png"; 
     
     doc.saveGraphicsState(); // Save state to apply transparency
     doc.setGState(new doc.GState({ opacity:0.09999999999 })); // Very faint background
