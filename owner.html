@@ -1035,6 +1035,7 @@ function syncDraft() {
     return lead;
 }
 function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
+    var imageData = "Sleek Logo with House and Lightning Design.png"
     // 1. Safety Check: Ensure library is loaded
     if (!window.jspdf || !window.jspdf.jsPDF) {
         return alert("PDF library is still loading. Please wait 2 seconds and try again.");
@@ -1065,8 +1066,6 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
     const subtotal = laborSubtotal + nMatTotal;
     const finalTotal = Math.max(0, subtotal - nDisc); 
     const today = new Date().toLocaleDateString('en-IN');
-
-    // Handle itemized work descriptions
     let baseWork = sanitize(work);
     let itemsString = "";
     if (baseWork.includes("[Items: ")) {
@@ -1087,7 +1086,7 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
     doc.setTextColor(100, 100, 100);
     doc.text("Guwahati, Assam", 140, 25);
     doc.text("Contact: +91 88227 63566", 140, 30);
-
+    doc.addImage(imageData, 'PNG', 20, 10, 40, 25);
     doc.setDrawColor(226, 232, 240);
     doc.line(20, 35, 190, 35);
 
