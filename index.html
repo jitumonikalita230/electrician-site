@@ -263,7 +263,68 @@
         .logo-box {
     margin-bottom: 20px;
 }
+/* Modern Tab Navigation */
+.portfolio-tabs {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 30px auto;
+    background: #e2e8f0;
+    padding: 6px;
+    border-radius: 14px;
+    width: fit-content;
+    border: 1px solid #cbd5e1;
+}
 
+.tab-link {
+    padding: 10px 24px;
+    border: none;
+    background: transparent;
+    color: var(--slate);
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-link i { font-size: 1.1rem; }
+
+.tab-link.active {
+    background: var(--white);
+    color: var(--dark);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.tab-link:hover:not(.active) {
+    background: rgba(255, 255, 255, 0.5);
+}
+
+/* Portfolio Grid Enhancement */
+.gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    padding: 20px 0;
+}
+
+.card {
+    border: none;
+    background: white;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+}
+
+.card img {
+    height: 250px;
+    border-bottom: 4px solid var(--main);
+}
 
     </style>
 </head>
@@ -317,16 +378,15 @@
     
 
 
-    <h2 style="text-align:center; margin-top: 40px;"> <i class='bx bxs-wrench'></i> Our Specialized Work</h2>
-
-<div style="text-align:center; margin-bottom: 20px;">
-    <button class="filter-btn active" onclick="filterGallery('all')">All</button>
-    <button class="filter-btn" onclick="filterGallery('electrical')">Electrical </button>
-    <button class="filter-btn" onclick="filterGallery('painting')">Professional Painting & False Ceiling</button>
-</div>
-
-<div id="gallery" class="gallery">
+<section class="container" style="margin-top: 50px;">
+    <div style="background: var(--dark); padding: 40px; border-radius: var(--radius-lg); text-align: center; color: white; border: 1px solid var(--slate);">
+        <h2 style="color: var(--main); margin-bottom: 10px;"><i class='bx bxs-image-add'></i> Our Project Gallery</h2>
+        <p style="opacity: 0.8; margin-bottom: 25px;">Explore our completed electrical and interior design projects across Guwahati.</p>
+        <a href="portfolio.html" style="text-decoration: none; background: var(--main); color: var(--dark); padding: 15px 40px; border-radius: 50px; font-weight: 800; display: inline-block; transition: 0.3s; box-shadow: 0 10px 20px rgba(255, 204, 0, 0.2);">
+            VIEW FULL PORTFOLIO <i class='bx bx-right-arrow-alt'></i>
+        </a>
     </div>
+</section>
 
     <div class="contact-wrapper" id="contact-sec">
         <div class="contact-text">
@@ -399,7 +459,7 @@
 
 <footer>
     <p><a href="owner.html"><i class="bx bxs-briefcase"></i> Staff Login</a></p>
-    <p>&copy; 2026 Sparky Electrical | Developed by Jitu Moni Kalita</p>
+    <p>&copy; 2026 Divya J.J.S Group | Developed by Jitu Moni Kalita</p>
     <div class="footer-socials">
         <a href="https://github.com/jitumonikalita230"><i class="bx bxl-github"></i></a>
         <a href="mailto:jitumoni2005@gmail.com"><i class="bx bxl-gmail"></i></a>
@@ -444,21 +504,32 @@ function renderGallery(projects) {
     `).join('');
 }
 
-function filterGallery(category) {
-    // Update active button UI
-    const btns = document.querySelectorAll('.filter-btn');
-    btns.forEach(btn => btn.classList.remove('active'));
-    event.target.classList.add('active');
-
-    // Filter logic
-    if (category === 'all') {
-        renderGallery(allProjects);
-    } else {
-        const filtered = allProjects.filter(p => p.category.toLowerCase() === category);
-        renderGallery(filtered);
+function filterGallery(category, element) {
+    // 1. Handle Tab UI Toggle
+    const tabs = document.querySelectorAll('.tab-link');
+    tabs.forEach(tab => tab.classList.remove('active'));
+    
+    // Check if element was passed (from click) or find by category (on load)
+    if (element) {
+        element.classList.add('active');
     }
-}
 
+    // 2. Filter Logic with Animation
+    const gal = document.getElementById('gallery');
+    gal.style.opacity = '0'; // Quick fade out
+    
+    setTimeout(() => {
+        if (category === 'all') {
+            renderGallery(allProjects);
+        } else {
+            const filtered = allProjects.filter(p => 
+                p.category.toLowerCase().includes(category.toLowerCase())
+            );
+            renderGallery(filtered);
+        }
+        gal.style.opacity = '1'; // Fade back in
+    }, 200);
+}
 
 function calculateTotal() {
     const sel = document.getElementById('serviceSelect');

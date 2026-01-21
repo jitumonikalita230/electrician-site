@@ -1058,7 +1058,7 @@ function renderActualPDF(index, work, day, mat, lab, disc, viewOnly = false) {
     doc.saveGraphicsState(); // Save state to apply transparency
     doc.setGState(new doc.GState({ opacity:0.09999999999 })); // Very faint background
  
-    doc.addImage(imageData, 'PNG', pageWidth/4, pageHeight/3, pageWidth/2, pageWidth/2);
+    doc.addImage(imageData, 'PNG', pageWidth/4, pageHeight/7, pageWidth/2, pageWidth/2);
     doc.restoreGraphicsState(); // Reset transparency for text
 
     // --- 5. DATA PREP ---
