@@ -325,6 +325,101 @@
     height: 250px;
     border-bottom: 4px solid var(--main);
 }
+.container-service-section{
+    padding: 60px 0;
+    background: transparent;
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+/* Container Spacing */
+.service-section {
+    padding: 60px 0;
+    background: transparent;
+}
+
+/* The Grid System */
+.service-grid {
+    display: grid;
+    /* This creates 2 columns that stack into 1 on very small screens */
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 20px;
+}
+
+/* The Card Core */
+.service-card {
+    position: relative;
+    height: 220px;
+    border-radius: 24px;
+    overflow: hidden;
+    cursor: pointer;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Background Image Animation */
+.service-card .bg-img {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    transition: transform 0.6s ease;
+    z-index: 1;
+}
+
+/* Dark Gradient Overlay */
+.service-card .overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 20%, rgba(15, 23, 42, 0.9));
+    z-index: 2;
+}
+
+/* Content Box (Text & Icons) */
+.service-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 20px;
+    z-index: 3;
+    text-align: center;
+}
+
+.service-content i {
+    font-size: 2.2rem;
+    color: var(--main);
+    filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
+    margin-bottom: 10px;
+    display: inline-block;
+}
+
+.service-content h3 {
+    color: white;
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+}
+
+/* Hover State Effects */
+.service-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    border-color: var(--main);
+}
+
+.service-card:hover .bg-img {
+    transform: scale(1.1); /* Zooms image in on hover */
+}
+
+/* Desktop Responsiveness */
+@media (min-width: 992px) {
+    .service-grid { gap: 30px; }
+    .service-card { height: 300px; }
+    .service-content h3 { font-size: 1.4rem; }
+}
 
     </style>
 </head>
@@ -377,14 +472,28 @@
 
     
 
+<section class="container service-section" id="container-service-section">
+    <h1 style="text-align:center; margin-bottom:40px;"><i class='bx bxs-cog'></i> Our Projects</h1>
+    <div class="service-grid">
+ 
+        <div class="service-card" onclick="location.href='portfolio.html?filter=electrical'">
+            <div class="bg-img" style="background-image: url('https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=800');"></div>
+            <div class="overlay"></div>
+            <div class="service-content">
+                <i class='bx bxs-zap'></i>
+                <h3>Electrical<br>Solutions</h3>
+            </div>
+        </div>
 
-<section class="container" style="margin-top: 50px;">
-    <div style="background: var(--dark); padding: 40px; border-radius: var(--radius-lg); text-align: center; color: white; border: 1px solid var(--slate);">
-        <h2 style="color: var(--main); margin-bottom: 10px;"><i class='bx bxs-image-add'></i> Our Project Gallery</h2>
-        <p style="opacity: 0.8; margin-bottom: 25px;">Explore our completed electrical and interior design projects across Guwahati.</p>
-        <a href="portfolio.html" style="text-decoration: none; background: var(--main); color: var(--dark); padding: 15px 40px; border-radius: 50px; font-weight: 800; display: inline-block; transition: 0.3s; box-shadow: 0 10px 20px rgba(255, 204, 0, 0.2);">
-            VIEW FULL PORTFOLIO <i class='bx bx-right-arrow-alt'></i>
-        </a>
+        <div class="service-card" onclick="location.href='portfolio.html?filter=painting'">
+            <div class="bg-img" style="background-image: url('https://images.unsplash.com/photo-1589939705384-5185137a7f0f?auto=format&fit=crop&w=800');"></div>
+            <div class="overlay"></div>
+            <div class="service-content">
+                <i class='bx bxs-brush'></i>
+                <h3>Interior<br>Design</h3>
+            </div>
+        </div>
+
     </div>
 </section>
 
@@ -778,6 +887,34 @@ function contactWhatsApps() {
     // 3. Open WhatsApp
     window.open(`https://wa.me/${+918822763566}?text=""`, '_blank');
 }
+// Function to get the filter from the URL (e.g., ?filter=electrical)
+function getFilterFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('filter'); // returns 'electrical' or 'painting'
+}
+
+// Update your window.onload in portfolio.html
+window.onload = async () => {
+    await loadGallery(); // Wait for your images to load first
+    
+    const activeFilter = getFilterFromURL();
+    if (activeFilter) {
+        // Find the button that matches the filter
+        const tabs = document.querySelectorAll('.tab-link');
+        let targetBtn;
+        
+        tabs.forEach(btn => {
+            if(btn.getAttribute('onclick').includes(activeFilter)) {
+                targetBtn = btn;
+            }
+        });
+
+        // Apply the filter automatically
+        if(targetBtn) {
+            filterGallery(activeFilter, targetBtn);
+        }
+    }
+};
 </script>
 </body>
 </html>

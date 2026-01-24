@@ -136,69 +136,94 @@
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwMD4UkixfS5NsEm7qyp_OHqX2PPdIJV3FPnCI_b0jCeDyMxVtMm5YxyLatsEWRPoLU/exec';
-        let allProjects = [];
+       const API_URL = 'https://script.google.com/macros/s/AKfycbwMD4UkixfS5NsEm7qyp_OHqX2PPdIJV3FPnCI_b0jCeDyMxVtMm5YxyLatsEWRPoLU/exec';
+let allProjects = [];
 
-        // Fallback data if API fails
-        const fallbackData = [
+// 1. NEW: Function to check the URL for a filter parameter
+function getFilterFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('filter'); // returns 'electrical', 'painting', or null
+}
+
+async function init() {
+    const gal = document.getElementById('gallery');
+    gal.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Loading projects...</p>';
+
+    try {
+        const res = await fetch(API_URL + '?mode=portfolio');
+        allProjects = await res.json();
+    } catch (e) {
+        console.warn("Using fallback data");
+        allProjects = [
             { category: 'electrical', title: 'Industrial Wiring', imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=800' },
             { category: 'painting', title: 'Modern Living Room', imageUrl: 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800' }
         ];
+    }
 
-        async function init() {
-            const gal = document.getElementById('gallery');
-            gal.innerHTML = '<p style="grid-column: 1/-1; text-align:center;">Loading projects...</p>';
+    // 2. MODIFIED: Apply URL filter after loading
+    const urlCategory = getFilterFromURL();
+    
+    if (urlCategory) {
+        // Find the button that matches the URL (e.g., the 'Electrical' button)
+        const buttons = document.querySelectorAll('.filter-btn');
+        let targetBtn = Array.from(buttons).find(b => 
+            b.innerText.toLowerCase().includes(urlCategory.toLowerCase()) || 
+            b.getAttribute('onclick').includes(urlCategory)
+        );
 
-            try {
-                const res = await fetch(API_URL + '?mode=portfolio');
-                allProjects = await res.json();
-                if (!allProjects.length) throw new Error("Empty");
-            } catch (e) {
-                console.warn("Using fallback data");
-                allProjects = fallbackData;
-            }
+        if (targetBtn) {
+            filterGallery(urlCategory, targetBtn);
+        } else {
             renderGallery(allProjects);
         }
+    } else {
+        renderGallery(allProjects);
+    }
+}
 
-        function renderGallery(projects) {
-            const gal = document.getElementById('gallery');
-            gal.innerHTML = projects.map(p => `
-                <div class="card" onclick="openLightbox('${p.imageUrl}')">
-                    <div class="card-img-box">
-                        <img src="${p.imageUrl}" loading="lazy" alt="${p.title}">
-                    </div>
-                    <div class="card-body">
-                        <span>${p.category}</span>
-                        <h3>${p.title}</h3>
-                    </div>
-                </div>
-            `).join('');
-        }
+function renderGallery(projects) {
+    const gal = document.getElementById('gallery');
+    if (projects.length === 0) {
+        gal.innerHTML = '<p style="grid-column: 1/-1; text-align:center; opacity:0.6;">No projects found in this category.</p>';
+        return;
+    }
+    gal.innerHTML = projects.map(p => `
+        <div class="card" onclick="openLightbox('${p.imageUrl}')">
+            <div class="card-img-box">
+                <img src="${p.imageUrl}" loading="lazy" alt="${p.title}">
+            </div>
+            <div class="card-body">
+                <span>${p.category}</span>
+                <h3>${p.title}</h3>
+            </div>
+        </div>
+    `).join('');
+}
 
-        function filterGallery(category, btn) {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
+function filterGallery(category, btn) {
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
 
-            const filtered = category === 'all' 
-                ? allProjects 
-                : allProjects.filter(p => p.category.toLowerCase().includes(category.toLowerCase()));
-            
-            renderGallery(filtered);
-        }
+    const filtered = category === 'all' 
+        ? allProjects 
+        : allProjects.filter(p => p.category.toLowerCase().includes(category.toLowerCase()));
+    
+    renderGallery(filtered);
+}
 
-        function openLightbox(url) {
-            const lb = document.getElementById('lightbox');
-            document.getElementById('lightbox-img').src = url;
-            lb.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
+function openLightbox(url) {
+    const lb = document.getElementById('lightbox');
+    document.getElementById('lightbox-img').src = url;
+    lb.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
 
-        function closeLightbox() {
-            document.getElementById('lightbox').classList.remove('active');
-            document.body.style.overflow = 'auto';
-        }
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
 
-        window.onload = init;
+window.onload = init;
     </script>
 </body>
 </html>
