@@ -101,7 +101,7 @@
 .hero { 
     background: radial-gradient(circle at top right, #1e293b, #0f172a, #020617); 
     color: white; 
-    padding: 80px 20px 120px; 
+    padding: 80px 20px 50px; 
     text-align: center;
     border-bottom-left-radius: 80px; 
     border-bottom-right-radius: 80px;
@@ -177,7 +177,7 @@
             display: grid; 
             grid-template-columns: repeat(2, 1fr);
             gap: 15px; 
-            margin: -60px auto 40px; 
+            margin:1px auto 40px; 
             position: relative; 
             z-index: 10;
         }
@@ -200,7 +200,7 @@
         .stat-card span { font-size: 0.85rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
 
         /* --- PROFILE --- */
-        #Editorial-board {  margin-bottom:100px;margin-top: 10px; margin-left: 10px; margin-right: 10px; }
+        #Editorial-board {  margin-bottom:10px;margin-top:10px; margin-left: 10px; margin-right: 10px; }
         .profile-card-1 {
             background: rgb(239, 232, 232); border-radius: var(--radius); padding: 30px 20px;
             text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
@@ -450,20 +450,13 @@
     </div>
 </section>
 <div class="container">
-    <div class="trust-bar">
-        <div class="stat-card"><i class='bx bxs-award'></i><div>5 year +</div><span>Experience</span></div>
-        <div class="stat-card"><i class='bx bxs-bolt-circle'></i><div>500+</div><span>Jobs Done</span></div>
-        <div class="stat-card"><i class='bx bxs-timer'></i><div>60m</div><span>Response Time</span></div>
-        <div class="stat-card"><i class='bx bxs-wrench'></i><div>15 Days</div><span>Warranty</span></div>
-    </div>
-
  <section id="Editorial-board">
         <div class="profile-card-1">
             <div class="image1"><img src="Sleek Logo with House and Lightning Design.png" alt="Electrician"></div>
             <h3 style="margin:0;">Dildar Haque</h3>
-            <p style="color:#f59e0b; font-weight:800; margin:5px 0;">Master Electrician</p>
+            <p style="color:#f59e0b; font-weight:800; margin:5px 0;">Master Electrician (Owner)</p>
             <div style="margin:15px 0; font-size:0.9rem; opacity:0.8;">
-                <span><i class='bx bxs-check-shield'></i> Licensed</span> • 
+                <span><i class='bx bxs-check-shield'></i> Licensed</span>  
                 <span><i class='bx bxs-time-five'></i> 24/7 Service</span>
             </div>
             <a href="tel:+919957374788" class="btn-submit" style="text-decoration:none; display:block;">Call Now</a>
@@ -539,6 +532,12 @@
 </div>
     </div>
 </div>
+ <div class="trust-bar">
+        <div class="stat-card"><i class='bx bxs-award'></i><div>5 year +</div><span>Experience</span></div>
+        <div class="stat-card"><i class='bx bxs-bolt-circle'></i><div>500+</div><span>Jobs Done</span></div>
+        <div class="stat-card"><i class='bx bxs-timer'></i><div>60m</div><span>Response Time</span></div>
+        <div class="stat-card"><i class='bx bxs-wrench'></i><div>15 Days</div><span>Warranty</span></div>
+    </div>
 <section class="container" id="review-section">
     <h2 style="text-align:center; margin-top: 60px;"><i class='bx bxs-star'></i> Customer Feedback</h2>
     
@@ -577,9 +576,7 @@
 </footer>
 
 <script>
-/**
- * CONFIGURATION & CONSTANTS
- */
+
 const CONFIG = {
     SCRIPT_URL: 'https://script.google.com/macros/s/AKfycbwMD4UkixfS5NsEm7qyp_OHqX2PPdIJV3FPnCI_b0jCeDyMxVtMm5YxyLatsEWRPoLU/exec',
     SHOP_COORDS: { lat: 26.137430911373357, lon: 91.70393019579977 },
@@ -651,7 +648,16 @@ function calculateTotal() {
     const total = Math.round(basePrice + surcharge);
 
     quoteInput.value = basePrice > 0 ? `₹${total}` : "";
+
+    quoteInput.style.transform = "scale(1.1)";
+    quoteInput.style.color = "#ffffff";
+    
+    setTimeout(() => {
+        quoteInput.style.transform = "scale(1)";
+        quoteInput.style.color = "var(--dark)";
+    }, 200);
 }
+
 
 /**
  * LOCATION & GEOTOOLS
@@ -775,7 +781,7 @@ async function handleFormSubmit(form, btnId, originalText, refreshReviews = fals
             body: formData 
         });
 
-        alert("Operation Successful!");
+        alert("Booking Details Saved, Our Team Will Contact You Soon!");
         form.reset();
         if (refreshReviews) loadReviews();
     } catch (err) {
