@@ -992,13 +992,13 @@ function contactWhatsApp(name, phone, workType, quote) {
 
     // 2. Build the message
     const message = 
-        `✨ *SPARKY ELECTRICALS*\n` +
+        `✨ *Divya J.J.S Groups of electronic & renovation *\n` +
         `--------------------------\n` +
         `Hi *${name}*,\n\n` +
-        `Sparky Electricals here. We have received your booking for: *${workType || 'Electrical Service'}*.\n` +
+        `Divya J.J.S Groups of electronic & renovation  Electricals here. We have received your booking for: *${workType || 'Electrical Service'}*.\n` +
         `Our estimated quotation is: *₹${quote}*\n\n` +
         `✅ Our experts will visit your location to do their best job.\n\n` +
-        `Thank you for choosing Sparky!`;
+        `Thank you for choosing Divya J.J.S Groups of electronic & renovation !`;
 
     const encodedMsg = encodeURIComponent(message);
     
@@ -1262,7 +1262,7 @@ async function shareToWhatsApp() {
     const grandTotal = (labor * days) + (parseFloat(document.getElementById('custMat').value) || 0) - discount;
 
     // --- CONSTRUCT THE MESSAGE ---
-    let messageBody = `⚡ *Ambiance Flux* ⚡\n`;
+    let messageBody = `⚡ *Divya J.J.S Groups of electronic & renovation * ⚡\n`;
     messageBody += `----------------------------\n`;
     messageBody += `*Invoice:* #INV-${lead.index}\n`;
     messageBody += `*Service:* ${document.getElementById('custWork').value}\n\n`;
@@ -1284,7 +1284,7 @@ async function shareToWhatsApp() {
     // --- UPI PAYMENT LINK ---
     const upiLink = `upi://pay?pa=${UPI_ID}&pn=Sparky%20Electricals&am=${grandTotal}&cu=INR`;
     messageBody += `✅ *Quick Pay via UPI:*\n${upiLink}\n\n`;
-    messageBody += `*Thank you for choosing ⚡ Ambiance Flux! Please gave your valuable review in our website https://jitumonikalita230.github.io/electrician-site/*`;
+    messageBody += `*Thank you for choosing ⚡ Divya J.J.S Groups of electronic & renovation ! Please gave your valuable review in our website https://jitumonikalita230.github.io/electrician-site/*`;
 
     const finalUrl = `https://wa.me/91${lead.phone.toString().replace(/\D/g, '')}?text=${encodeURIComponent(messageBody)}`;
     window.open(finalUrl, '_blank');
